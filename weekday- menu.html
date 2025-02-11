@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作日午餐菜单</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .menu-switch {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        .menu-switch button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #34495e;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+        .menu-switch button.active {
+            background-color: #2c3e50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .menu-switch button:hover {
+            background-color: #2c3e50;
+        }
+        .week-container {
+            margin-bottom: 30px;
+        }
+        .week-title {
+            background-color: #34495e;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .menu-version {
+            display: none;
+        }
+        .menu-version.active {
+            display: block;
+        }
+        .meal-card {
+            background-color: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .meal-card h4 {
+            color: #34495e;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+        .meal-highlight {
+            background-color: #fff3cd;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 12px;
+            color: #856404;
+            font-size: 14px;
+        }
+        .meal-item {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .meal-item strong {
+            color: #2c3e50;
+            margin-right: 8px;
+        }
+        .notes {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+        }
+        .notes h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .execution-tips {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+        }
+        .execution-tips h3 {
+            color: #495057;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        .execution-tips ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        .execution-tips li {
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+            .meal-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>工作日午餐菜单</h1>
+
+        <div class="menu-switch">
+            <button onclick="switchMenu('version1')" class="active">版本一</button>
+            <button onclick="switchMenu('version2')">版本二</button>
+        </div>
+
+        <!-- 基础版本菜单 -->
+        <div id="version1" class="menu-version active">
+            <!-- 第一周 -->
+            <div class="week-container">
+                <div class="week-title">第一周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>糙米饭</td>
+                            <td>清蒸鲈鱼</td>
+                            <td>上汤菜心+蒜蓉生菜</td>
+                            <td>番茄蛋汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>全麦馒头</td>
+                            <td>麻婆豆腐</td>
+                            <td>炝炒油菜+凉拌黄瓜</td>
+                            <td>紫菜蛋花汤</td>
+                            <td>主食250g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>燕麦米饭</td>
+                            <td>红烧排骨</td>
+                            <td>清炒西兰花+胡萝卜炒木耳</td>
+                            <td>冬瓜排骨汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>杂粮饭</td>
+                            <td>葱爆牛肉</td>
+                            <td>蒜蓉菠菜+炒豆芽</td>
+                            <td>山药玉米汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>意大利面</td>
+                            <td>番茄炒蛋</td>
+                            <td>清炒小白菜+凉拌海带丝</td>
+                            <td>紫菜豆腐汤</td>
+                            <td>主食250g/人</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 第二周 -->
+            <div class="week-container">
+                <div class="week-title">第二周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>小米饭</td>
+                            <td>清蒸草鱼</td>
+                            <td>上汤娃娃菜+炒空心菜</td>
+                            <td>白菜豆腐汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>红薯粥</td>
+                            <td>红烧肉</td>
+                            <td>炒青椒+凉拌豆腐</td>
+                            <td>萝卜牛肉汤</td>
+                            <td>主食300g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>玉米饭</td>
+                            <td>咖喱鸡块</td>
+                            <td>炒荷兰豆+凉拌茄子</td>
+                            <td>海带排骨汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>荞麦面</td>
+                            <td>糖醋里脊</td>
+                            <td>炒韭菜+炝炒莴笋</td>
+                            <td>西红柿蛋汤</td>
+                            <td>主食250g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>薏米饭</td>
+                            <td>清炒虾仁</td>
+                            <td>蒜蓉油麦菜+炒土豆丝</td>
+                            <td>小白菜肉丝汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 第三周 -->
+            <div class="week-container">
+                <div class="week-title">第三周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>糙米饭</td>
+                            <td>红烧带鱼</td>
+                            <td>炒青菜+凉拌藕片</td>
+                            <td>冬瓜海带汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>南瓜馒头</td>
+                            <td>农家小炒肉</td>
+                            <td>上汤芥蓝+炒豇豆</td>
+                            <td>菌菇鸡汤</td>
+                            <td>主食250g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>燕麦饭</td>
+                            <td>酱爆鸡丁</td>
+                            <td>清炒茼蒿+炒包菜</td>
+                            <td>萝卜肉片汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>藜麦饭</td>
+                            <td>蒜香牛肉粒</td>
+                            <td>炒芹菜+凉拌木耳</td>
+                            <td>番茄蛋花汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>荞麦面</td>
+                            <td>虾仁炒蛋</td>
+                            <td>清炒菜心+炝炒莲藕</td>
+                            <td>紫菜虾皮汤</td>
+                            <td>主食250g/人</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 第四周 -->
+            <div class="week-container">
+                <div class="week-title">第四周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>小米饭</td>
+                            <td>红烧鱼块</td>
+                            <td>清炒空心菜+凉拌黄瓜</td>
+                            <td>山药排骨汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>全麦馒头</td>
+                            <td>回锅肉</td>
+                            <td>炒油菜+蒜蓉生菜</td>
+                            <td>冬瓜肉片汤</td>
+                            <td>主食250g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>玉米饭</td>
+                            <td>黄焖鸡</td>
+                            <td>上汤西兰花+炒豆芽</td>
+                            <td>海带豆腐汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>杂粮饭</td>
+                            <td>葱花牛肉</td>
+                            <td>蒜蓉菠菜+凉拌海带丝</td>
+                            <td>白菜肉丸汤</td>
+                            <td>主食280g/人</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>乌冬面</td>
+                            <td>麻婆茄子</td>
+                            <td>清炒小白菜+炒土豆丝</td>
+                            <td>番茄蛋汤</td>
+                            <td>主食250g/人</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 营养均衡版本菜单 -->
+        <!--
+            第一周
+            周一
+            主食：三色糙米饭
+            主菜：清蒸鲈鱼（配葱姜丝）
+            蔬菜：蒜蓉西兰花+胡萝卜丝炒莴笋
+            汤品：裙带菜豆腐汤
+            营养亮点：深海鱼补充ω-3脂肪酸，十字花科蔬菜含硫苷
+
+            周二
+            主食：全麦馒头
+            主菜：彩椒鸡胸肉（少油快炒）
+            蔬菜：凉拌秋葵木耳+白灼芦笋
+            饮品：无糖豆浆
+            营养亮点：高纤维组合促进肠道蠕动
+
+            周三
+            主食：鹰嘴豆杂粮饭
+            主菜：茄汁牛肉煲（瘦牛肉+番茄+洋葱）
+            蔬菜：麻酱油麦菜+彩椒炒杏鲍菇
+            汤品：罗宋汤（含红菜头）
+            营养亮点：红肉补铁，番茄红素促进吸收
+
+            周四
+            主食：荞麦冷面
+            主菜：香煎三文鱼
+            蔬菜：羽衣甘蓝沙拉（配坚果碎）
+            小食：味噌蒸茄子
+            营养亮点：保留三文鱼DHA的低温烹饪
+
+            周五
+            主食：玉米面发糕
+            主菜：虾仁豆腐蒸蛋
+            蔬菜：上汤苋菜+凉拌海带芽
+            汤品：冬瓜薏米老鸭汤（去浮油）
+            营养亮点：低脂高钙组合
+
+            第二周
+            周一
+            主食：紫薯燕麦饭
+            主菜：孜然烤羊排（配迷迭香）
+            蔬菜：蒜香荷兰豆+凉拌紫甘蓝
+            汤品：椰子鸡煲（去鸡皮）
+            营养亮点：中链脂肪酸与优质蛋白结合
+
+            周二
+            主食：藜麦小米饭
+            主菜：豆豉鲮鱼炒苦瓜
+            蔬菜：清炒芥蓝+番茄炒花菜
+            饮品：奇异果黄瓜汁
+            营养亮点：苦味物质促进消化液分泌
+
+            周三
+            主食：南瓜杂粮包
+            主菜：韩式辣炖鸡（去鸡皮，加年糕）
+            蔬菜：泡菜炒豆芽+凉拌茼蒿
+            汤品：大酱汤（含西葫芦）
+            营养亮点：发酵食品补充益生菌
+
+            周四
+            主食：黑米红豆饭
+            主菜：香茅柠檬蒸龙利鱼
+            蔬菜：泰式青木瓜沙拉+清炒空心菜
+            饮品：蝶豆花柠檬茶
+            营养亮点：东南亚风味低GI组合
+
+            周五
+            主食：山药玉米碴粥
+            主菜：日式照烧豆腐（非油炸）
+            蔬菜：芦笋炒口蘑+凉拌芝麻菠菜
+            小食：烤秋刀鱼
+            营养亮点：植物蛋白与海洋蛋白互补
+
+            第三周
+            周一
+            主食：马铃薯全麦饼
+            主菜：匈牙利炖牛肉（瘦牛腱）
+            蔬菜：醋溜白菜+烤孢子甘蓝
+            汤品：奶油蘑菇汤（用脱脂奶）
+            营养亮点：维C与铁元素协同增效
+
+            周二
+            主食：薏仁白米饭
+            主菜：陈皮蒸排骨（小排去肥）
+            蔬菜：豆苗炒竹荪+凉拌莴笋丝
+            饮品：陈皮山楂饮
+            营养亮点：药食同源调理脾胃
+
+            周三
+            主食：黑麦面包
+            主菜：地中海烤蔬菜拼盘（彩椒/茄子/西葫芦）
+            蛋白质：水波蛋+希腊酸奶酱
+            汤品：西班牙冷汤
+            营养亮点：植物化学物质全谱系摄入
+
+            周四
+            主食：红米薏仁饭
+            主菜：泰式打抛猪肉（火鸡肉末）
+            蔬菜：九层塔炒蛋+青芒果沙拉
+            饮品：香茅薄荷水
+            营养亮点：辛香料促进新陈代谢
+
+            周五
+            主食：芋头糙米饭
+            主菜：法式红酒炖鸡
+            蔬菜：普罗旺斯炖菜+芝麻菜沙拉
+            汤品：洋葱浓汤
+            营养亮点：多酚类物质抗氧化
+
+            第四周
+            周一
+            主食：青稞麦仁饭
+            主菜：川味水煮鱼（巴沙鱼）
+            蔬菜：手撕包菜+凉拌折耳根
+            饮品：桂花酸梅汤
+            营养亮点：膳食纤维与优质蛋白平衡
+
+            周二
+            主食：玉米碴子饭
+            主菜：摩洛哥塔吉锅（鸡腿/鹰嘴豆）
+            蔬菜：烤胡萝卜+薄荷黄瓜沙拉
+            汤品：鹰嘴豆浓汤
+            营养亮点：慢消化碳水组合
+
+            周三
+            主食：荞麦面冷面
+            主菜：和风鳗鱼（真鳕鱼代替）
+            蔬菜：纳豆拌秋葵+味噌拌菠菜
+            小食：海苔饭团
+            营养亮点：发酵豆制品补充纳豆激酶
+
+            周四
+            主食：紫米莲子粥
+            主菜：台式三杯杏鲍菇（少油版）
+            蛋白质：卤水拼盘（豆腐/鸡蛋/牛腱）
+            蔬菜：姜丝炒芥菜
+            营养亮点：菌类多糖与植物蛋白结合
+
+            周五
+            主食：全麦意面
+            主菜：青酱虾仁（罗勒/松子）
+            蔬菜：烤罗马生菜+油醋汁彩椒
+            汤品：意式蔬菜汤
+            营养亮点：单不饱和脂肪酸占比优化
+        -->
+        <div id="version2" class="menu-version">
+            <!-- 第一周 -->
+            <div class="week-container">
+                <div class="week-title">第一周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>三色糙米饭</td>
+                            <td>清蒸鲈鱼（配葱姜丝）</td>
+                            <td>蒜蓉西兰花+胡萝卜丝炒莴笋</td>
+                            <td>裙带菜豆腐汤</td>
+                            <td>富含ω-3脂肪酸</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>全麦馒头</td>
+                            <td>彩椒鸡胸肉</td>
+                            <td>凉拌秋葵木耳+白灼芦笋</td>
+                            <td>无糖豆浆</td>
+                            <td>高纤维组合</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>鹰嘴豆杂粮饭</td>
+                            <td>茄汁牛肉煲</td>
+                            <td>麻酱油麦菜+彩椒炒杏鲍菇</td>
+                            <td>罗宋汤</td>
+                            <td>补铁促吸收</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>荞麦冷面</td>
+                            <td>香煎三文鱼</td>
+                            <td>羽衣甘蓝沙拉+味噌蒸茄子</td>
+                            <td>玉米浓汤</td>
+                            <td>富含DHA</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>玉米面发糕</td>
+                            <td>虾仁豆腐蒸蛋</td>
+                            <td>上汤苋菜+凉拌海带芽</td>
+                            <td>冬瓜薏米老鸭汤</td>
+                            <td>低脂高钙</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 第二周 -->
+            <div class="week-container">
+                <div class="week-title">第二周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>紫薯燕麦饭</td>
+                            <td>孜然烤羊排</td>
+                            <td>蒜香荷兰豆+凉拌紫甘蓝</td>
+                            <td>椰子鸡煲</td>
+                            <td>优质蛋白</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>藜麦小米饭</td>
+                            <td>豆豉鲮鱼炒苦瓜</td>
+                            <td>清炒芥蓝+番茄炒花菜</td>
+                            <td>奇异果黄瓜汁</td>
+                            <td>促进消化</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>南瓜杂粮包</td>
+                            <td>韩式辣炖鸡</td>
+                            <td>泡菜炒豆芽+凉拌茼蒿</td>
+                            <td>大酱汤</td>
+                            <td>益生菌补充</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>黑米红豆饭</td>
+                            <td>香茅柠檬蒸龙利鱼</td>
+                            <td>泰式青木瓜沙拉+清炒空心菜</td>
+                            <td>蝶豆花柠檬茶</td>
+                            <td>低GI组合</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>山药玉米碴粥</td>
+                            <td>日式照烧豆腐</td>
+                            <td>芦笋炒口蘑+凉拌芝麻菠菜</td>
+                            <td>味增汤</td>
+                            <td>蛋白互补</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 第三周 -->
+            <div class="week-container">
+                <div class="week-title">第三周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>马铃薯全麦饼</td>
+                            <td>匈牙利炖牛肉</td>
+                            <td>醋溜白菜+烤孢子甘蓝</td>
+                            <td>奶油蘑菇汤</td>
+                            <td>铁元素补充</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>薏仁白米饭</td>
+                            <td>陈皮蒸排骨</td>
+                            <td>豆苗炒竹荪+凉拌莴笋丝</td>
+                            <td>陈皮山楂饮</td>
+                            <td>健脾养胃</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>黑麦面包</td>
+                            <td>地中海烤蔬菜拼盘</td>
+                            <td>水波蛋+希腊酸奶酱</td>
+                            <td>西班牙冷汤</td>
+                            <td>植物营养素</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>红米薏仁饭</td>
+                            <td>泰式打抛火鸡肉</td>
+                            <td>九层塔炒蛋+青芒果沙拉</td>
+                            <td>香茅薄荷水</td>
+                            <td>促进代谢</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>芋头糙米饭</td>
+                            <td>法式红酒炖鸡</td>
+                            <td>普罗旺斯炖菜+芝麻菜沙拉</td>
+                            <td>洋葱浓汤</td>
+                            <td>抗氧化</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 第四周 -->
+            <div class="week-container">
+                <div class="week-title">第四周</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>主食</th>
+                            <th>主菜</th>
+                            <th>副菜</th>
+                            <th>汤/汁</th>
+                            <th>备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>周一</td>
+                            <td>青稞麦仁饭</td>
+                            <td>川味水煮鱼</td>
+                            <td>手撕包菜+凉拌折耳根</td>
+                            <td>桂花酸梅汤</td>
+                            <td>膳食均衡</td>
+                        </tr>
+                        <tr>
+                            <td>周二</td>
+                            <td>玉米碴子饭</td>
+                            <td>摩洛哥塔吉锅</td>
+                            <td>烤胡萝卜+薄荷黄瓜沙拉</td>
+                            <td>鹰嘴豆浓汤</td>
+                            <td>慢消化</td>
+                        </tr>
+                        <tr>
+                            <td>周三</td>
+                            <td>荞麦冷面</td>
+                            <td>和风真鳕鱼</td>
+                            <td>纳豆拌秋葵+味噌拌菠菜</td>
+                            <td>海带味增汤</td>
+                            <td>纳豆激酶</td>
+                        </tr>
+                        <tr>
+                            <td>周四</td>
+                            <td>紫米莲子粥</td>
+                            <td>台式三杯杏鲍菇</td>
+                            <td>卤水拼盘+姜丝炒芥菜</td>
+                            <td>菌菇汤</td>
+                            <td>菌类多糖</td>
+                        </tr>
+                        <tr>
+                            <td>周五</td>
+                            <td>全麦意面</td>
+                            <td>青酱虾仁</td>
+                            <td>烤罗马生菜+油醋汁彩椒</td>
+                            <td>意式蔬菜汤</td>
+                            <td>健康脂肪</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchMenu(version) {
+            // 移除所有菜单的active类
+            document.querySelectorAll('.menu-version').forEach(menu => {
+                menu.classList.remove('active');
+            });
+            // 移除所有按钮的active类
+            document.querySelectorAll('.menu-switch button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // 添加active类到选中的菜单和按钮
+            document.getElementById(version).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
