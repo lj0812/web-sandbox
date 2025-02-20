@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>每日无版权美图</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="control-bar">
+            <select id="sourceSelector">
+                <option value="unsplash">Unsplash</option>
+                <option value="pexels">Pexels</option>
+                <option value="openverse">Openverse</option>
+            </select>
+            <button id="refreshBtn">换一张</button>
+        </header>
+
+        <main class="photo-wall">
+            <div class="loader">加载中...</div>
+            <div class="photo-container">
+                <img id="dailyPhoto" src="images/placeholder.jpg" alt="每日图片">
+                <div class="photo-info">
+                    <h2 id="photoTitle"></h2>
+                    <p id="photoAuthor"></p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
