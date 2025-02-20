@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机生成大乐透号码</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .numbers {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .number {
+            width: 48px;
+            height: 48px;
+            line-height: 48px;
+            text-align: center;
+            /* 正红 */
+            background-color: #ff4d4f;
+            border-radius: 50%;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .number.blue {
+            /* 正蓝 */
+            background-color: #0099ff;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>随机生成大乐透号码</h1>
+        <div class="numbers" id="numbers">
+            <!-- 号码将动态生成在这里 -->
+        </div>
+        <button onclick="generateNumbers()">生成号码</button>
+    </div>
+
+    <script>
+        function generateNumbers() {
+            // 生成前区号码（5个，范围1-35）
+            let frontNumbers = [];
+            while (frontNumbers.length < 5) {
+                let num = Math.floor(Math.random() * 35) + 1;
+                if (!frontNumbers.includes(num)) {
+                    frontNumbers.push(num);
+                }
+            }
+            frontNumbers.sort((a, b) => a - b);
+
+            // 生成后区号码（2个，范围1-12）
+            let backNumbers = [];
+            while (backNumbers.length < 2) {
+                let num = Math.floor(Math.random() * 12) + 1;
+                if (!backNumbers.includes(num)) {
+                    backNumbers.push(num);
+                }
+            }
+            backNumbers.sort((a, b) => a - b);
+
+            // 显示号码
+            let numbersDiv = document.getElementById("numbers");
+            numbersDiv.innerHTML = "";
+
+            frontNumbers.forEach(num => {
+                let numberDiv = document.createElement("div");
+                numberDiv.className = "number";
+                numberDiv.textContent = num;
+                numbersDiv.appendChild(numberDiv);
+            });
+
+            backNumbers.forEach(num => {
+                let numberDiv = document.createElement("div");
+                numberDiv.className = "number blue";
+                numberDiv.textContent = num;
+                numbersDiv.appendChild(numberDiv);
+            });
+        }
+
+        // 页面加载时自动生成一次号码
+        window.onload = generateNumbers;
+    </script>
+</body>
+
+</html>
