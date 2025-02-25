@@ -238,7 +238,7 @@
 
             <div class="form-group">
                 <label for="contractName">合同名称：</label>
-                <input type="text" id="contractName" name="contractName" placeholder="例如：商品房买卖合同" value="商品房买卖合同">
+                <input type="text" id="contractName" name="contractName" placeholder="例如：商品房买卖合同" value="北京市商品房预售合同">
                 <div class="helper-text">合同的完整名称，在文档中将使用简称《合同》指代</div>
             </div>
 
@@ -249,7 +249,7 @@
 
             <div class="form-group">
                 <label for="propertyAddress">房屋地址：</label>
-                <input type="text" id="propertyAddress" name="propertyAddress" placeholder="例如：北京市海淀区XX小区X号楼X单元X号">
+                <textarea type="text" id="propertyAddress" name="propertyAddress" placeholder="例如：北京市海淀区XX小区X号楼X单元X号">北京市昌平区中关村生命科学园三期及北四村棚户区改造和环境整治项目CP00-1805-6001、6002地块R2 二类居住用地、CP00-1805-6009地块A33基础教育用地2-1#住宅楼20层2单元-2001</textarea>
             </div>
 
             <div class="form-group">
@@ -515,7 +515,7 @@
             document.getElementById('inspectionDate').value = `${year}-${month}-${day}`;
             document.getElementById('contractDate').value = `${year}-01-01`;
             document.getElementById('developerName').value = "北京力汇房地产开发有限公司";
-            document.getElementById('contractName').value = "商品房买卖合同";
+            document.getElementById('contractName').value = "北京市商品房预售合同";
             updateDemandDetail();
         };
 
