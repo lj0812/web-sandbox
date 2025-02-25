@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房屋拒收告知书</title>
+    <style>
+        body {
+            font-family: "SimSun", "宋体", serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.secondary {
+            background-color: #f44336;
+        }
+        button.secondary:hover {
+            background-color: #d32f2f;
+        }
+        button.tertiary {
+            background-color: #2196F3;
+        }
+        button.tertiary:hover {
+            background-color: #0b7dda;
+        }
+        .preview {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: white;
+            display: none;
+        }
+        .preview-content {
+            margin-bottom: 20px;
+        }
+        .print-only {
+            display: none;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            .print-only {
+                display: block;
+            }
+            .preview {
+                display: block;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            body, .container {
+                margin: 0;
+                padding: 0;
+                background-color: white;
+                box-shadow: none;
+            }
+            @page {
+                margin: 1cm;
+            }
+            .footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                text-align: right;
+                font-size: 12px;
+                padding-right: 20px;
+            }
+            .document-number {
+                position: fixed;
+                top: 5px;
+                right: 20px;
+                font-size: 12px;
+            }
+            html {
+                -webkit-print-color-adjust: exact;
+            }
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .signature-line {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-item {
+            flex: 1;
+            margin: 0 20px;
+            text-align: center;
+        }
+        .signature-item p {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            margin-top: 30px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .checkbox-item {
+            margin-right: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input {
+            width: auto;
+            margin-right: 5px;
+        }
+        .reason-detail {
+            display: none;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+        .reason-detail textarea {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .section-title {
+            background-color: #f0f0f0;
+            padding: 6px 10px;
+            margin-top: 20px;
+            border-left: 4px solid #2196F3;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .info-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #2196F3;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .helper-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .witnesses-section {
+            margin-top: 20px;
+        }
+        .attachment-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+        }
+        .attachment-item {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="no-print">
+            <h1>房屋拒收告知书生成器</h1>
+
+            <div class="info-box">
+                此工具用于生成规范的新房拒收告知书，以保障购房者合法权益，避免违约风险。填写完整信息后，系统将生成符合法律要求的告知书文档。
+            </div>
+
+            <div class="section-title">基本信息</div>
+
+            <div class="form-group">
+                <label for="currentDate">告知书日期：</label>
+                <input type="date" id="currentDate" name="currentDate">
+                <div class="helper-text">此日期将作为告知书的正式生效日期</div>
+            </div>
+
+            <div class="form-group">
+                <label for="developerName">开发商名称：</label>
+                <input type="text" id="developerName" name="developerName" placeholder="例如：北京力汇房地产开发有限公司" value="北京力汇房地产开发有限公司">
+                <div class="helper-text">房地产开发公司的完整名称</div>
+            </div>
+
+            <div class="form-group">
+                <label for="contractNo">商品房买卖合同编号：</label>
+                <input type="text" id="contractNo" name="contractNo" placeholder="例如：BJLH2023-1234">
+            </div>
+
+            <div class="form-group">
+                <label for="contractName">合同名称：</label>
+                <input type="text" id="contractName" name="contractName" placeholder="例如：商品房买卖合同" value="商品房买卖合同">
+                <div class="helper-text">合同的完整名称，在文档中将使用简称《合同》指代</div>
+            </div>
+
+            <div class="form-group">
+                <label for="contractDate">合同签订日期：</label>
+                <input type="date" id="contractDate" name="contractDate">
+            </div>
+
+            <div class="form-group">
+                <label for="propertyAddress">房屋地址：</label>
+                <input type="text" id="propertyAddress" name="propertyAddress" placeholder="例如：北京市海淀区XX小区X号楼X单元X号">
+            </div>
+
+            <div class="form-group">
+                <label for="inspectionDate">验房日期：</label>
+                <input type="date" id="inspectionDate" name="inspectionDate">
+                <div class="helper-text">填写实际前往验房的日期，与告知书日期可以不同</div>
+            </div>
+
+            <div class="section-title">拒收原因</div>
+
+            <div class="form-group">
+                <label>选择拒收原因（可多选）：</label>
+                <div class="helper-text">选择相关原因后，可在下方文本框中详细描述具体问题</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_quality" name="reason" value="quality" onchange="toggleReasonDetail('quality')">
+                        <label for="reason_quality">房屋质量问题</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_area" name="reason" value="area" onchange="toggleReasonDetail('area')">
+                        <label for="reason_area">面积不符</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_layout" name="reason" value="layout" onchange="toggleReasonDetail('layout')">
+                        <label for="reason_layout">户型与合同不符</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_facilities" name="reason" value="facilities" onchange="toggleReasonDetail('facilities')">
+                        <label for="reason_facilities">配套设施不全</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_decoration" name="reason" value="decoration" onchange="toggleReasonDetail('decoration')">
+                        <label for="reason_decoration">装修与约定不符</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_certificate" name="reason" value="certificate" onchange="toggleReasonDetail('certificate')">
+                        <label for="reason_certificate">证件不全</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_environment" name="reason" value="environment" onchange="toggleReasonDetail('environment')">
+                        <label for="reason_environment">环境与约定不符</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_delay" name="reason" value="delay" onchange="toggleReasonDetail('delay')">
+                        <label for="reason_delay">逾期交房</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="reason_other" name="reason" value="other" onchange="toggleReasonDetail('other')">
+                        <label for="reason_other">其他原因</label>
+                    </div>
+                </div>
+
+                <div class="reason-detail" id="detail_quality">
+                    <label for="detail_text_quality">房屋质量问题详细描述：</label>
+                    <textarea id="detail_text_quality" placeholder="请详细描述房屋质量问题...">经实地查验，发现该房屋存在以下质量问题：
+1. 墙体存在明显裂缝，裂缝宽度超过0.3毫米，长度超过30厘米，位于卧室南墙和客厅西墙；
+2. 屋顶渗水严重，雨天时客厅和主卧均有明显水渍痕迹；
+3. 地面不平整，存在明显凹陷，使用2米靠尺测量，最大偏差达到10毫米，超出《住宅室内装饰装修验收规范》规定标准；
+4. 门窗密封不严，存在漏风现象，无法正常关闭；
+5. 厨房和卫生间防水存在问题，地漏排水不畅。
+
+以上问题已由我方委托的第三方检测机构"北京XX建筑质量检测中心"出具检测报告为证（报告编号：XXXX-2025），违反了《商品房买卖合同》第X条关于房屋质量的约定，同时不符合《住宅质量保证书》中的质量标准。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_area">
+                    <label for="detail_text_area">面积不符详细描述：</label>
+                    <textarea id="detail_text_area" placeholder="请详细描述面积不符问题...">经北京市XX房产测绘事务所（具有合法测绘资质）实测，该房屋实际建筑面积为___平方米，与合同约定面积___平方米相差___平方米，差异率为___%，超过3%法定误差范围。
+
+根据《商品房买卖合同》第___条的约定和《商品房销售管理办法》第16条规定："实测面积与合同约定面积发生误差超出3%，买受人有权退房"，以及《民法典》第五百八十八条规定，我方有权要求调整房价或拒绝接收。测绘报告（编号：_____）原件已备存，复印件作为本告知书附件。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_layout">
+                    <label for="detail_text_layout">户型与合同不符详细描述：</label>
+                    <textarea id="detail_text_layout" placeholder="请详细描述户型不符问题...">房屋实际户型与《商品房买卖合同》附件中的户型图存在明显差异：
+1. 合同约定主卧面积为___平方米，实际面积仅为___平方米，减少___平方米；
+2. 客厅位置与合同户型图不符，实际朝向为___，而合同约定朝向为___；
+3. 卫生间位置被移动，导致管道布局改变，影响使用功能；
+4. 承重墙位置变动导致客厅空间被压缩，与样板间展示不符。
+
+上述变更严重影响房屋的采光、通风和实用性，贵公司未经我方同意擅自变更户型，违反了《商品房买卖合同》第___条关于"未经买方书面同意，不得变更户型结构"的约定。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_facilities">
+                    <label for="detail_text_facilities">配套设施不全详细描述：</label>
+                    <textarea id="detail_text_facilities" placeholder="请详细描述配套设施问题...">根据《商品房买卖合同》第___条约定，开发商应当提供以下配套设施，但实际交付时存在以下缺失或问题：
+1. 水电设施安装不规范，卫生间和厨房的水管接口位置与设计图纸不符，电路存在短路现象；
+2. 暖气系统无法正常工作，多处散热片安装不当，存在漏水和散热不均问题；
+3. 燃气管道未按约定铺设完成，无法正常使用燃气设备；
+4. 小区公共设施未按合同约定完成，包括：电梯故障频发、地下车库渗水、消防设施不完善等；
+5. 物业服务设施不完善，安防系统不到位。
+
+以上问题导致房屋无法正常使用，严重影响居住安全和生活品质，违反了《商品房买卖合同》的约定和《物业服务协议》中的承诺标准。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_decoration">
+                    <label for="detail_text_decoration">装修与约定不符详细描述：</label>
+                    <textarea id="detail_text_decoration" placeholder="请详细描述装修问题...">根据买卖双方签订的《商品房买卖合同》及《装修标准确认书》，该房屋装修应当符合以下标准，但实际装修存在严重偏差：
+1. 地板材料：合同约定使用品牌A实木地板，实际使用的是品牌B复合地板；
+2. 墙面漆：合同约定使用环保标准E0级墙面漆，实际使用的墙漆有刺激性气味，疑似不符合环保标准；
+3. 厨卫设备：合同约定安装品牌C的洁具和厨房设备，实际安装的是品牌D的低端产品；
+4. 装修工艺粗糙，墙面存在明显色差，踢脚线安装不平整，门框与墙体之间有明显缝隙；
+5. 部分区域装修未完成或与样板间存在明显差异。
+
+以上问题已由我方拍照存证并邀请专业人士出具了检测报告，证明实际装修质量与合同约定标准有重大差异，不符合《商品房买卖合同》第___条关于交付标准的约定。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_certificate">
+                    <label for="detail_text_certificate">证件不全详细描述：</label>
+                    <textarea id="detail_text_certificate" placeholder="请详细描述证件问题...">贵公司未能按照《商品房买卖合同》第___条约定及《商品房销售管理办法》第24条规定，向我方提供以下必要证件：
+1. 《住宅质量保证书》；
+2. 《住宅使用说明书》；
+3. 《房屋土地测绘技术报告书》；
+4. 《建筑工程竣工验收备案表》；
+5. 《前期物业服务协议》；
+6. 供水、供电、供气、供暖等设施设备的验收文件。
+
+根据《城市房地产开发经营管理条例》第三十条规定："房地产开发企业应当对所售商品房承担质量保修责任"，而上述文件是房屋质量保障和正常使用的必要文件。贵公司未能提供上述文件，导致我方无法确认房屋的质量状况和合法性，构成违约。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_environment">
+                    <label for="detail_text_environment">环境与约定不符详细描述：</label>
+                    <textarea id="detail_text_environment" placeholder="请详细描述环境问题...">贵公司在销售过程中通过沙盘模型、宣传资料和《商品房买卖合同》附件中明确承诺的小区环境与实际交付情况存在重大差异：
+1. 宣传资料中承诺的小区中央花园实际面积仅为承诺的50%，且绿化率远低于宣传；
+2. 合同约定的小区环形健身步道未建设完成，现场仅有简易混凝土道路；
+3. 宣传中承诺的小区周边配套设施（包括学校、商业中心等）尚未建设；
+4. 小区北侧50米处新增工业设施，产生严重噪音和异味，而贵公司销售时未告知此信息；
+5. 开发商擅自变更规划，将原定绿地改为商业用房，严重影响居住环境。
+
+上述情况违反了《消费者权益保护法》第二十条关于"经营者向消费者提供有关商品或者服务的质量、性能、用途、有效期限等信息应当真实、全面"的规定，同时构成对《商品房买卖合同》第___条约定的违反。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_delay">
+                    <label for="detail_text_delay">逾期交房详细描述：</label>
+                    <textarea id="detail_text_delay" placeholder="请详细描述逾期交房问题...">根据《商品房买卖合同》第___条约定，贵公司应于_____年_____月_____日前将涉案房屋交付给我方。截至本告知书发出之日，已逾期_____天，且贵公司未提前书面通知延期交房原因，也未与我方协商延期交房事宜。
+
+根据《商品房买卖合同》第___条关于逾期交房的违约责任条款，以及《城市房地产开发经营管理条例》第三十七条规定，开发商未按照合同约定日期交付房屋，应当承担违约责任。此外，根据《民法典》第五百七十七条和第五百八十条的规定，贵公司的严重违约行为已使我方合同目的无法实现，我方有权拒绝接收并要求解除合同。</textarea>
+                </div>
+
+                <div class="reason-detail" id="detail_other">
+                    <label for="detail_text_other">其他拒收原因详细描述：</label>
+                    <textarea id="detail_text_other" placeholder="请详细描述其他拒收原因..."></textarea>
+                </div>
+            </div>
+
+            <div class="section-title">要求与解决方案</div>
+
+            <div class="form-group">
+                <label for="demandType">要求类型：</label>
+                <select id="demandType" name="demandType" onchange="updateDemandDetail()">
+                    <option value="repair">要求修复</option>
+                    <option value="compensation">要求赔偿</option>
+                    <option value="cancel">要求解除合同</option>
+                    <option value="price">要求降低价格</option>
+                    <option value="mixed">多项要求</option>
+                    <option value="other">其他要求</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="demandDetail">具体要求：</label>
+                <textarea id="demandDetail" name="demandDetail" placeholder="请详细描述您的要求..."></textarea>
+            </div>
+
+            <div class="section-title">签署信息</div>
+
+            <div class="form-group">
+                <label for="senderName">购房人姓名：</label>
+                <input type="text" id="senderName" name="senderName" placeholder="例如：张三">
+            </div>
+
+            <div class="form-group">
+                <label for="senderID">购房人身份证号：</label>
+                <input type="text" id="senderID" name="senderID" placeholder="例如：110101XXXXXXXXXX">
+                <div class="helper-text">身份信息有助于增强告知书效力，保密存储，仅用于生成文档</div>
+            </div>
+
+            <div class="form-group">
+                <label for="senderContact">购房人联系方式：</label>
+                <input type="text" id="senderContact" name="senderContact" placeholder="例如：138XXXXXXXX">
+            </div>
+
+            <div class="form-group">
+                <label for="hasWitnesses">是否有验房见证人：</label>
+                <select id="hasWitnesses" name="hasWitnesses" onchange="toggleWitnesses()">
+                    <option value="no">否</option>
+                    <option value="yes">是</option>
+                </select>
+                <div class="helper-text">见证人可以增强告知书的证明效力</div>
+            </div>
+
+            <div class="witnesses-section" id="witnessesSection" style="display: none;">
+                <div class="form-group">
+                    <label for="witnessName1">见证人1姓名：</label>
+                    <input type="text" id="witnessName1" name="witnessName1" placeholder="见证人姓名">
+                </div>
+                <div class="form-group">
+                    <label for="witnessContact1">见证人1联系方式：</label>
+                    <input type="text" id="witnessContact1" name="witnessContact1" placeholder="见证人联系方式">
+                </div>
+                <div class="form-group">
+                    <label for="witnessName2">见证人2姓名（选填）：</label>
+                    <input type="text" id="witnessName2" name="witnessName2" placeholder="第二位见证人姓名（如有）">
+                </div>
+                <div class="form-group">
+                    <label for="witnessContact2">见证人2联系方式（选填）：</label>
+                    <input type="text" id="witnessContact2" name="witnessContact2" placeholder="第二位见证人联系方式（如有）">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="attachments">附件清单：</label>
+                <textarea id="attachments" name="attachments" placeholder="列出验房照片、检测报告等附件...">1. 验房照片___张
+2. 第三方检测报告（编号：_____）
+3. 实地测量数据表
+4. 合同相关条款复印件</textarea>
+                <div class="helper-text">列出随告知书一起提交的证据材料，增强告知书法律效力</div>
+            </div>
+
+            <div class="form-group">
+                <label for="responseDeadline">回复期限（天）：</label>
+                <input type="number" id="responseDeadline" name="responseDeadline" value="7" min="1" max="30">
+                <div class="helper-text">建议设置合理期限，一般为7-15天</div>
+            </div>
+
+            <div class="form-group">
+                <label for="deliveryMethod">告知书送达方式：</label>
+                <select id="deliveryMethod" name="deliveryMethod">
+                    <option value="personal">当面递交</option>
+                    <option value="express">快递送达</option>
+                    <option value="registered">邮政特快专递EMS</option>
+                </select>
+                <div class="helper-text">推荐使用能够提供送达凭证的方式</div>
+            </div>
+
+            <div class="section-title">文档操作</div>
+
+            <div class="buttons">
+                <button onclick="generateNotice()">生成告知书</button>
+                <button onclick="printNotice()" class="tertiary">打印告知书</button>
+                <button onclick="resetReasons()" class="secondary">重置拒收原因</button>
+            </div>
+        </div>
+
+        <div class="preview" id="noticePreview">
+            <div class="document-number" id="documentNumber"></div>
+            <div class="preview-content" id="previewContent">
+                <!-- 告知书内容将在这里动态生成 -->
+            </div>
+            <div class="footer" id="footerContent">
+                <!-- 页脚内容将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 在页面加载时设置当前日期
+        window.onload = function() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('currentDate').value = `${year}-${month}-${day}`;
+            document.getElementById('inspectionDate').value = `${year}-${month}-${day}`;
+            document.getElementById('contractDate').value = `${year}-01-01`;
+            document.getElementById('developerName').value = "北京力汇房地产开发有限公司";
+            document.getElementById('contractName').value = "商品房买卖合同";
+            updateDemandDetail();
+        };
+
+        // 显示/隐藏拒收原因详细描述
+        function toggleReasonDetail(reasonType) {
+            const checkbox = document.getElementById(`reason_${reasonType}`);
+            const detailDiv = document.getElementById(`detail_${reasonType}`);
+
+            if (checkbox.checked) {
+                detailDiv.style.display = 'block';
+            } else {
+                detailDiv.style.display = 'none';
+            }
+        }
+
+        // 显示/隐藏见证人信息
+        function toggleWitnesses() {
+            const hasWitnesses = document.getElementById('hasWitnesses').value;
+            const witnessesSection = document.getElementById('witnessesSection');
+
+            if (hasWitnesses === 'yes') {
+                witnessesSection.style.display = 'block';
+            } else {
+                witnessesSection.style.display = 'none';
+            }
+        }
+
+        // 根据选择的要求类型更新具体要求
+        function updateDemandDetail() {
+            const demandType = document.getElementById('demandType').value;
+            let detailText = '';
+
+            switch(demandType) {
+                case 'repair':
+                    detailText = `根据《中华人民共和国民法典》第五百七十七条、第五百八十七条的规定，结合《合同》第___条关于房屋质量的约定，我方提出如下要求：
+
+1. 要求贵公司在收到本告知书后的7个工作日内提交书面整改方案，并在30日内完成所有质量问题的修复；
+2. 修复过程中应当委派专业技术人员进行施工，确保修复质量符合国家建筑工程质量标准；
+3. 修复完成后，应当邀请具有资质的第三方检测机构进行验收，并出具验收报告；
+4. 修复期间造成的其他损失由贵公司承担。
+
+如贵公司未能在上述期限内完成修复或修复质量不达标，我方将依法采取进一步法律措施维护自身权益，包括但不限于申请房屋质量鉴定、提起诉讼等。`;
+                    break;
+                case 'compensation':
+                    detailText = `根据《中华人民共和国民法典》第五百八十四条关于违约责任的规定，以及《合同》第___条关于违约金的约定，我方要求贵公司：
+
+1. 支付违约金人民币_______元（按照合同总价的____%计算）；
+2. 赔偿因房屋质量问题给我方造成的直接损失，包括但不限于：
+    a) 委托第三方检测费用人民币_______元；
+    b) 因无法入住产生的临时住宿费用人民币_______元；
+    c) 因延迟交付产生的搬家、仓储等费用人民币_______元；
+3. 承担因贵公司违约行为给我方造成的其他合理损失。
+
+请贵公司在收到本告知书后的15日内支付上述款项至我方账户（账号：_______________，开户行：_______________，户名：_______________）。`;
+                    break;
+                case 'cancel':
+                    detailText = `根据《中华人民共和国民法典》第五百六十三条、第五百七十七条的规定，以及《合同》第___条关于合同解除的约定，因贵公司严重违约导致合同目的无法实现，我方特此通知：
+
+1. 自本告知书送达之日起，解除与贵公司签订的《合同》；
+2. 要求贵公司在收到本告知书后的30日内退还全部已付购房款人民币_______元；
+3. 按照《合同》第___条约定，支付违约金人民币_______元（按照合同总价的____%计算）；
+4. 赔偿因合同解除给我方造成的直接损失人民币_______元。
+
+如贵公司拒不履行上述义务，我方将依法向人民法院提起诉讼，维护自身合法权益。`;
+                    break;
+                case 'price':
+                    detailText = `根据《中华人民共和国民法典》第五百八十五条、第五百八十八条的规定，以及《合同》第___条关于房屋面积误差处理的约定，我方要求：
+
+1. 按照实际测量面积调整房屋价格，减少房款人民币_______元；
+2. 对于房屋存在的质量问题，要求减少房价人民币_______元作为补偿；
+3. 上述减少的房款共计人民币_______元，请贵公司在收到本告知书后的15日内予以退还。
+
+如贵公司同意上述价格调整方案，我方将在问题解决后配合办理房屋交接手续。`;
+                    break;
+                case 'mixed':
+                    detailText = `根据《中华人民共和国民法典》相关规定及《合同》约定，我方提出如下综合要求：
+
+1. 对于房屋存在的质量问题，要求贵公司在30日内完成修复；
+2. 因逾期交房，按照合同约定支付违约金人民币_______元；
+3. 对于面积误差问题，按照实测面积调整房价，退还多收房款人民币_______元；
+4. 对于无法修复的问题，给予价格折让人民币_______元作为补偿。
+
+请贵公司在收到本告知书后的15日内书面回复是否接受上述要求。如贵公司拒绝或未在期限内回复，我方将保留采取进一步法律措施的权利。`;
+                    break;
+                case 'other':
+                    detailText = `根据相关法律法规及《合同》约定，我方提出如下要求：
+
+[请在此处填写您的具体要求]
+
+请贵公司在收到本告知书后的___日内予以书面回复。`;
+                    break;
+            }
+
+            document.getElementById('demandDetail').value = detailText;
+        }
+
+        // 重置拒收原因
+        function resetReasons() {
+            const reasonCheckboxes = document.querySelectorAll('input[name="reason"]');
+            reasonCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                toggleReasonDetail(checkbox.value);
+            });
+        }
+
+        // 生成告知书
+        function generateNotice() {
+            // 获取基本信息
+            const currentDate = document.getElementById('currentDate').value;
+            const developerName = document.getElementById('developerName').value || "房地产开发商";
+            const contractNo = document.getElementById('contractNo').value;
+            const contractDate = document.getElementById('contractDate').value;
+            const contractName = document.getElementById('contractName').value || "商品房买卖合同";
+            const propertyAddress = document.getElementById('propertyAddress').value;
+            const inspectionDate = document.getElementById('inspectionDate').value;
+            const senderName = document.getElementById('senderName').value;
+            const senderID = document.getElementById('senderID').value;
+            const senderContact = document.getElementById('senderContact').value;
+            const responseDeadline = document.getElementById('responseDeadline').value;
+            const deliveryMethod = document.getElementById('deliveryMethod').value;
+            const attachments = document.getElementById('attachments').value;
+            const demandDetail = document.getElementById('demandDetail').value;
+
+            // 验证必填字段
+            if (!currentDate || !contractNo || !propertyAddress || !senderName || !developerName || !contractName) {
+                alert('请填写必要的基本信息（日期、开发商名称、合同名称、合同编号、房屋地址、购房人姓名）');
+                return;
+            }
+
+            // 检查是否选择了至少一个拒收原因
+            const reasonCheckboxes = document.querySelectorAll('input[name="reason"]:checked');
+            if (reasonCheckboxes.length === 0) {
+                alert('请至少选择一个拒收原因');
+                return;
+            }
+
+            // 格式化日期
+            const formattedCurrentDate = formatDate(currentDate);
+            const formattedContractDate = formatDate(contractDate);
+            const formattedInspectionDate = formatDate(inspectionDate);
+
+            // 生成文档编号
+            const documentNumber = generateDocumentNumber();
+            document.getElementById('documentNumber').textContent = `文档编号：${documentNumber}`;
+
+            // 构建告知书内容
+            let noticeContent = `
+                <h2 style="text-align: center; margin-bottom: 30px;">商品房收房拒收告知书</h2>
+
+                <p style="text-align: right;">日期：${formattedCurrentDate}</p>
+
+                <p><strong>致：${developerName}（以下简称"贵公司"）</strong></p>
+
+                <p>本人于${formattedContractDate}与贵公司签订了编号为${contractNo}的《${contractName}》（以下简称"《合同》"），购买位于${propertyAddress}的房屋。</p>
+
+                <p>根据《合同》约定，我方于${formattedInspectionDate}前往现场对房屋进行了验收，经查验发现该房屋存在以下问题，不符合交付条件：</p>
+
+                <div style="margin-left: 20px;">
+            `;
+
+            // 添加拒收原因
+            reasonCheckboxes.forEach(checkbox => {
+                const reasonType = checkbox.value;
+                const detailTextarea = document.getElementById(`detail_text_${reasonType}`);
+                const reasonTitle = document.querySelector(`label[for="reason_${reasonType}"]`).textContent;
+
+                noticeContent += `<p><strong>${reasonTitle}：</strong></p>`;
+                noticeContent += `<p style="margin-left: 20px;">${detailTextarea.value.replace(/\n/g, '<br>')}</p>`;
+            });
+
+            noticeContent += `</div>`;
+
+            // 添加要求与解决方案
+            noticeContent += `
+                <p><strong>基于上述问题，我方提出如下要求：</strong></p>
+
+                <p style="margin-left: 20px;">${demandDetail.replace(/\n/g, '<br>')}</p>
+
+                <p>请贵公司在收到本告知书后${responseDeadline}日内作出书面回复。如逾期未回复，我方将视为贵公司认可上述事实，并将依法采取进一步措施维护自身合法权益。</p>
+            `;
+
+            // 添加附件信息
+            if (attachments.trim()) {
+                noticeContent += `
+                    <p><strong>附件：</strong></p>
+                    <p style="margin-left: 20px;">${attachments.replace(/\n/g, '<br>')}</p>
+                `;
+            }
+
+            // 添加送达方式
+            let deliveryMethodText = '';
+            switch(deliveryMethod) {
+                case 'personal':
+                    deliveryMethodText = '当面递交';
+                    break;
+                case 'express':
+                    deliveryMethodText = '快递送达';
+                    break;
+                case 'registered':
+                    deliveryMethodText = '邮政特快专递EMS';
+                    break;
+            }
+
+            noticeContent += `<p>送达方式：${deliveryMethodText}</p>`;
+
+            // 添加签名区域
+            noticeContent += `
+                <div class="signature-line">
+                    <div class="signature-item">
+                        <p>购房人（签名）：${senderName}</p>
+                    </div>
+            `;
+
+            // 添加见证人信息（如有）
+            const hasWitnesses = document.getElementById('hasWitnesses').value;
+            if (hasWitnesses === 'yes') {
+                const witnessName1 = document.getElementById('witnessName1').value;
+                const witnessContact1 = document.getElementById('witnessContact1').value;
+                const witnessName2 = document.getElementById('witnessName2').value;
+
+                if (witnessName1) {
+                    noticeContent += `
+                        <div class="signature-item">
+                            <p>见证人（签名）：${witnessName1}</p>
+                        </div>
+                    `;
+                }
+
+                if (witnessName2) {
+                    noticeContent += `
+                        <div class="signature-item">
+                            <p>见证人（签名）：${witnessName2}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            noticeContent += `</div>`;
+
+            // 添加联系信息
+            noticeContent += `
+                <div style="margin-top: 50px;">
+                    <p><strong>购房人信息：</strong></p>
+                    <p>姓名：${senderName}</p>
+                    <p>联系电话：${senderContact}</p>
+                    <p>身份证号：${senderID}</p>
+                </div>
+            `;
+
+            // 添加页脚
+            const footerContent = `生成日期：${formattedCurrentDate} | 文档编号：${documentNumber}`;
+            document.getElementById('footerContent').textContent = footerContent;
+
+            // 显示预览
+            document.getElementById('previewContent').innerHTML = noticeContent;
+            document.getElementById('noticePreview').style.display = 'block';
+
+            // 滚动到预览区域
+            document.getElementById('noticePreview').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+
+            return `${year}年${month}月${day}日`;
+        }
+
+        // 生成文档编号
+        function generateDocumentNumber() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+
+            return `SFJS-${year}${month}${day}-${hours}${minutes}${seconds}-${random}`;
+        }
+
+        // 打印告知书
+        function printNotice() {
+            if (document.getElementById('noticePreview').style.display === 'none') {
+                alert('请先生成告知书');
+                return;
+            }
+
+            window.print();
+        }
+    </script>
+</body>
+</html>
