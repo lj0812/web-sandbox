@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seem - 汐起于心 智护于里</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(120deg, #c3f5c9, #d8faff);
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 30px;
+            margin-right: 5px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-menu a {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .button {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .button-primary {
+            background-color: #0AC75A;
+            color: white;
+        }
+
+        /* Company Intro Card */
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .company-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        /* Stats Section */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0AC75A;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-desc {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Team Section */
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .team {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+
+        .team-member {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            margin: 0 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .team-member img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+
+        .team-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .team-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .team-desc {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        /* Awards Section */
+        .awards {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+
+        .award-item {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .award-img {
+            height: 120px;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+
+        .award-name {
+            font-size: 12px;
+            color: #888;
+            padding: 5px 10px;
+            background-color: #fff9e6;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        /* Partners Section */
+        .partners-title {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .partners-subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .partners-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+
+        .partner-item {
+            width: 25%;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .partner-item img {
+            max-width: 100%;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        /* Clients Section */
+        .clients-title {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .clients-subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .clients-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 50px;
+            padding: 0 50px;
+        }
+
+        .client-item {
+            width: 16.66%;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .client-item img {
+            max-width: 100%;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #0AC75A;
+            color: white;
+            padding: 20px 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-section {
+            flex: 1;
+            padding: 0 15px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .footer-section p {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .footer-qrcode {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <a href="#">Seem <span style="font-size: 12px; color: #888;">汐聆</span></a>
+        </div>
+        <div class="nav-menu">
+            <a href="#">数字心理方法</a>
+            <a href="#">AI心理顾问</a>
+            <a href="#">创新方案</a>
+            <a href="#">加入我们</a>
+            <a href="#">企鹅博客</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>汐起于心 智护于里</h1>
+            <p>汐聆心理，您的全链AI心理生态系统，一站式心理管理平台</p>
+            <div class="button-group">
+                <a href="#" class="button button-primary">
+                    AI心理顾问 <span>&gt;</span>
+                </a>
+                <a href="#" class="button button-primary">
+                    数字心理方法 <span>&gt;</span>
+                </a>
+            </div>
+
+            <!-- Company Intro Card -->
+            <div class="card">
+                <h2 class="section-title">公司简介</h2>
+                <p class="company-desc">
+                    汐聆科技是一家源自北大的创新科技企业，致力于以最前沿的AI和大数据技术赋能临床医院一线心理健康管理方案，以AI增好内容质量提升用户体验，让每一位用户享受更好的服务。<br>
+                    成立以来，公司凭借技术的自主化和创新能力，努力为众服务用户，创新客户提供增值。根据高质量用传统的心理学研究，三大业务领域发展线，创建了数字支持的精神科平台，构建综合的医学平台，积极引导好的AI心理健康，与创新合著者共同下沉。
+                </p>
+
+                <!-- Stats Section -->
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">400<span style="font-size: 18px; color: #0AC75A;">+</span></div>
+                        <div class="stat-desc">合作专家组</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">23000<span style="font-size: 18px; color: #0AC75A;">+</span></div>
+                        <div class="stat-desc">服务用户</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">117<span style="font-size: 18px; color: #0AC75A;">个城市</span></div>
+                        <div class="stat-desc">项目地理覆盖</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">10<span style="font-size: 18px; color: #0AC75A;">+</span></div>
+                        <div class="stat-desc">合作高校/医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="container">
+        <h2 class="section-header">心理健康专家团队</h2>
+        <div class="team">
+            <div class="team-member">
+                <img src="https://via.placeholder.com/80" alt="陈立韬">
+                <h3 class="team-name">陈立韬</h3>
+                <p class="team-title">北京大学心理学实验室教授，博导</p>
+                <p class="team-desc">
+                    中国心理学会会长，中国心理学会技术分会全国理事，全国临床医学和医药指导心理医师专委会常务副主任。
+                </p>
+            </div>
+            <div class="team-member">
+                <img src="https://via.placeholder.com/80" alt="彭玉佳">
+                <h3 class="team-name">彭玉佳</h3>
+                <p class="team-title">北京师范大学教授院系主任，博导</p>
+                <p class="team-desc">
+                    研究领域：临床心理学，临床心理病理，青少年精神健康问题，自伤，抑郁症，人工智能。
+                </p>
+            </div>
+            <div class="team-member">
+                <img src="https://via.placeholder.com/80" alt="符仲秀">
+                <h3 class="team-name">符仲秀</h3>
+                <p class="team-title">北京大学心理学院正教授，博导</p>
+                <p class="team-desc">
+                    研究领域：临床心理学，青少年和儿童心理健康，心理问题干预，校园心理咨询。
+                </p>
+            </div>
+            <div class="team-member">
+                <img src="https://via.placeholder.com/80" alt="熊汉忠">
+                <h3 class="team-name">熊汉忠</h3>
+                <p class="team-title">北京师范大学心理学教授研究员</p>
+                <p class="team-desc">
+                    中国心理学会会员，心理咨询师，人格障碍心理照护领域顶级专家人才，工作20年以上，已发表论文25篇专著5本。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Awards Section -->
+    <section class="container">
+        <h2 class="section-header">企业荣誉</h2>
+        <div class="awards">
+            <div class="award-item">
+                <img src="https://via.placeholder.com/150" alt="荣誉奖项" class="award-img">
+                <div class="award-name">优秀奖</div>
+            </div>
+            <div class="award-item">
+                <img src="https://via.placeholder.com/150" alt="荣誉奖项" class="award-img">
+                <div class="award-name">优秀项目奖</div>
+            </div>
+            <div class="award-item">
+                <img src="https://via.placeholder.com/150" alt="荣誉奖项" class="award-img">
+                <div class="award-name">三等奖</div>
+            </div>
+            <div class="award-item">
+                <img src="https://via.placeholder.com/150" alt="荣誉奖项" class="award-img">
+                <div class="award-name">创新创业优秀奖</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section class="container">
+        <h2 class="partners-title">合作机构</h2>
+        <p class="partners-subtitle">与国知名大学院校及医院</p>
+        <div class="partners-grid">
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="北京大学">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="北京师范大学">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="中南财经政法大学">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="南京理工大学">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+            <div class="partner-item">
+                <img src="https://via.placeholder.com/150" alt="合作机构">
+            </div>
+        </div>
+    </section>
+
+    <!-- Clients Section -->
+    <section class="container">
+        <h2 class="clients-title">合作客户</h2>
+        <p class="clients-subtitle">服务众多家知名企业及各机构团体，覆盖全生态</p>
+        <div class="clients-grid">
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="北京大学">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="北京师范大学">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="中南财经政法大学">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="中国人民大学">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="快手">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="有道">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="喜马拉雅">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="汽车之家">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="好未来">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="火花思维">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="美团">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="新东方">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="学堂在线">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="兴趣引擎">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="智课">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="七牛云">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="京东智联云">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="中国体育彩票">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="去哪儿">
+            </div>
+            <div class="client-item">
+                <img src="https://via.placeholder.com/120" alt="中国铁路">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>学习室</h3>
+                <img src="https://via.placeholder.com/100" alt="QR Code" class="footer-qrcode">
+                <p>扫描公众号关注"汐聆"</p>
+                <p>心理解读、抑郁症、多个专栏、心理咨询等</p>
+            </div>
+            <div class="footer-section">
+                <h3>咨询师</h3>
+                <p>申请入驻</p>
+            </div>
+            <div class="footer-section">
+                <h3>关于</h3>
+                <p>关于我们</p>
+                <p>联系邮箱：support@seeem.com</p>
+                <p>商务合作：888888888888</p>
+            </div>
+        </div>
+        <div class="copyright">
+            Copyright © 2024 汐聆心理 京ICP备20220627号-1
+        </div>
+    </footer>
+</body>
+</html>
