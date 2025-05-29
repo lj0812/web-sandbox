@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        .label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .legend {
+            font-size: 14px;
+            margin-top: 1rem;
+        }
+        .legend p {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>黄金角度分布演示</h2>
+
+        <div class="control-group">
+            <label class="label">角度: <span id="angleValue">137.5</span>°</label>
+            <input type="range" id="angleSlider" min="0" max="360" step="0.1" value="137.5">
+        </div>
+
+        <div class="control-group">
+            <label class="label">点数量: <span id="pointsValue">8</span></label>
+            <input type="range" id="pointsSlider" min="1" max="50" value="8">
+        </div>
+
+        <svg id="circle" width="400" height="400" viewBox="0 0 400 400"></svg>
+
+        <div class="legend">
+            <p>• 绿点是起始点</p>
+            <p>• 黄金角度(137.5°)能产生最均匀的分布</p>
+            <p>• 其他角度可能会导致点分布不均或重复</p>
+        </div>
+    </div>
+
+    <script>
+        const svg = document.getElementById('circle');
+        const angleSlider = document.getElementById('angleSlider');
+        const pointsSlider = document.getElementById('pointsSlider');
+        const angleValue = document.getElementById('angleValue');
+        const pointsValue = document.getElementById('pointsValue');
+
+        const svgNS = "http://www.w3.org/2000/svg";
+
+        const config = {
+            centerX: 200,
+            centerY: 200,
+            radius: 150,
+            labelRadius: 20, // 标签偏移距离
+        };
+
+        function createSVGElement(type, attributes) {
+            const element = document.createElementNS(svgNS, type);
+            for (const [key, value] of Object.entries(attributes)) {
+                element.setAttribute(key, value);
+            }
+            return element;
+        }
+
+        function calculateLabelPosition(angle, point) {
+            // 将角度归一化到 0-360 度
+            const normalizedAngle = ((angle % 360) + 360) % 360;
+
+            // 根据点的位置计算标签的偏移
+            const dx = config.labelRadius * Math.cos(angle);
+            const dy = config.labelRadius * Math.sin(angle);
+
+            // 根据象限调整文本位置和对齐方式
+            let textAnchor, alignmentBaseline;
+
+            // 右半边
+            if (normalizedAngle <= 90 || normalizedAngle > 270) {
+                textAnchor = 'start';
+            }
+            // 左半边
+            else {
+                textAnchor = 'end';
+            }
+
+            // 上半边
+            if (normalizedAngle > 0 && normalizedAngle <= 180) {
+                alignmentBaseline = 'auto';
+            }
+            // 下半边
+            else {
+                alignmentBaseline = 'hanging';
+            }
+
+            return {
+                x: point.x + dx,
+                y: point.y + dy,
+                textAnchor,
+                alignmentBaseline
+            };
+        }
+
+        function generatePoints(angle, count) {
+            const points = [];
+            const angleInRadians = (angle * Math.PI) / 180;
+
+            for (let i = 0; i < count; i++) {
+                const currentAngle = i * angleInRadians;
+                const x = config.centerX + config.radius * Math.cos(currentAngle);
+                const y = config.centerY + config.radius * Math.sin(currentAngle);
+                points.push({
+                    x,
+                    y,
+                    angle: currentAngle
+                });
+            }
+
+            return points;
+        }
+
+        function drawCircle() {
+            svg.innerHTML = '';
+
+            // 绘制基准圆
+            const circle = createSVGElement('circle', {
+                cx: config.centerX,
+                cy: config.centerY,
+                r: config.radius,
+                fill: 'none',
+                stroke: '#2563eb',
+                'stroke-width': '2'
+            });
+            svg.appendChild(circle);
+
+            const points = generatePoints(
+                parseFloat(angleSlider.value),
+                parseInt(pointsSlider.value)
+            );
+
+            // 绘制连线
+            points.forEach((point, index) => {
+                const nextPoint = points[(index + 1) % points.length];
+                const line = createSVGElement('line', {
+                    x1: point.x,
+                    y1: point.y,
+                    x2: nextPoint.x,
+                    y2: nextPoint.y,
+                    stroke: '#94a3b8',
+                    'stroke-width': '1'
+                });
+                svg.appendChild(line);
+            });
+
+            // 创建一个组来包含所有点和标签
+            const pointsGroup = createSVGElement('g', {});
+            svg.appendChild(pointsGroup);
+
+            // 绘制点和标签
+            points.forEach((point, index) => {
+                const group = createSVGElement('g', {});
+
+                // 点
+                const dot = createSVGElement('circle', {
+                    cx: point.x,
+                    cy: point.y,
+                    r: 4,
+                    fill: index === 0 ? '#22c55e' : '#ef4444'
+                });
+                group.appendChild(dot);
+
+                // 计算标签位置
+                const labelPos = calculateLabelPosition(point.angle, point);
+
+                // 标签文本
+                const text = createSVGElement('text', {
+                    x: labelPos.x,
+                    y: labelPos.y,
+                    'font-size': '12px',
+                    'text-anchor': labelPos.textAnchor,
+                    'alignment-baseline': labelPos.alignmentBaseline
+                });
+                text.textContent = (index + 1).toString();
+                group.appendChild(text);
+
+                pointsGroup.appendChild(group);
+            });
+        }
+
+        // 事件监听
+        angleSlider.addEventListener('input', (e) => {
+            angleValue.textContent = parseFloat(e.target.value).toFixed(1);
+            drawCircle();
+        });
+
+        pointsSlider.addEventListener('input', (e) => {
+            pointsValue.textContent = e.target.value;
+            drawCircle();
+        });
+
+        // 初始绘制
+        drawCircle();
+    </script>
+</body>
+</html>
