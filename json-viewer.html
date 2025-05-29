@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大型JSON文件格式化显示器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #2d2d30;
+            padding: 15px 20px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .upload-btn:hover {
+            background: #1177bb;
+        }
+
+        .file-info {
+            color: #cccccc;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-box {
+            background: #3c3c3c;
+            border: 1px solid #555;
+            color: #d4d4d4;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        .toggle-btn {
+            background: #484848;
+            border: 1px solid #555;
+            color: #d4d4d4;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .toggle-btn:hover {
+            background: #5a5a5a;
+        }
+
+        .toggle-btn.active {
+            background: #0e639c;
+            border-color: #0e639c;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .tree-node {
+            padding: 4px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tree-node:hover {
+            background: #2a2d2e;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            padding: 2px 8px;
+            font-size: 13px;
+        }
+
+        .tree-indent {
+            width: 16px;
+            display: inline-block;
+        }
+
+        .tree-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow: auto;
+            background: #1e1e1e;
+        }
+
+        .json-viewer {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .json-key {
+            color: #92c5f8;
+        }
+
+        .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #b5cea8;
+        }
+
+        .json-boolean {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #569cd6;
+        }
+
+        .json-bracket {
+            color: #ffd700;
+        }
+
+        .expandable {
+            cursor: pointer;
+        }
+
+        .collapsed {
+            color: #888;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            font-size: 16px;
+            color: #888;
+        }
+
+        .error {
+            color: #f48771;
+            padding: 20px;
+            background: #2d1b1b;
+            border: 1px solid #5a2d2d;
+            border-radius: 4px;
+            margin: 20px;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #2d2d30;
+            border-top: 1px solid #3e3e42;
+            font-size: 14px;
+        }
+
+        .page-btn {
+            background: #484848;
+            border: 1px solid #555;
+            color: #d4d4d4;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #5a5a5a;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .highlight {
+            background: #404040;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <input type="file" id="fileInput" class="file-input" accept=".json">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                选择JSON文件
+            </button>
+            <div class="file-info" id="fileInfo">未选择文件</div>
+
+            <div class="controls">
+                <input type="text" class="search-box" id="searchBox" placeholder="搜索键或值...">
+                <button class="toggle-btn" id="treeToggle">显示树形结构</button>
+                <button class="toggle-btn" id="formatToggle">压缩显示</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="sidebar" id="sidebar" style="display: none;">
+                <div id="treeView"></div>
+            </div>
+
+            <div class="main-content">
+                <div class="json-viewer" id="jsonViewer">
+                    <div class="loading">请选择一个JSON文件开始...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <span>显示模式:</span>
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span id="pageInfo">第 1 页，共 1 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+            <span>每页条目数:</span>
+            <select id="pageSize" style="background: #484848; border: 1px solid #555; color: #d4d4d4; padding: 4px;">
+                <option value="100">100</option>
+                <option value="500" selected>500</option>
+                <option value="1000">1000</option>
+                <option value="2000">2000</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        class JSONFormatter {
+            constructor() {
+                this.jsonData = null;
+                this.formattedData = null;
+                this.currentPage = 1;
+                this.pageSize = 500;
+                this.totalPages = 1;
+                this.isTreeView = false;
+                this.isCompact = false;
+                this.searchTerm = '';
+                this.maxDepth = 10; // 最大展开深度，防止过深嵌套导致性能问题
+
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('fileInput').addEventListener('change', (e) => {
+                    this.handleFileSelect(e);
+                });
+
+                document.getElementById('searchBox').addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value;
+                    this.renderJSON();
+                });
+
+                document.getElementById('treeToggle').addEventListener('click', () => {
+                    this.toggleTreeView();
+                });
+
+                document.getElementById('formatToggle').addEventListener('click', () => {
+                    this.toggleFormat();
+                });
+
+                document.getElementById('prevPage').addEventListener('click', () => {
+                    if (this.currentPage > 1) {
+                        this.currentPage--;
+                        this.renderJSON();
+                    }
+                });
+
+                document.getElementById('nextPage').addEventListener('click', () => {
+                    if (this.currentPage < this.totalPages) {
+                        this.currentPage++;
+                        this.renderJSON();
+                    }
+                });
+
+                document.getElementById('pageSize').addEventListener('change', (e) => {
+                    this.pageSize = parseInt(e.target.value);
+                    this.currentPage = 1;
+                    this.renderJSON();
+                });
+            }
+
+            async handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const fileInfo = document.getElementById('fileInfo');
+                const jsonViewer = document.getElementById('jsonViewer');
+
+                // 显示文件信息
+                const fileSize = this.formatFileSize(file.size);
+                fileInfo.textContent = `${file.name} (${fileSize})`;
+
+                // 显示加载状态
+                jsonViewer.innerHTML = '<div class="loading">正在解析JSON文件...</div>';
+
+                try {
+                    // 使用 FileReader 读取文件
+                    const text = await this.readFileAsText(file);
+
+                    // 分块解析JSON，避免阻塞UI
+                    this.jsonData = await this.parseJSONInChunks(text);
+
+                    // 渲染JSON
+                    this.renderJSON();
+
+                } catch (error) {
+                    console.error('JSON解析错误:', error);
+                    jsonViewer.innerHTML = `<div class="error">JSON解析失败: ${error.message}</div>`;
+                }
+            }
+
+            readFileAsText(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(new Error('文件读取失败'));
+                    reader.readAsText(file);
+                });
+            }
+
+            async parseJSONInChunks(text) {
+                // 对于大文件，使用 setTimeout 分块处理
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        try {
+                            const data = JSON.parse(text);
+                            resolve(data);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    }, 0);
+                });
+            }
+
+            renderJSON() {
+                if (!this.jsonData) return;
+
+                const jsonViewer = document.getElementById('jsonViewer');
+                const pagination = document.getElementById('pagination');
+
+                try {
+                    if (this.isTreeView) {
+                        this.renderTreeView();
+                        pagination.style.display = 'none';
+                    } else {
+                        const formatted = this.formatJSONForDisplay();
+                        jsonViewer.innerHTML = formatted;
+                        this.updatePagination();
+                        pagination.style.display = 'flex';
+                    }
+                } catch (error) {
+                    console.error('渲染错误:', error);
+                    jsonViewer.innerHTML = `<div class="error">渲染失败: ${error.message}</div>`;
+                }
+            }
+
+            formatJSONForDisplay() {
+                let data = this.jsonData;
+
+                // 如果是数组，进行分页
+                if (Array.isArray(data)) {
+                    this.totalPages = Math.ceil(data.length / this.pageSize);
+                    const startIndex = (this.currentPage - 1) * this.pageSize;
+                    const endIndex = Math.min(startIndex + this.pageSize, data.length);
+                    data = data.slice(startIndex, endIndex);
+                } else {
+                    this.totalPages = 1;
+                }
+
+                const formatted = this.formatValue(data, 0, true);
+
+                // 应用搜索高亮
+                if (this.searchTerm) {
+                    return this.highlightSearch(formatted, this.searchTerm);
+                }
+
+                return formatted;
+            }
+
+            formatValue(value, depth, isRoot = false) {
+                if (depth > this.maxDepth) {
+                    return '<span class="collapsed">... (深度限制)</span>';
+                }
+
+                const indent = '  '.repeat(depth);
+                const nextIndent = '  '.repeat(depth + 1);
+
+                if (value === null) {
+                    return '<span class="json-null">null</span>';
+                }
+
+                if (typeof value === 'boolean') {
+                    return `<span class="json-boolean">${value}</span>`;
+                }
+
+                if (typeof value === 'number') {
+                    return `<span class="json-number">${value}</span>`;
+                }
+
+                if (typeof value === 'string') {
+                    return `<span class="json-string">"${this.escapeHtml(value)}"</span>`;
+                }
+
+                if (Array.isArray(value)) {
+                    if (value.length === 0) {
+                        return '<span class="json-bracket">[]</span>';
+                    }
+
+                    if (this.isCompact) {
+                        const items = value.slice(0, 3).map(item => this.formatValue(item, depth + 1)).join(', ');
+                        const more = value.length > 3 ? `, ... (共${value.length}项)` : '';
+                        return `<span class="json-bracket">[</span>${items}${more}<span class="json-bracket">]</span>`;
+                    }
+
+                    let result = '<span class="json-bracket">[</span>\n';
+                    value.forEach((item, index) => {
+                        result += nextIndent + this.formatValue(item, depth + 1);
+                        if (index < value.length - 1) result += ',';
+                        result += '\n';
+                    });
+                    result += indent + '<span class="json-bracket">]</span>';
+                    return result;
+                }
+
+                if (typeof value === 'object') {
+                    const keys = Object.keys(value);
+                    if (keys.length === 0) {
+                        return '<span class="json-bracket">{}</span>';
+                    }
+
+                    if (this.isCompact) {
+                        const items = keys.slice(0, 3).map(key =>
+                            `<span class="json-key">"${this.escapeHtml(key)}"</span>: ${this.formatValue(value[key], depth + 1)}`
+                        ).join(', ');
+                        const more = keys.length > 3 ? `, ... (共${keys.length}个属性)` : '';
+                        return `<span class="json-bracket">{</span>${items}${more}<span class="json-bracket">}</span>`;
+                    }
+
+                    let result = '<span class="json-bracket">{</span>\n';
+                    keys.forEach((key, index) => {
+                        result += nextIndent + `<span class="json-key">"${this.escapeHtml(key)}"</span>: `;
+                        result += this.formatValue(value[key], depth + 1);
+                        if (index < keys.length - 1) result += ',';
+                        result += '\n';
+                    });
+                    result += indent + '<span class="json-bracket">}</span>';
+                    return result;
+                }
+
+                return String(value);
+            }
+
+            renderTreeView() {
+                const sidebar = document.getElementById('sidebar');
+                const treeView = document.getElementById('treeView');
+                const jsonViewer = document.getElementById('jsonViewer');
+
+                sidebar.style.display = 'block';
+
+                const tree = this.buildTree(this.jsonData, '', 0);
+                treeView.innerHTML = tree;
+
+                jsonViewer.innerHTML = '<div class="loading">在左侧树形结构中点击节点查看详细内容</div>';
+            }
+
+            buildTree(data, path, depth) {
+                if (depth > this.maxDepth) return '';
+
+                let html = '';
+                const indent = '  '.repeat(depth);
+
+                if (Array.isArray(data)) {
+                    data.forEach((item, index) => {
+                        const currentPath = path ? `${path}[${index}]` : `[${index}]`;
+                        const type = this.getValueType(item);
+
+                        html += `<div class="tree-node" onclick="jsonFormatter.selectTreeNode('${currentPath}')">`;
+                        html += `<div class="tree-item">`;
+                        html += `<span class="tree-indent">${indent}</span>`;
+                        html += `<span class="tree-icon">${type === 'object' || type === 'array' ? '📁' : '📄'}</span>`;
+                        html += `<span>[${index}] ${type}</span>`;
+                        html += `</div></div>`;
+
+                        if (typeof item === 'object' && item !== null) {
+                            html += this.buildTree(item, currentPath, depth + 1);
+                        }
+                    });
+                } else if (typeof data === 'object' && data !== null) {
+                    Object.keys(data).forEach(key => {
+                        const currentPath = path ? `${path}.${key}` : key;
+                        const type = this.getValueType(data[key]);
+
+                        html += `<div class="tree-node" onclick="jsonFormatter.selectTreeNode('${currentPath}')">`;
+                        html += `<div class="tree-item">`;
+                        html += `<span class="tree-indent">${indent}</span>`;
+                        html += `<span class="tree-icon">${type === 'object' || type === 'array' ? '📁' : '📄'}</span>`;
+                        html += `<span>${key} (${type})</span>`;
+                        html += `</div></div>`;
+
+                        if (typeof data[key] === 'object' && data[key] !== null) {
+                            html += this.buildTree(data[key], currentPath, depth + 1);
+                        }
+                    });
+                }
+
+                return html;
+            }
+
+            selectTreeNode(path) {
+                try {
+                    const value = this.getValueByPath(this.jsonData, path);
+                    const jsonViewer = document.getElementById('jsonViewer');
+                    const formatted = this.formatValue(value, 0, true);
+                    jsonViewer.innerHTML = `<div><strong>路径: ${path}</strong></div><br>${formatted}`;
+                } catch (error) {
+                    console.error('获取节点值失败:', error);
+                }
+            }
+
+            getValueByPath(obj, path) {
+                if (!path) return obj;
+
+                const parts = path.split(/[\.\[\]]/).filter(p => p !== '');
+                let current = obj;
+
+                for (const part of parts) {
+                    if (current === null || current === undefined) return undefined;
+                    current = current[part];
+                }
+
+                return current;
+            }
+
+            getValueType(value) {
+                if (value === null) return 'null';
+                if (Array.isArray(value)) return 'array';
+                return typeof value;
+            }
+
+            toggleTreeView() {
+                this.isTreeView = !this.isTreeView;
+                const btn = document.getElementById('treeToggle');
+                const sidebar = document.getElementById('sidebar');
+
+                if (this.isTreeView) {
+                    btn.textContent = '隐藏树形结构';
+                    btn.classList.add('active');
+                    sidebar.style.display = 'block';
+                } else {
+                    btn.textContent = '显示树形结构';
+                    btn.classList.remove('active');
+                    sidebar.style.display = 'none';
+                }
+
+                this.renderJSON();
+            }
+
+            toggleFormat() {
+                this.isCompact = !this.isCompact;
+                const btn = document.getElementById('formatToggle');
+
+                if (this.isCompact) {
+                    btn.textContent = '详细显示';
+                    btn.classList.add('active');
+                } else {
+                    btn.textContent = '压缩显示';
+                    btn.classList.remove('active');
+                }
+
+                this.renderJSON();
+            }
+
+            updatePagination() {
+                const pageInfo = document.getElementById('pageInfo');
+                const prevBtn = document.getElementById('prevPage');
+                const nextBtn = document.getElementById('nextPage');
+
+                pageInfo.textContent = `第 ${this.currentPage} 页，共 ${this.totalPages} 页`;
+                prevBtn.disabled = this.currentPage <= 1;
+                nextBtn.disabled = this.currentPage >= this.totalPages;
+            }
+
+            highlightSearch(text, searchTerm) {
+                if (!searchTerm) return text;
+
+                const regex = new RegExp(`(${this.escapeRegex(searchTerm)})`, 'gi');
+                return text.replace(regex, '<span class="highlight">$1</span>');
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            escapeRegex(text) {
+                return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+
+        // 初始化应用
+        const jsonFormatter = new JSONFormatter();
+    </script>
+</body>
+</html>
