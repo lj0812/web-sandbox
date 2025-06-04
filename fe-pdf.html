@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纯前端PDF生成示例</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- 加载中文字体支持 -->
+    <script>
+        // 添加中文字体支持的Base64编码字体文件
+        // 这里使用简化的方法，实际项目中建议使用完整的字体文件
+        window.chineseFontData = null; // 占位符，实际使用时需要字体文件
+    </script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .content-to-pdf {
+            padding: 20px;
+            background: white;
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+
+        .invoice-demo {
+            font-size: 12px;
+        }
+
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .invoice-table th {
+            background-color: #f2f2f2;
+        }
+
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>纯前端PDF生成示例</h1>
+
+    <div class="demo-section">
+        <h2>方案一：使用 jsPDF 生成纯文本PDF</h2>
+        <p>适用于简单的文本内容，<strong>注意：纯文本方式中文支持有限</strong></p>
+        <p style="color: #dc3545;">推荐使用方案二(HTML转PDF)来避免中文乱码问题</p>
+        <button class="btn" onclick="generateTextPdf()">生成文本PDF</button>
+        <div id="text-status" class="status"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>方案二：HTML转PDF (html2canvas + jsPDF) - 推荐</h2>
+        <p><strong>最佳中文支持方案</strong>：将HTML内容转换为图片，再嵌入PDF中，完美保持中文显示</p>
+
+        <div id="content-to-convert" class="content-to-pdf">
+            <div class="invoice-demo">
+                <div class="invoice-header">
+                    <h2>发票示例</h2>
+                    <p>发票号码: INV-2025-001</p>
+                    <p>日期: 2025年6月4日</p>
+                </div>
+
+                <div>
+                    <p><strong>客户信息：</strong></p>
+                    <p>公司名称：示例科技有限公司</p>
+                    <p>地址：北京市朝阳区示例大街123号</p>
+                    <p>联系电话：010-12345678</p>
+                </div>
+
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>项目</th>
+                            <th>数量</th>
+                            <th>单价</th>
+                            <th>金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>网站开发服务</td>
+                            <td>1</td>
+                            <td>¥10,000</td>
+                            <td>¥10,000</td>
+                        </tr>
+                        <tr>
+                            <td>系统维护服务</td>
+                            <td>12个月</td>
+                            <td>¥500</td>
+                            <td>¥6,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <p><strong>总计：¥16,000</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="generateHtmlToPdf()">转换HTML为PDF</button>
+        <div id="html-status" class="status"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>方案三：使用 jsPDF 创建表格PDF</h2>
+        <p>程序化创建包含表格的PDF文档（英文内容，避免乱码）</p>
+        <button class="btn" onclick="generateTablePdf()">生成表格PDF</button>
+        <div id="table-status" class="status"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>方案四：带中文字体支持的PDF生成</h2>
+        <p>使用自定义中文字体，完美支持中文显示</p>
+        <button class="btn" onclick="generateChinesePdf()">生成中文PDF</button>
+        <div id="chinese-status" class="status"></div>
+    </div>
+
+    <script src="./whz.js"></script>
+
+    <script>
+        // TypeScript 风格的代码，但在浏览器中运行
+
+        // 显示状态信息的工具函数
+        function showStatus(elementId, message, isSuccess = true) {
+            const statusEl = document.getElementById(elementId);
+            statusEl.textContent = message;
+            statusEl.className = `status ${isSuccess ? 'success' : 'error'}`;
+            statusEl.style.display = 'block';
+
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+
+        // 方案一：生成纯文本PDF
+        async function generateTextPdf() {
+            try {
+                // 检查 jsPDF 是否已加载
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF 库未加载');
+                }
+
+                // 创建新的PDF文档 - 使用正确的全局变量
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // 尝试设置字体（有限的中文支持）
+                doc.setFont('helvetica');
+                doc.setFontSize(16);
+
+                // 添加标题（英文）
+                doc.text('Project Report', 20, 30);
+
+                // 添加内容（混合中英文，中文可能显示为方块）
+                doc.setFontSize(12);
+                doc.text('Report Date: 2025-06-04', 20, 50);
+                doc.text('Project Name: Frontend PDF Generation', 20, 65);
+
+                // 提示信息
+                doc.text('Note: Chinese characters may not display correctly', 20, 85);
+                doc.text('in pure text PDF. Use HTML-to-PDF method instead.', 20, 100);
+
+                // 添加一些可以显示的内容
+                const content = [
+                    'Technical Stack:',
+                    '- jsPDF: PDF generation library',
+                    '- html2canvas: HTML to image conversion',
+                    '- TypeScript: Type-safe JavaScript',
+                    '',
+                    'Solutions:',
+                    '1. Pure text PDF (limited Chinese support)',
+                    '2. HTML to PDF (recommended for Chinese)',
+                    '3. Table PDF generation'
+                ];
+
+                let yPosition = 120;
+                content.forEach(line => {
+                    doc.text(line, 20, yPosition);
+                    yPosition += 15;
+                });
+
+                // 保存PDF
+                doc.save('文本报告.pdf');
+
+                showStatus('text-status', 'PDF已生成，但中文可能显示为方块，建议使用HTML转PDF方案');
+
+            } catch (error) {
+                console.error('生成PDF时出错:', error);
+                showStatus('text-status', '生成PDF失败: ' + error.message, false);
+            }
+        }
+
+        // 方案二：HTML转PDF
+        async function generateHtmlToPdf() {
+            try {
+                // 检查所需库是否已加载
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF 库未加载');
+                }
+                if (typeof html2canvas === 'undefined') {
+                    throw new Error('html2canvas 库未加载');
+                }
+
+                const button = event.target;
+                button.disabled = true;
+                button.textContent = '正在生成...';
+
+                // 获取要转换的HTML元素
+                const element = document.getElementById('content-to-convert');
+
+                // 使用html2canvas将HTML转换为canvas
+                const canvas = await html2canvas(element, {
+                    scale: 2, // 提高分辨率
+                    useCORS: true,
+                    allowTaint: true
+                });
+
+                // 获取图片数据
+                const imgData = canvas.toDataURL('image/png');
+
+                // 创建PDF文档 - 使用正确的方式
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const imgWidth = 190; // PDF中图片宽度
+                const pageHeight = 295; // A4纸高度
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 10;
+
+                // 添加图片到PDF
+                doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // 如果内容超过一页，添加新页面
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight + 10;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                // 保存PDF
+                doc.save('HTML转换PDF.pdf');
+
+                showStatus('html-status', 'HTML转PDF成功！文件已下载');
+
+            } catch (error) {
+                console.error('HTML转PDF时出错:', error);
+                showStatus('html-status', 'HTML转PDF失败: ' + error.message, false);
+            } finally {
+                const button = event.target;
+                button.disabled = false;
+                button.textContent = '转换HTML为PDF';
+            }
+        }
+
+        // 方案三：生成表格PDF
+        async function generateTablePdf() {
+            try {
+                // 检查 jsPDF 是否已加载
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF 库未加载');
+                }
+
+                // 创建PDF文档 - 使用正确的方式
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // 添加标题
+                doc.setFontSize(18);
+                doc.text('Sales Data Report', 20, 30);
+
+                // 添加日期
+                doc.setFontSize(12);
+                doc.text('Generated Date: ' + new Date().toLocaleDateString('en-US'), 20, 45);
+
+                // 表格数据（使用英文避免乱码）
+                const tableData = [
+                    ['Product Name', 'Quantity', 'Unit Price', 'Total Amount'],
+                    ['Product A', '100', '$50', '$5,000'],
+                    ['Product B', '85', '$75', '$6,375'],
+                    ['Product C', '120', '$40', '$4,800'],
+                    ['Product D', '95', '$60', '$5,700'],
+                    ['Product E', '75', '$80', '$6,000']
+                ];
+
+                // 绘制表格
+                let startY = 60;
+                const cellWidth = 45;
+                const cellHeight = 10;
+
+                tableData.forEach((row, rowIndex) => {
+                    const y = startY + (rowIndex * cellHeight);
+
+                    row.forEach((cell, cellIndex) => {
+                        const x = 20 + (cellIndex * cellWidth);
+
+                        // 绘制单元格边框
+                        doc.rect(x, y, cellWidth, cellHeight);
+
+                        // 如果是表头，设置背景色
+                        if (rowIndex === 0) {
+                            doc.setFillColor(240, 240, 240);
+                            doc.rect(x, y, cellWidth, cellHeight, 'F');
+                            doc.rect(x, y, cellWidth, cellHeight); // 重新绘制边框
+                        }
+
+                        // 添加文本
+                        doc.text(cell, x + 2, y + 7);
+                    });
+                });
+
+                // 添加合计行
+                const totalY = startY + (tableData.length * cellHeight) + 10;
+                doc.setFontSize(14);
+                doc.text('Total: $27,875', 20, totalY);
+
+                // 添加页脚
+                doc.setFontSize(10);
+                doc.text('This report is generated automatically by the system', 20, 280);
+
+                // 保存PDF
+                doc.save('Sales-Data-Report.pdf');
+
+                showStatus('table-status', '表格PDF生成成功！文件已下载');
+
+            } catch (error) {
+                console.error('生成表格PDF时出错:', error);
+                showStatus('table-status', '生成表格PDF失败: ' + error.message, false);
+            }
+        }
+
+        // 方案四：带中文字体支持的PDF生成
+        async function generateChinesePdf() {
+            try {
+                // 检查所需库是否已加载
+                if (typeof window.jspdf === 'undefined') {
+                    throw new Error('jsPDF 库未加载');
+                }
+
+                // 创建PDF文档 - 使用正确的方式
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // // 添加字体
+                // doc.addFileToVFS('NotoSansSC-Regular.ttf', );
+                // doc.addFont('NotoSansSC-Regular.ttf', 'NotoSansSC', 'normal');
+                doc.setFont('whz');
+
+                // 添加标题
+                doc.setFontSize(18);
+                doc.text('销售数据报告', 20, 30);
+
+                // 添加日期
+                doc.setFontSize(12);
+                doc.text('生成日期: ' + new Date().toLocaleDateString('zh-CN'), 20, 45);
+
+                // 添加内容
+                doc.setFontSize(12);
+                doc.text('销售数据报告内容', 20, 60);
+
+                // 保存PDF
+                doc.save('销售数据报告.pdf');
+
+                showStatus('chinese-status', '带中文字体支持的PDF生成成功！文件已下载');
+
+            } catch (error) {
+                console.error('生成带中文字体支持的PDF时出错:', error);
+                showStatus('chinese-status', '生成带中文字体支持的PDF失败: ' + error.message, false);
+            }
+        }
+
+                // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('PDF生成器初始化完成');
+
+            // 检查依赖库是否正确加载
+            setTimeout(() => {
+                if (typeof window.jspdf !== 'undefined') {
+                    console.log('✅ jsPDF 库加载成功');
+                } else {
+                    console.error('❌ jsPDF 库加载失败');
+                }
+
+                if (typeof html2canvas !== 'undefined') {
+                    console.log('✅ html2canvas 库加载成功');
+                } else {
+                    console.error('❌ html2canvas 库加载失败');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
