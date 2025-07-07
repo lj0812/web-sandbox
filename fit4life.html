@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6个月详细健身计划</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .phase-header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .week-header {
+            background-color: #ecf0f1;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .exercise-day {
+            background-color: #e8f5e8;
+        }
+        .rest-day {
+            background-color: #fff3cd;
+        }
+        .diet-plan {
+            background-color: #f8f9fa;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .note {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .progress-indicators {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .progress-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #ecf0f1;
+            flex: 1;
+            margin: 0 5px;
+        }
+        .progress-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2980b9;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            table {
+                font-size: 12px;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>6个月详细健身改善计划</h1>
+
+        <div class="progress-indicators">
+            <div class="progress-item">
+                <div class="progress-value">81.5kg → 70-75kg</div>
+                <div>体重目标</div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-value">6个月</div>
+                <div>计划周期</div>
+            </div>
+            <div class="progress-item">
+                <div class="progress-value">3个阶段</div>
+                <div>渐进式训练</div>
+            </div>
+        </div>
+
+        <h2>所需器械及替代品</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>器械类型</th>
+                    <th>主要器械</th>
+                    <th>替代品</th>
+                    <th>使用场景</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="week-header">有氧器械</td>
+                    <td>椭圆机、动感单车</td>
+                    <td>快走、爬楼梯、健身操视频</td>
+                    <td>日常有氧训练</td>
+                </tr>
+                <tr>
+                    <td class="week-header">力量器械</td>
+                    <td>哑铃(5-20kg一对)</td>
+                    <td>装水的矿泉水瓶、弹力带</td>
+                    <td>上肢力量训练</td>
+                </tr>
+                <tr>
+                    <td class="week-header">辅助器械</td>
+                    <td>瑜伽垫、拉伸带</td>
+                    <td>毛巾、厚毯子</td>
+                    <td>地面训练、拉伸</td>
+                </tr>
+                <tr>
+                    <td class="week-header">监测器械</td>
+                    <td>体重秤、软尺</td>
+                    <td>手机健康App</td>
+                    <td>进度监测</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>第一阶段：基础适应期（第1-8周）</h2>
+
+        <div class="note">
+            <strong>🎯 第一阶段验收条件：</strong>
+            <ul>
+                <li>体重减少：3-5kg（目标体重78-76kg）</li>
+                <li>腰围缩小：3-5cm</li>
+                <li>运动能力：能连续快走45分钟不感到疲劳</li>
+                <li>力量提升：俯卧撑能做10个标准动作</li>
+                <li>核心力量：平板支撑能坚持60秒</li>
+                <li>膝关节：运动后无明显不适感</li>
+            </ul>
+        </div>
+
+        <h3>训练计划表</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>周次</th>
+                    <th>周一</th>
+                    <th>周二</th>
+                    <th>周三</th>
+                    <th>周四</th>
+                    <th>周五</th>
+                    <th>周六</th>
+                    <th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="week-header">第1周</td>
+                    <td class="exercise-day">
+                        <strong>有氧+核心</strong><br>
+                        快走20分钟<br>
+                        平板支撑 3×20秒<br>
+                        仰卧起坐 3×10次
+                    </td>
+                    <td class="rest-day">休息/轻度拉伸</td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 3×8次<br>
+                        哑铃划船 3×8次<br>
+                        膝盖俯卧撑 3×5次
+                    </td>
+                    <td class="rest-day">休息/轻度拉伸</td>
+                    <td class="exercise-day">
+                        <strong>有氧+下肢</strong><br>
+                        椭圆机15分钟<br>
+                        靠墙静蹲 3×15秒<br>
+                        臀桥 3×10次
+                    </td>
+                    <td class="exercise-day">
+                        <strong>全身轻度</strong><br>
+                        快走25分钟<br>
+                        全身拉伸15分钟
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第2周</td>
+                    <td class="exercise-day">
+                        <strong>有氧+核心</strong><br>
+                        快走25分钟<br>
+                        平板支撑 3×25秒<br>
+                        仰卧起坐 3×12次<br>
+                        死虫式 3×8次/边
+                    </td>
+                    <td class="rest-day">休息/轻度拉伸</td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 3×10次<br>
+                        哑铃划船 3×10次<br>
+                        膝盖俯卧撑 3×8次
+                    </td>
+                    <td class="rest-day">休息/轻度拉伸</td>
+                    <td class="exercise-day">
+                        <strong>有氧+下肢</strong><br>
+                        椭圆机20分钟<br>
+                        靠墙静蹲 3×20秒<br>
+                        臀桥 3×12次<br>
+                        侧卧腿举 3×10次/边
+                    </td>
+                    <td class="exercise-day">
+                        <strong>全身轻度</strong><br>
+                        快走30分钟<br>
+                        全身拉伸15分钟
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第3-4周</td>
+                    <td class="exercise-day">
+                        <strong>有氧+核心</strong><br>
+                        快走30分钟<br>
+                        平板支撑 3×30秒<br>
+                        仰卧起坐 3×15次<br>
+                        死虫式 3×10次/边<br>
+                        鸟狗式 3×8次/边
+                    </td>
+                    <td class="rest-day">休息/游泳学习</td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 3×12次<br>
+                        哑铃划船 3×12次<br>
+                        膝盖俯卧撑 3×10次<br>
+                        肩部拉伸
+                    </td>
+                    <td class="rest-day">休息/轻度拉伸</td>
+                    <td class="exercise-day">
+                        <strong>有氧+下肢</strong><br>
+                        椭圆机25分钟<br>
+                        靠墙静蹲 3×25秒<br>
+                        臀桥 3×15次<br>
+                        侧卧腿举 3×12次/边
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        快走35分钟<br>
+                        全身拉伸20分钟<br>
+                        膝关节康复训练
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第5-6周</td>
+                    <td class="exercise-day">
+                        <strong>有氧+核心</strong><br>
+                        快走35分钟<br>
+                        平板支撑 3×40秒<br>
+                        仰卧起坐 3×18次<br>
+                        死虫式 3×12次/边<br>
+                        鸟狗式 3×10次/边
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动/替代有氧</strong><br>
+                        水中慢跑20分钟<br>
+                        或椭圆机20分钟<br>
+                        核心拉伸
+                    </td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 4×10次<br>
+                        哑铃划船 4×10次<br>
+                        标准俯卧撑 3×5次<br>
+                        肩部训练
+                    </td>
+                    <td class="rest-day">休息/轻度拉伸</td>
+                    <td class="exercise-day">
+                        <strong>有氧+下肢</strong><br>
+                        椭圆机30分钟<br>
+                        靠墙静蹲 3×30秒<br>
+                        臀桥 3×18次<br>
+                        侧卧腿举 3×15次/边
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        快走40分钟<br>
+                        全身拉伸20分钟<br>
+                        膝关节康复训练
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第7-8周</td>
+                    <td class="exercise-day">
+                        <strong>有氧+核心</strong><br>
+                        快走40分钟<br>
+                        平板支撑 3×50秒<br>
+                        仰卧起坐 3×20次<br>
+                        死虫式 3×15次/边<br>
+                        鸟狗式 3×12次/边
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动/有氧</strong><br>
+                        水中慢跑30分钟<br>
+                        或椭圆机35分钟<br>
+                        核心拉伸
+                    </td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 4×12次<br>
+                        哑铃划船 4×12次<br>
+                        标准俯卧撑 3×8次<br>
+                        肩部+背部训练
+                    </td>
+                    <td class="rest-day">休息/轻度拉伸</td>
+                    <td class="exercise-day">
+                        <strong>有氧+下肢</strong><br>
+                        椭圆机35分钟<br>
+                        靠墙静蹲 3×35秒<br>
+                        臀桥 3×20次<br>
+                        侧卧腿举 3×18次/边
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        快走45分钟<br>
+                        全身拉伸25分钟<br>
+                        膝关节康复训练
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>第二阶段：强化提升期（第9-16周）</h2>
+
+        <div class="note">
+            <strong>🎯 第二阶段验收条件：</strong>
+            <ul>
+                <li>体重减少：累计6-9kg（目标体重75-72kg）</li>
+                <li>腰围缩小：累计6-8cm</li>
+                <li>运动能力：能完成30分钟HIIT训练</li>
+                <li>力量提升：俯卧撑能做15个标准动作</li>
+                <li>核心力量：平板支撑能坚持90秒</li>
+                <li>体脂率：明显下降，腹部线条初现</li>
+            </ul>
+        </div>
+
+        <h3>训练计划表</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>周次</th>
+                    <th>周一</th>
+                    <th>周二</th>
+                    <th>周三</th>
+                    <th>周四</th>
+                    <th>周五</th>
+                    <th>周六</th>
+                    <th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="week-header">第9-10周</td>
+                    <td class="exercise-day">
+                        <strong>HIIT+核心</strong><br>
+                        椭圆机HIIT 25分钟<br>
+                        (2分钟中强度+30秒高强度)<br>
+                        平板支撑 3×60秒<br>
+                        俄罗斯转体 3×20次
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动/有氧</strong><br>
+                        水中慢跑40分钟<br>
+                        或椭圆机40分钟<br>
+                        核心拉伸
+                    </td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 4×12次<br>
+                        哑铃划船 4×12次<br>
+                        标准俯卧撑 3×10次<br>
+                        三头肌训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>有氧恢复</strong><br>
+                        快走45分钟<br>
+                        全身拉伸<br>
+                        膝关节康复训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>下肢力量</strong><br>
+                        椭圆机20分钟<br>
+                        改良深蹲 3×12次<br>
+                        臀桥 4×15次<br>
+                        侧卧腿举 3×20次/边
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        水中慢跑45分钟<br>
+                        或快走50分钟<br>
+                        全身拉伸30分钟
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第11-12周</td>
+                    <td class="exercise-day">
+                        <strong>HIIT+核心</strong><br>
+                        椭圆机HIIT 30分钟<br>
+                        平板支撑 4×50秒<br>
+                        俄罗斯转体 3×25次<br>
+                        登山者 3×20次
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动强化</strong><br>
+                        水中慢跑45分钟<br>
+                        包含间歇训练<br>
+                        核心拉伸
+                    </td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 4×15次<br>
+                        哑铃划船 4×15次<br>
+                        标准俯卧撑 3×12次<br>
+                        复合动作训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>有氧恢复</strong><br>
+                        快走50分钟<br>
+                        瑜伽拉伸<br>
+                        膝关节康复训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>下肢力量</strong><br>
+                        椭圆机25分钟<br>
+                        改良深蹲 4×12次<br>
+                        臀桥 4×18次<br>
+                        单腿训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        水中慢跑50分钟<br>
+                        或快走60分钟<br>
+                        全身拉伸30分钟
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第13-14周</td>
+                    <td class="exercise-day">
+                        <strong>HIIT+核心</strong><br>
+                        单车HIIT 30分钟<br>
+                        平板支撑 4×60秒<br>
+                        俄罗斯转体 4×25次<br>
+                        登山者 3×25次
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动强化</strong><br>
+                        水中慢跑50分钟<br>
+                        包含技巧训练<br>
+                        核心拉伸
+                    </td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 4×15次<br>
+                        哑铃划船 4×15次<br>
+                        标准俯卧撑 4×10次<br>
+                        功能性训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>有氧恢复</strong><br>
+                        快走55分钟<br>
+                        瑜伽拉伸<br>
+                        膝关节康复训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>下肢力量</strong><br>
+                        椭圆机30分钟<br>
+                        改良深蹲 4×15次<br>
+                        保加利亚深蹲 3×10次/边<br>
+                        臀桥变式
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        水中慢跑55分钟<br>
+                        或快走70分钟<br>
+                        全身拉伸35分钟
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第15-16周</td>
+                    <td class="exercise-day">
+                        <strong>HIIT+核心</strong><br>
+                        综合HIIT 35分钟<br>
+                        平板支撑 4×70秒<br>
+                        俄罗斯转体 4×30次<br>
+                        登山者 4×25次
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动强化</strong><br>
+                        水中慢跑60分钟<br>
+                        包含长距离训练<br>
+                        核心拉伸
+                    </td>
+                    <td class="exercise-day">
+                        <strong>上肢力量</strong><br>
+                        哑铃推举 5×12次<br>
+                        哑铃划船 5×12次<br>
+                        标准俯卧撑 4×12次<br>
+                        复合动作
+                    </td>
+                    <td class="exercise-day">
+                        <strong>有氧恢复</strong><br>
+                        快走60分钟<br>
+                        瑜伽拉伸<br>
+                        膝关节康复训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>下肢力量</strong><br>
+                        椭圆机35分钟<br>
+                        改良深蹲 5×12次<br>
+                        保加利亚深蹲 3×12次/边<br>
+                        臀桥变式
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        水中慢跑60分钟<br>
+                        或快走75分钟<br>
+                        全身拉伸40分钟
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>第三阶段：塑形维持期（第17-24周）</h2>
+
+        <div class="note">
+            <strong>🎯 第三阶段验收条件：</strong>
+            <ul>
+                <li>体重达标：70-75kg（减重目标完成）</li>
+                <li>腰围缩小：累计8-12cm</li>
+                <li>体脂率：男性降至15-20%</li>
+                <li>肌肉量：明显增加，四肢有线条感</li>
+                <li>运动能力：能完成40分钟高强度训练</li>
+                <li>身体状态：精力充沛，睡眠质量好</li>
+            </ul>
+        </div>
+
+        <h3>训练计划表</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>周次</th>
+                    <th>周一</th>
+                    <th>周二</th>
+                    <th>周三</th>
+                    <th>周四</th>
+                    <th>周五</th>
+                    <th>周六</th>
+                    <th>周日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="week-header">第17-20周</td>
+                    <td class="exercise-day">
+                        <strong>高强度HIIT</strong><br>
+                        综合HIIT 40分钟<br>
+                        核心塑形训练<br>
+                        平板支撑变式<br>
+                        腹肌雕刻训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动技能</strong><br>
+                        水中慢跑技巧训练60分钟<br>
+                        包含不同节奏<br>
+                        水中核心训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>上肢塑形</strong><br>
+                        多角度哑铃训练<br>
+                        俯卧撑变式<br>
+                        肩背塑形<br>
+                        手臂线条训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>有氧+柔韧</strong><br>
+                        快走65分钟<br>
+                        瑜伽流动练习<br>
+                        膝关节维护训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>下肢塑形</strong><br>
+                        椭圆机40分钟<br>
+                        腿部线条训练<br>
+                        臀部塑形<br>
+                        稳定性训练
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合塑形</strong><br>
+                        水中慢跑70分钟<br>
+                        或混合有氧75分钟<br>
+                        全身拉伸45分钟
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+                <tr>
+                    <td class="week-header">第21-24周</td>
+                    <td class="exercise-day">
+                        <strong>维持训练</strong><br>
+                        根据个人情况调整<br>
+                        保持运动习惯<br>
+                        重点维持体重<br>
+                        继续肌肉塑形
+                    </td>
+                    <td class="exercise-day">
+                        <strong>水中运动维持</strong><br>
+                        水中慢跑60-75分钟<br>
+                        保持心肺功能<br>
+                        享受运动乐趣
+                    </td>
+                    <td class="exercise-day">
+                        <strong>力量维持</strong><br>
+                        继续力量训练<br>
+                        预防肌肉流失<br>
+                        保持身体线条
+                    </td>
+                    <td class="exercise-day">
+                        <strong>恢复训练</strong><br>
+                        轻度有氧运动<br>
+                        拉伸放松<br>
+                        身体维护
+                    </td>
+                    <td class="exercise-day">
+                        <strong>综合训练</strong><br>
+                        多样化运动<br>
+                        保持新鲜感<br>
+                        继续进步
+                    </td>
+                    <td class="exercise-day">
+                        <strong>周末活动</strong><br>
+                        户外运动<br>
+                        或长时间水中运动<br>
+                        社交运动
+                    </td>
+                    <td class="rest-day">完全休息</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>
