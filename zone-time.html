@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间概念全面指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .time-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .time-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .time-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .time-card .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .time-card .description {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .concepts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .concepts-table th,
+        .concepts-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .concepts-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+        }
+
+        .concepts-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f) !important;
+            color: #2c3e50 !important;
+            font-weight: bold;
+        }
+
+        .code-example {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            overflow-x: auto;
+        }
+
+        .code-example pre {
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .highlight {
+            background: #f39c12;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .world-clock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .world-clock-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .world-clock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .world-clock-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .world-clock-card:hover::before {
+            opacity: 1;
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .world-clock-card .flag {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .world-clock-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .world-clock-card .time-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .world-clock-card .timezone-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        .world-clock-card .timezone-info span {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .dst-active {
+            background: rgba(255, 215, 0, 0.3) !important;
+            color: #ffd700 !important;
+        }
+
+        .dst-inactive {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .time-display {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕐 时间概念全面指南</h1>
+            <p>前端开发必备的时间处理知识大全</p>
+        </div>
+
+        <!-- 实时时间展示 -->
+        <div class="demo-section">
+            <h2>📊 实时时间展示</h2>
+            <div class="time-display">
+                <div class="time-card">
+                    <h3>当前时间</h3>
+                    <div class="value" id="currentTime">--</div>
+                    <div class="description">本地时间</div>
+                </div>
+                <div class="time-card">
+                    <h3>时间戳</h3>
+                    <div class="value" id="timestamp">--</div>
+                    <div class="description">毫秒时间戳</div>
+                </div>
+                <div class="time-card">
+                    <h3>UTC时间</h3>
+                    <div class="value" id="utcTime">--</div>
+                    <div class="description">世界标准时间</div>
+                </div>
+                <div class="time-card">
+                    <h3>时区偏移</h3>
+                    <div class="value" id="timezone">--</div>
+                    <div class="description">相对UTC偏移</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 世界时钟 -->
+        <div class="demo-section">
+            <h2>🌍 世界时钟</h2>
+            <div class="world-clock-grid">
+                <div class="world-clock-card" data-timezone="Asia/Shanghai">
+                    <div class="flag">🇨🇳</div>
+                    <h3>北京</h3>
+                    <div class="time-value" id="beijing-time">--</div>
+                    <div class="timezone-info">
+                        <span id="beijing-offset">--</span>
+                        <span id="beijing-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="America/New_York">
+                    <div class="flag">🇺🇸</div>
+                    <h3>纽约</h3>
+                    <div class="time-value" id="newyork-time">--</div>
+                    <div class="timezone-info">
+                        <span id="newyork-offset">--</span>
+                        <span id="newyork-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="Europe/London">
+                    <div class="flag">🇬🇧</div>
+                    <h3>伦敦</h3>
+                    <div class="time-value" id="london-time">--</div>
+                    <div class="timezone-info">
+                        <span id="london-offset">--</span>
+                        <span id="london-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="Europe/Paris">
+                    <div class="flag">🇫🇷</div>
+                    <h3>巴黎</h3>
+                    <div class="time-value" id="paris-time">--</div>
+                    <div class="timezone-info">
+                        <span id="paris-offset">--</span>
+                        <span id="paris-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="Asia/Tokyo">
+                    <div class="flag">🇯🇵</div>
+                    <h3>东京</h3>
+                    <div class="time-value" id="tokyo-time">--</div>
+                    <div class="timezone-info">
+                        <span id="tokyo-offset">--</span>
+                        <span id="tokyo-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="Australia/Sydney">
+                    <div class="flag">🇦🇺</div>
+                    <h3>悉尼</h3>
+                    <div class="time-value" id="sydney-time">--</div>
+                    <div class="timezone-info">
+                        <span id="sydney-offset">--</span>
+                        <span id="sydney-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="America/Los_Angeles">
+                    <div class="flag">🇺🇸</div>
+                    <h3>洛杉矶</h3>
+                    <div class="time-value" id="losangeles-time">--</div>
+                    <div class="timezone-info">
+                        <span id="losangeles-offset">--</span>
+                        <span id="losangeles-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="Europe/Moscow">
+                    <div class="flag">🇷🇺</div>
+                    <h3>莫斯科</h3>
+                    <div class="time-value" id="moscow-time">--</div>
+                    <div class="timezone-info">
+                        <span id="moscow-offset">--</span>
+                        <span id="moscow-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="Asia/Dubai">
+                    <div class="flag">🇦🇪</div>
+                    <h3>迪拜</h3>
+                    <div class="time-value" id="dubai-time">--</div>
+                    <div class="timezone-info">
+                        <span id="dubai-offset">--</span>
+                        <span id="dubai-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="America/Sao_Paulo">
+                    <div class="flag">🇧🇷</div>
+                    <h3>圣保罗</h3>
+                    <div class="time-value" id="saopaulo-time">--</div>
+                    <div class="timezone-info">
+                        <span id="saopaulo-offset">--</span>
+                        <span id="saopaulo-dst">--</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="America/Phoenix">
+                    <div class="flag">🇺🇸</div>
+                    <h3>凤凰城</h3>
+                    <div class="time-value" id="phoenix-time">--</div>
+                    <div class="timezone-info">
+                        <span id="phoenix-offset">--</span>
+                        <span id="phoenix-dst">不使用DST</span>
+                    </div>
+                </div>
+
+                <div class="world-clock-card" data-timezone="Asia/Kolkata">
+                    <div class="flag">🇮🇳</div>
+                    <h3>孟买</h3>
+                    <div class="time-value" id="mumbai-time">--</div>
+                    <div class="timezone-info">
+                        <span id="mumbai-offset">--</span>
+                        <span id="mumbai-dst">不使用DST</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 概念表格 -->
+        <div class="demo-section">
+            <h2>📚 时间概念全览表</h2>
+            <div class="responsive-table">
+                <table class="concepts-table">
+                    <thead>
+                        <tr>
+                            <th>概念</th>
+                            <th>英文</th>
+                            <th>说明</th>
+                            <th>示例/备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-header">
+                            <td colspan="4">🌍 基础时间概念</td>
+                        </tr>
+                        <tr>
+                            <td>时间戳</td>
+                            <td>Timestamp</td>
+                            <td>从1970年1月1日00:00:00 UTC开始的毫秒数</td>
+                            <td><code>1672531200000</code></td>
+                        </tr>
+                        <tr>
+                            <td>纪元时间</td>
+                            <td>Epoch Time</td>
+                            <td>时间戳的起点，即Unix时间戳的零点</td>
+                            <td><code>1970-01-01 00:00:00 UTC</code></td>
+                        </tr>
+                        <tr>
+                            <td>世界协调时</td>
+                            <td>UTC</td>
+                            <td>全球统一的时间标准，不受时区影响</td>
+                            <td><code>2025-01-01 00:00:00 UTC</code></td>
+                        </tr>
+                        <tr>
+                            <td>本地时间</td>
+                            <td>Local Time</td>
+                            <td>用户所在地区的时间</td>
+                            <td><code>2025-01-01 08:00:00</code> (北京时间)</td>
+                        </tr>
+
+                        <tr class="category-header">
+                            <td colspan="4">🌏 时区相关</td>
+                        </tr>
+                        <tr>
+                            <td>时区</td>
+                            <td>Timezone</td>
+                            <td>地球上使用相同时间的区域</td>
+                            <td><code>Asia/Shanghai</code>, <code>America/New_York</code></td>
+                        </tr>
+                        <tr>
+                            <td>时区偏移</td>
+                            <td>Timezone Offset</td>
+                            <td>相对于UTC的时差</td>
+                            <td><code>+08:00</code>, <code>-05:00</code></td>
+                        </tr>
+                        <tr>
+                            <td>夏令时</td>
+                            <td>Daylight Saving Time</td>
+                            <td>某些地区夏季将时钟调快1小时</td>
+                            <td>美国、欧洲等地区使用</td>
+                        </tr>
+
+                        <tr class="category-header">
+                            <td colspan="4">📅 日期时间组件</td>
+                        </tr>
+                        <tr>
+                            <td>年份</td>
+                            <td>Year</td>
+                            <td>公历年份</td>
+                            <td><code>2025</code></td>
+                        </tr>
+                        <tr>
+                            <td>月份</td>
+                            <td>Month</td>
+                            <td>一年中的月份</td>
+                            <td><code>1-12</code> 或 <code>0-11</code>(JS中)</td>
+                        </tr>
+                        <tr>
+                            <td>日期</td>
+                            <td>Date/Day</td>
+                            <td>一个月中的某一天</td>
+                            <td><code>1-31</code></td>
+                        </tr>
+                        <tr>
+                            <td>小时</td>
+                            <td>Hour</td>
+                            <td>一天中的小时</td>
+                            <td><code>0-23</code> (24小时制)</td>
+                        </tr>
+                        <tr>
+                            <td>分钟</td>
+                            <td>Minute</td>
+                            <td>一小时中的分钟</td>
+                            <td><code>0-59</code></td>
+                        </tr>
+                        <tr>
+                            <td>秒</td>
+                            <td>Second</td>
+                            <td>一分钟中的秒</td>
+                            <td><code>0-59</code></td>
+                        </tr>
+                        <tr>
+                            <td>毫秒</td>
+                            <td>Millisecond</td>
+                            <td>一秒中的毫秒</td>
+                            <td><code>0-999</code></td>
+                        </tr>
+
+                        <tr class="category-header">
+                            <td colspan="4">🔄 相对时间</td>
+                        </tr>
+                        <tr>
+                            <td>相对时间</td>
+                            <td>Relative Time</td>
+                            <td>相对于当前时间的描述</td>
+                            <td><code>2分钟前</code>, <code>明天</code>, <code>下周</code></td>
+                        </tr>
+                        <tr>
+                            <td>持续时间</td>
+                            <td>Duration</td>
+                            <td>时间间隔的长度</td>
+                            <td><code>2小时30分钟</code>, <code>3天</code></td>
+                        </tr>
+                        <tr>
+                            <td>时间差</td>
+                            <td>Time Difference</td>
+                            <td>两个时间点之间的差值</td>
+                            <td><code>时间A - 时间B = 2小时</code></td>
+                        </tr>
+
+                        <tr class="category-header">
+                            <td colspan="4">💻 JavaScript特有</td>
+                        </tr>
+                        <tr>
+                            <td>Date对象</td>
+                            <td>Date Object</td>
+                            <td>JS中表示时间的对象</td>
+                            <td><code>new Date()</code></td>
+                        </tr>
+                        <tr>
+                            <td>时间解析</td>
+                            <td>Date Parsing</td>
+                            <td>将字符串转换为Date对象</td>
+                            <td><code>new Date('2025-01-01')</code></td>
+                        </tr>
+                        <tr>
+                            <td>时间格式化</td>
+                            <td>Date Formatting</td>
+                            <td>将Date对象转换为字符串</td>
+                            <td><code>date.toLocaleString()</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 代码示例 -->
+        <div class="demo-section">
+            <h2>💻 常用代码示例</h2>
+
+            <h3>1. 获取时间戳和格式化</h3>
+            <div class="code-example">
+                <pre>
+// 获取当前时间戳
+const timestamp = Date.now()
+console.log('当前时间戳:', timestamp)
+
+// 格式化时间显示
+const formatTime = (timestamp) => {
+    const date = new Date(timestamp)
+    return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    })
+}
+</pre>
+            </div>
+
+            <h3>2. 相对时间计算</h3>
+            <div class="code-example">
+                <pre>
+// 计算"多久之前"
+const formatRelativeTime = (timestamp) => {
+    const now = Date.now()
+    const diff = now - timestamp
+
+    if (diff < 60000) return '刚刚'
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
+    return `${Math.floor(diff / 86400000)}天前`
+}
+</pre>
+            </div>
+
+            <h3>3. 时区处理与世界时钟</h3>
+            <div class="code-example">
+                <pre>
+// 获取用户时区
+const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+console.log('用户时区:', userTimezone)
+
+// 转换为指定时区
+const convertToTimezone = (timestamp, timezone) => {
+    const date = new Date(timestamp)
+    return date.toLocaleString('zh-CN', {
+        timeZone: timezone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
+}
+
+// 检查夏令时状态
+const checkDST = (timezone) => {
+    const now = new Date()
+    const january = new Date(now.getFullYear(), 0, 1)
+    const july = new Date(now.getFullYear(), 6, 1)
+
+    const janOffset = getTimezoneOffset(timezone)
+    const julOffset = getTimezoneOffset(timezone)
+    const currentOffset = getTimezoneOffset(timezone)
+
+    return currentOffset < Math.max(janOffset, julOffset)
+}
+
+// 世界时钟示例
+const worldClocks = [
+    { name: '北京', timezone: 'Asia/Shanghai' },
+    { name: '纽约', timezone: 'America/New_York' },
+    { name: '伦敦', timezone: 'Europe/London' },
+    { name: '悉尼', timezone: 'Australia/Sydney' }
+]
+</pre>
+            </div>
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="demo-section">
+            <h2>🎮 交互测试</h2>
+            <div class="controls">
+                <button class="btn" onclick="updateTimeDisplay()">刷新时间</button>
+                <button class="btn" onclick="showTimestamp()">显示时间戳详情</button>
+                <button class="btn" onclick="testRelativeTime()">测试相对时间</button>
+                <button class="btn" onclick="showTimezoneInfo()">时区信息</button>
+            </div>
+            <div id="testResult" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;">
+                <h4>测试结果:</h4>
+                <div id="testContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 世界时钟数据
+        const worldClocks = [
+            { id: 'beijing', timezone: 'Asia/Shanghai', name: '北京' },
+            { id: 'newyork', timezone: 'America/New_York', name: '纽约' },
+            { id: 'london', timezone: 'Europe/London', name: '伦敦' },
+            { id: 'paris', timezone: 'Europe/Paris', name: '巴黎' },
+            { id: 'tokyo', timezone: 'Asia/Tokyo', name: '东京' },
+            { id: 'sydney', timezone: 'Australia/Sydney', name: '悉尼' },
+            { id: 'losangeles', timezone: 'America/Los_Angeles', name: '洛杉矶' },
+            { id: 'moscow', timezone: 'Europe/Moscow', name: '莫斯科' },
+            { id: 'dubai', timezone: 'Asia/Dubai', name: '迪拜' },
+            { id: 'saopaulo', timezone: 'America/Sao_Paulo', name: '圣保罗' },
+            { id: 'phoenix', timezone: 'America/Phoenix', name: '凤凰城' },
+            { id: 'mumbai', timezone: 'Asia/Kolkata', name: '孟买' }
+        ]
+
+        // 更新世界时钟
+        function updateWorldClocks() {
+            const now = new Date()
+
+            worldClocks.forEach(clock => {
+                try {
+                    // 获取指定时区的时间
+                    const timeInTimezone = now.toLocaleString('zh-CN', {
+                        timeZone: clock.timezone,
+                        hour12: false,
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })
+
+                    // 更新时间显示
+                    document.getElementById(`${clock.id}-time`).textContent = timeInTimezone
+
+                    // 计算时区偏移
+                    const offsetInMinutes = getTimezoneOffset(clock.timezone)
+                    const offsetHours = Math.floor(Math.abs(offsetInMinutes) / 60)
+                    const offsetMinutes = Math.abs(offsetInMinutes) % 60
+                    const offsetSign = offsetInMinutes >= 0 ? '+' : '-'
+                    const offsetString = `UTC${offsetSign}${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`
+
+                    document.getElementById(`${clock.id}-offset`).textContent = offsetString
+
+                    // 检查夏令时状态
+                    const dstInfo = getDSTInfo(clock.timezone)
+                    const dstElement = document.getElementById(`${clock.id}-dst`)
+
+                    if (dstElement && !dstElement.textContent.includes('不使用')) {
+                        dstElement.textContent = dstInfo.isDST ? '夏令时' : '标准时间'
+                        dstElement.className = dstInfo.isDST ? 'dst-active' : 'dst-inactive'
+                    }
+
+                } catch (error) {
+                    console.error(`更新 ${clock.name} 时间失败:`, error)
+                }
+            })
+        }
+
+        // 获取时区偏移（分钟）
+        function getTimezoneOffset(timezone) {
+            const now = new Date()
+            const utc = new Date(now.getTime() + (now.getTimezoneOffset() * 60000))
+            const targetTime = new Date(utc.toLocaleString('en-US', { timeZone: timezone }))
+            const utcTime = new Date(utc.toLocaleString('en-US', { timeZone: 'UTC' }))
+
+            return Math.round((targetTime.getTime() - utcTime.getTime()) / (1000 * 60))
+        }
+
+        // 获取夏令时信息
+        function getDSTInfo(timezone) {
+            const now = new Date()
+            const january = new Date(now.getFullYear(), 0, 1)
+            const july = new Date(now.getFullYear(), 6, 1)
+
+            const janOffset = getTimezoneOffset(timezone)
+            const julOffset = getTimezoneOffset(timezone)
+            const currentOffset = getTimezoneOffset(timezone)
+
+            // 简化的DST检测逻辑
+            const stdOffset = Math.max(janOffset, julOffset)
+            const isDST = currentOffset < stdOffset
+
+            return {
+                isDST: isDST,
+                standardOffset: stdOffset,
+                currentOffset: currentOffset
+            }
+        }
+
+        // 更新时间显示
+        function updateTimeDisplay() {
+            const now = new Date()
+            const timestamp = now.getTime()
+
+            // 当前时间
+            document.getElementById('currentTime').textContent =
+                now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })
+
+            // 时间戳
+            document.getElementById('timestamp').textContent = timestamp
+
+            // UTC时间
+            document.getElementById('utcTime').textContent =
+                now.toISOString().replace('T', ' ').substring(0, 19)
+
+            // 时区偏移
+            const offset = -now.getTimezoneOffset() / 60
+            document.getElementById('timezone').textContent =
+                `UTC${offset >= 0 ? '+' : ''}${offset}`
+
+            // 更新世界时钟
+            updateWorldClocks()
+        }
+
+        // 显示时间戳详情
+        function showTimestamp() {
+            const now = new Date()
+            const timestamp = now.getTime()
+            const unixTimestamp = Math.floor(timestamp / 1000)
+
+            const content = `
+                <p><strong>毫秒时间戳:</strong> ${timestamp}</p>
+                <p><strong>Unix时间戳:</strong> ${unixTimestamp}</p>
+                <p><strong>ISO 8601:</strong> ${now.toISOString()}</p>
+                <p><strong>RFC 2822:</strong> ${now.toString()}</p>
+            `
+
+            showTestResult(content)
+        }
+
+        // 测试相对时间
+        function testRelativeTime() {
+            const now = Date.now()
+            const testTimes = [
+                now - 30000,    // 30秒前
+                now - 300000,   // 5分钟前
+                now - 3600000,  // 1小时前
+                now - 86400000, // 1天前
+                now - 259200000 // 3天前
+            ]
+
+            const formatRelativeTime = (timestamp) => {
+                const diff = now - timestamp
+
+                if (diff < 60000) return '刚刚'
+                if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
+                if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
+                return `${Math.floor(diff / 86400000)}天前`
+            }
+
+            let content = '<p><strong>相对时间测试:</strong></p>'
+            testTimes.forEach((time, index) => {
+                const relativeTime = formatRelativeTime(time)
+                const actualTime = new Date(time).toLocaleString('zh-CN')
+                content += `<p>测试${index + 1}: ${actualTime} → ${relativeTime}</p>`
+            })
+
+            showTestResult(content)
+        }
+
+        // 显示时区信息
+        function showTimezoneInfo() {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            const now = new Date()
+            const offset = -now.getTimezoneOffset() / 60
+
+            // 获取一些主要城市的时区信息
+            const cities = [
+                { name: '北京', timezone: 'Asia/Shanghai' },
+                { name: '纽约', timezone: 'America/New_York' },
+                { name: '伦敦', timezone: 'Europe/London' },
+                { name: '悉尼', timezone: 'Australia/Sydney' }
+            ]
+
+            let cityInfo = ''
+            cities.forEach(city => {
+                const cityTime = now.toLocaleString('zh-CN', {
+                    timeZone: city.timezone,
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+
+                const cityOffset = getTimezoneOffset(city.timezone)
+                const offsetHours = Math.floor(Math.abs(cityOffset) / 60)
+                const offsetSign = cityOffset >= 0 ? '+' : '-'
+                const dstStatus = getDSTInfo(city.timezone).isDST ? '(夏令时)' : '(标准时间)'
+
+                cityInfo += `<p><strong>${city.name}:</strong> ${cityTime} UTC${offsetSign}${offsetHours} ${dstStatus}</p>`
+            })
+
+            const content = `
+                <p><strong>您的时区:</strong> ${timezone}</p>
+                <p><strong>UTC偏移:</strong> UTC${offset >= 0 ? '+' : ''}${offset}</p>
+                <p><strong>夏令时状态:</strong> ${now.getTimezoneOffset() !== new Date(now.getFullYear(), 0, 1).getTimezoneOffset() ? '正在使用夏令时' : '未使用夏令时'}</p>
+                <p><strong>本地时间:</strong> ${now.toLocaleString('zh-CN')}</p>
+                <p><strong>UTC时间:</strong> ${now.toISOString().replace('T', ' ').substring(0, 19)}</p>
+                <hr style="margin: 15px 0;">
+                <p><strong>世界主要城市时间:</strong></p>
+                ${cityInfo}
+            `
+
+            showTestResult(content)
+        }
+
+        // 显示测试结果
+        function showTestResult(content) {
+            document.getElementById('testContent').innerHTML = content
+            document.getElementById('testResult').style.display = 'block'
+        }
+
+        // 初始化
+        updateTimeDisplay()
+
+        // 每秒更新时间
+        setInterval(updateTimeDisplay, 1000)
+    </script>
+</body>
+</html>
