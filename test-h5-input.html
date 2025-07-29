@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>输入框键盘顶起修复</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f5f5f5;
+            /* 防止页面滚动 */
+            overflow-x: hidden;
+        }
+
+        .chat-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            /* 为输入框留出空间 */
+            padding-bottom: 80px;
+        }
+
+        .message {
+            background: white;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .input-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 12px 16px;
+            /* 确保在最顶层 */
+            z-index: 1000;
+            /* 关键：使用 safe-area-inset-bottom 适配刘海屏 */
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            transition: transform 0.3s ease;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 10px 16px;
+            font-size: 16px;
+            outline: none;
+            /* 防止 iOS 缩放 */
+            -webkit-appearance: none;
+            resize: none;
+            max-height: 100px;
+            min-height: 40px;
+        }
+
+        .send-button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+        }
+
+        /* 键盘弹起时的样式调整 */
+        .keyboard-active {
+            /* 当键盘弹起时，调整容器高度 */
+            height: calc(100vh - var(--keyboard-height, 0px));
+        }
+
+        .keyboard-active .input-container {
+            /* 确保输入框始终可见 */
+            transform: translateY(0);
+        }
+
+        /* iOS Safari 特殊处理 */
+        @supports (-webkit-touch-callout: none) {
+            .input-container {
+                /* iOS 设备上的额外调整 */
+                position: -webkit-sticky;
+                position: sticky;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container" id="chatContainer">
+        <div class="messages-area" id="messagesArea">
+            <div class="message">
+                <strong>系统消息:</strong> 请测试输入框功能，发送第一条消息后再发送第二条消息，观察输入框是否正常被键盘顶起。
+            </div>
+        </div>
+
+        <div class="input-container" id="inputContainer">
+            <div class="input-wrapper">
+                <textarea
+                    class="message-input"
+                    id="messageInput"
+                    placeholder="输入消息..."
+                    rows="1"
+                ></textarea>
+                <button class="send-button" id="sendButton" type="button">
+                    ▲
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class KeyboardHandler {
+            constructor() {
+                this.chatContainer = document.getElementById('chatContainer');
+                this.inputContainer = document.getElementById('inputContainer');
+                this.messageInput = document.getElementById('messageInput');
+                this.messagesArea = document.getElementById('messagesArea');
+                this.sendButton = document.getElementById('sendButton');
+
+                // 记录初始视口高度
+                this.initialViewportHeight = window.innerHeight;
+                this.keyboardHeight = 0;
+                this.isKeyboardVisible = false;
+                this.messageCount = 0;
+
+                this.init();
+            }
+
+            init() {
+                // 监听视口大小变化（核心解决方案）
+                this.handleViewportChange();
+
+                // 监听输入框事件
+                this.handleInputEvents();
+
+                // 监听发送按钮
+                this.handleSendMessage();
+
+                // iOS 特殊处理
+                this.handleIOSSpecific();
+            }
+
+            handleViewportChange() {
+                // 监听 visualViewport API（现代浏览器支持）
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', () => {
+                        this.onViewportResize();
+                    });
+                } else {
+                    // 降级方案：监听 window resize
+                    let resizeTimer;
+                    window.addEventListener('resize', () => {
+                        clearTimeout(resizeTimer);
+                        resizeTimer = setTimeout(() => {
+                            this.onViewportResize();
+                        }, 100);
+                    });
+                }
+            }
+
+            onViewportResize() {
+                const currentHeight = window.visualViewport ?
+                    window.visualViewport.height : window.innerHeight;
+
+                // 计算键盘高度
+                const heightDiff = this.initialViewportHeight - currentHeight;
+
+                if (heightDiff > 150) { // 键盘显示阈值
+                    this.keyboardHeight = heightDiff;
+                    this.isKeyboardVisible = true;
+                    this.showKeyboard();
+                } else {
+                    this.keyboardHeight = 0;
+                    this.isKeyboardVisible = false;
+                    this.hideKeyboard();
+                }
+            }
+
+            showKeyboard() {
+                // 设置 CSS 变量
+                document.documentElement.style.setProperty('--keyboard-height', `${this.keyboardHeight}px`);
+
+                // 添加键盘激活类
+                this.chatContainer.classList.add('keyboard-active');
+
+                // 滚动到底部
+                setTimeout(() => {
+                    this.scrollToBottom();
+                }, 100);
+
+                console.log('键盘显示，高度:', this.keyboardHeight);
+            }
+
+            hideKeyboard() {
+                // 移除 CSS 变量
+                document.documentElement.style.removeProperty('--keyboard-height');
+
+                // 移除键盘激活类
+                this.chatContainer.classList.remove('keyboard-active');
+
+                console.log('键盘隐藏');
+            }
+
+            handleInputEvents() {
+                // 输入框获得焦点
+                this.messageInput.addEventListener('focus', () => {
+                    console.log('输入框获得焦点');
+
+                    // 强制重新计算视口（修复第一次失效问题）
+                    setTimeout(() => {
+                        this.forceViewportRecalculation();
+                    }, 300);
+                });
+
+                // 输入框失去焦点
+                this.messageInput.addEventListener('blur', () => {
+                    console.log('输入框失去焦点');
+                });
+
+                // 自动调整输入框高度
+                this.messageInput.addEventListener('input', () => {
+                    this.autoResizeTextarea();
+                });
+            }
+
+            forceViewportRecalculation() {
+                // 强制重新计算视口大小（解决第一次失效问题的关键）
+                const currentHeight = window.visualViewport ?
+                    window.visualViewport.height : window.innerHeight;
+
+                const heightDiff = this.initialViewportHeight - currentHeight;
+
+                if (heightDiff > 150 && !this.isKeyboardVisible) {
+                    console.log('强制修正键盘状态');
+                    this.onViewportResize();
+                }
+            }
+
+            autoResizeTextarea() {
+                const textarea = this.messageInput;
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+            }
+
+            handleSendMessage() {
+                this.sendButton.addEventListener('click', () => {
+                    this.sendMessage();
+                });
+
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+            }
+
+            sendMessage() {
+                const text = this.messageInput.value.trim();
+                if (!text) return;
+
+                this.messageCount++;
+
+                // 添加消息到聊天区域
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.innerHTML = `<strong>消息 ${this.messageCount}:</strong> ${text}`;
+                this.messagesArea.appendChild(messageDiv);
+
+                // 清空输入框
+                this.messageInput.value = '';
+                this.autoResizeTextarea();
+
+                // 滚动到底部
+                this.scrollToBottom();
+
+                // 测试提示
+                if (this.messageCount === 1) {
+                    setTimeout(() => {
+                        const tipDiv = document.createElement('div');
+                        tipDiv.className = 'message';
+                        tipDiv.innerHTML = '<strong>提示:</strong> 请再次点击输入框并输入第二条消息，测试键盘顶起功能是否正常。';
+                        this.messagesArea.appendChild(tipDiv);
+                        this.scrollToBottom();
+                    }, 1000);
+                }
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
+                }, 50);
+            }
+
+            handleIOSSpecific() {
+                // iOS Safari 特殊处理
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    console.log('检测到 iOS 设备，启用特殊处理');
+
+                    // 防止页面滚动
+                    document.addEventListener('touchmove', (e) => {
+                        if (!this.messagesArea.contains(e.target)) {
+                            e.preventDefault();
+                        }
+                    }, { passive: false });
+
+                    // iOS 视口变化延迟处理
+                    let iosTimer;
+                    window.addEventListener('resize', () => {
+                        clearTimeout(iosTimer);
+                        iosTimer = setTimeout(() => {
+                            this.forceViewportRecalculation();
+                        }, 500);
+                    });
+                }
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('初始化键盘处理器');
+            new KeyboardHandler();
+        });
+
+        // 页面显示时重新计算（解决页面切换后的问题）
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
