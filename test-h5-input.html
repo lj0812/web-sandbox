@@ -120,6 +120,12 @@
             <div class="message">
                 <strong>系统消息:</strong> 请测试输入框功能，发送第一条消息后再发送第二条消息，观察输入框是否正常被键盘顶起。
             </div>
+            <div class="message">
+                <button id="toggleFix" style="background: #007AFF; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-right: 10px;">
+                    修复功能: 开启
+                </button>
+                <span style="color: #666;">切换此按钮可对比修复前后的效果</span>
+            </div>
         </div>
 
         <div class="input-container" id="inputContainer">
@@ -145,12 +151,14 @@
                 this.messageInput = document.getElementById('messageInput');
                 this.messagesArea = document.getElementById('messagesArea');
                 this.sendButton = document.getElementById('sendButton');
+                this.toggleFixButton = document.getElementById('toggleFix');
 
                 // 记录初始视口高度
                 this.initialViewportHeight = window.innerHeight;
                 this.keyboardHeight = 0;
                 this.isKeyboardVisible = false;
                 this.messageCount = 0;
+                this.isFixEnabled = true; // 默认开启修复
 
                 this.init();
             }
@@ -164,6 +172,9 @@
 
                 // 监听发送按钮
                 this.handleSendMessage();
+
+                // 监听修复按钮
+                this.handleToggleFix();
 
                 // iOS 特殊处理
                 this.handleIOSSpecific();
@@ -236,9 +247,11 @@
                     console.log('输入框获得焦点');
 
                     // 强制重新计算视口（修复第一次失效问题）
-                    setTimeout(() => {
-                        this.forceViewportRecalculation();
-                    }, 300);
+                    if (this.isFixEnabled) {
+                        setTimeout(() => {
+                            this.forceViewportRecalculation();
+                        }, 300);
+                    }
                 });
 
                 // 输入框失去焦点
@@ -253,6 +266,11 @@
             }
 
             forceViewportRecalculation() {
+                if (!this.isFixEnabled) {
+                    console.log('修复功能已关闭，跳过强制重新计算');
+                    return;
+                }
+
                 // 强制重新计算视口大小（解决第一次失效问题的关键）
                 const currentHeight = window.visualViewport ?
                     window.visualViewport.height : window.innerHeight;
@@ -319,6 +337,14 @@
                 setTimeout(() => {
                     this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
                 }, 50);
+            }
+
+            handleToggleFix() {
+                this.toggleFixButton.addEventListener('click', () => {
+                    this.isFixEnabled = !this.isFixEnabled;
+                    this.toggleFixButton.textContent = this.isFixEnabled ? '修复功能: 开启' : '修复功能: 关闭';
+                    console.log('修复功能已切换为:', this.isFixEnabled ? '开启' : '关闭');
+                });
             }
 
             handleIOSSpecific() {
