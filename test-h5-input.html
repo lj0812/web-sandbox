@@ -111,6 +111,56 @@
                 position: -webkit-sticky;
                 position: sticky;
             }
+
+            /* iOS 输入框优化 */
+            .message-input {
+                /* 防止iOS自动缩放和滚动 */
+                -webkit-user-select: text;
+                user-select: text;
+                -webkit-touch-callout: default;
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+            }
+
+            /* iOS 页面滚动优化 */
+            .messages-area {
+                /* 使用iOS原生滚动优化 */
+                -webkit-overflow-scrolling: touch;
+                /* 防止橡皮筋效果 */
+                overscroll-behavior: contain;
+            }
+
+            /* iOS 键盘显示时的容器调整 */
+            .keyboard-active .chat-container {
+                /* 防止高度跳跃 */
+                transition: height 0.2s ease;
+            }
+        }
+
+        /* iOS 专用：防止输入框聚焦时页面跳跃 */
+        @media screen and (-webkit-min-device-pixel-ratio: 2) {
+            body {
+                /* 固定body位置，防止iOS滚动 */
+                position: relative;
+                overflow: hidden;
+            }
+
+            .chat-container {
+                /* 确保容器占满屏幕 */
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                overflow: hidden;
+            }
+
+            .messages-area {
+                /* 重新启用滚动 */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
         }
     </style>
 </head>
@@ -246,6 +296,26 @@
                 this.messageInput.addEventListener('focus', () => {
                     console.log('输入框获得焦点');
 
+                    // iOS 专用：防止自动滚动到顶部
+                    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                        // 锁定页面位置，防止跳跃
+                        this.lockPagePosition();
+
+                        // 延迟恢复滚动位置，覆盖iOS的默认行为
+                        setTimeout(() => {
+                            this.unlockPagePosition();
+                            // 滚动到底部，而不是让iOS随意滚动
+                            this.scrollToBottom();
+                            // 确保输入框在可视范围内但不在顶部
+                            this.ensureInputVisible();
+                        }, 300);
+
+                        // 再次延迟处理，确保稳定
+                        setTimeout(() => {
+                            this.scrollToBottom();
+                        }, 500);
+                    }
+
                     // 强制重新计算视口（修复第一次失效问题）
                     if (this.isFixEnabled) {
                         setTimeout(() => {
@@ -257,6 +327,13 @@
                 // 输入框失去焦点
                 this.messageInput.addEventListener('blur', () => {
                     console.log('输入框失去焦点');
+
+                    // iOS 专用：确保页面位置正常
+                    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                        setTimeout(() => {
+                            this.unlockPagePosition();
+                        }, 100);
+                    }
                 });
 
                 // 自动调整输入框高度
@@ -335,8 +412,75 @@
 
             scrollToBottom() {
                 setTimeout(() => {
-                    this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
+                    // iOS 优化：更温和的滚动到底部
+                    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                        // 计算合适的滚动位置，确保输入框可见但不过度滚动
+                        const messagesHeight = this.messagesArea.scrollHeight;
+                        const visibleHeight = this.messagesArea.clientHeight;
+                        const maxScroll = messagesHeight - visibleHeight;
+
+                        // 滚动到接近底部，但留一些余量
+                        this.messagesArea.scrollTop = Math.max(0, maxScroll - 20);
+                    } else {
+                        this.messagesArea.scrollTop = this.messagesArea.scrollHeight;
+                    }
                 }, 50);
+            }
+
+            ensureInputVisible() {
+                // 确保输入框在合适位置可见，不会跑到页面顶部
+                const inputRect = this.inputContainer.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+
+                // 如果输入框不在合适位置，调整滚动
+                if (inputRect.top < viewportHeight * 0.6) {
+                    console.log('调整输入框位置，防止跑到顶部');
+
+                    // 将消息区域滚动到合适位置
+                    const currentScroll = this.messagesArea.scrollTop;
+                    const adjustment = (viewportHeight * 0.6) - inputRect.top;
+
+                    this.messagesArea.scrollTop = Math.max(0, currentScroll - adjustment);
+                }
+            }
+
+            lockPagePosition() {
+                // iOS 专用：锁定页面位置，防止输入框聚焦时页面跳跃
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    // 记录当前滚动位置
+                    this.savedScrollTop = this.messagesArea.scrollTop;
+                    this.savedBodyScrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+
+                    // 临时固定页面位置
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = `-${this.savedBodyScrollTop}px`;
+                    document.body.style.width = '100%';
+
+                    console.log('锁定页面位置，防止跳跃');
+                }
+            }
+
+            unlockPagePosition() {
+                // iOS 专用：解锁页面位置
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    // 恢复页面滚动
+                    document.body.style.position = '';
+                    document.body.style.top = '';
+                    document.body.style.width = '';
+
+                    // 恢复滚动位置
+                    if (this.savedBodyScrollTop) {
+                        document.body.scrollTop = this.savedBodyScrollTop;
+                        document.documentElement.scrollTop = this.savedBodyScrollTop;
+                    }
+
+                    // 恢复消息区域滚动位置
+                    setTimeout(() => {
+                        this.scrollToBottom();
+                    }, 50);
+
+                    console.log('解锁页面位置');
+                }
             }
 
             handleToggleFix() {
@@ -359,6 +503,23 @@
                         }
                     }, { passive: false });
 
+                    // 防止iOS输入框聚焦时的自动滚动
+                    this.messageInput.addEventListener('touchstart', (e) => {
+                        // 记录触摸位置，防止意外滚动
+                        this.lastTouchY = e.touches[0].clientY;
+                    });
+
+                    // 监听输入框的 focusin 事件（比 focus 更早触发）
+                    this.messageInput.addEventListener('focusin', (e) => {
+                        // 阻止默认的滚动行为
+                        e.preventDefault();
+
+                        // 延迟处理，确保在iOS原生滚动之后
+                        setTimeout(() => {
+                            this.scrollToBottom();
+                        }, 50);
+                    });
+
                     // iOS 视口变化延迟处理
                     let iosTimer;
                     window.addEventListener('resize', () => {
@@ -367,6 +528,12 @@
                             this.forceViewportRecalculation();
                         }, 500);
                     });
+
+                    // 添加额外的viewport meta标签优化
+                    const viewport = document.querySelector('meta[name="viewport"]');
+                    if (viewport) {
+                        viewport.content = 'width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover';
+                    }
                 }
             }
         }
