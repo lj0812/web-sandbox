@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>输入框键盘顶起修复</title>
     <style>
         * {
@@ -20,17 +20,24 @@
 
         .chat-container {
             height: 100vh;
+            /* iOS 适配：使用100dvh替代100vh，更好地处理动态视口 */
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             position: relative;
+            /* 添加安全区域适配 */
+            padding-top: env(safe-area-inset-top, 0px);
         }
 
         .messages-area {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            /* 为输入框留出空间 */
-            padding-bottom: 80px;
+            /* 为输入框留出空间，考虑安全区域 */
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+            /* 添加安全区域的左右内边距 */
+            padding-left: calc(20px + env(safe-area-inset-left, 0px));
+            padding-right: calc(20px + env(safe-area-inset-right, 0px));
         }
 
         .message {
@@ -51,8 +58,13 @@
             padding: 12px 16px;
             /* 确保在最顶层 */
             z-index: 1000;
-            /* 关键：使用 safe-area-inset-bottom 适配刘海屏 */
+            /* 关键：使用 safe-area-inset-bottom 适配刘海屏和导航栏 */
             padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            /* iOS 专用：额外适配导航栏高度 */
+            bottom: env(safe-area-inset-bottom, 0px);
+            /* 添加安全区域的左右内边距 */
+            padding-left: calc(16px + env(safe-area-inset-left, 0px));
+            padding-right: calc(16px + env(safe-area-inset-right, 0px));
             transition: transform 0.3s ease;
         }
 
@@ -110,6 +122,8 @@
                 /* iOS 设备上的额外调整 */
                 position: -webkit-sticky;
                 position: sticky;
+                /* 确保在有导航栏时正确定位 */
+                bottom: max(env(safe-area-inset-bottom), 0px);
             }
 
             /* iOS 输入框优化 */
@@ -129,37 +143,80 @@
                 -webkit-overflow-scrolling: touch;
                 /* 防止橡皮筋效果 */
                 overscroll-behavior: contain;
+                /* 确保消息区域不被安全区域遮挡 */
+                padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px) + 20px);
             }
 
             /* iOS 键盘显示时的容器调整 */
             .keyboard-active .chat-container {
                 /* 防止高度跳跃 */
                 transition: height 0.2s ease;
+                /* 动态适配视口高度 */
+                height: calc(100dvh - var(--keyboard-height, 0px));
+            }
+
+            /* iOS 聊天容器优化 */
+            .chat-container {
+                /* 确保全屏显示，包含安全区域 */
+                min-height: 100vh;
+                min-height: 100dvh;
+                /* 防止内容被状态栏遮挡 */
+                padding-top: max(env(safe-area-inset-top), 20px);
             }
         }
 
         /* iOS 专用：防止输入框聚焦时页面跳跃 */
         @media screen and (-webkit-min-device-pixel-ratio: 2) {
+            /* 针对iOS设备的全局样式调整 */
+            html {
+                /* 防止页面缩放 */
+                -webkit-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+                /* 确保全屏显示 */
+                height: 100%;
+                height: 100dvh;
+            }
+
             body {
                 /* 固定body位置，防止iOS滚动 */
                 position: relative;
                 overflow: hidden;
+                /* 全屏高度，包含安全区域 */
+                min-height: 100%;
+                min-height: 100dvh;
+                /* 背景延伸到安全区域 */
+                background-color: #f5f5f5;
             }
 
             .chat-container {
-                /* 确保容器占满屏幕 */
+                /* 确保容器占满屏幕，包含安全区域 */
                 position: absolute;
                 top: 0;
                 left: 0;
                 right: 0;
                 bottom: 0;
                 overflow: hidden;
+                /* 全屏高度 */
+                height: 100vh;
+                height: 100dvh;
             }
 
             .messages-area {
                 /* 重新启用滚动 */
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
+                /* 适配安全区域 */
+                padding-top: calc(20px + env(safe-area-inset-top, 0px));
+                padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .input-container {
+                /* 确保输入框不被导航栏遮挡 */
+                bottom: env(safe-area-inset-bottom, 0px);
+                /* 在有导航栏时额外调整 */
+                margin-bottom: 0;
+                /* iOS Safari 导航栏适配 */
+                transform: translateY(0);
             }
         }
     </style>
@@ -228,6 +285,13 @@
 
                 // iOS 特殊处理
                 this.handleIOSSpecific();
+
+                // 初始化时检测导航栏遮挡（iOS专用）
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    setTimeout(() => {
+                        this.detectAndFixNavigationBar();
+                    }, 500);
+                }
             }
 
             handleViewportChange() {
@@ -276,6 +340,10 @@
                 // 滚动到底部
                 setTimeout(() => {
                     this.scrollToBottom();
+                    // iOS专用：检测导航栏遮挡
+                    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                        this.detectAndFixNavigationBar();
+                    }
                 }, 100);
 
                 console.log('键盘显示，高度:', this.keyboardHeight);
@@ -287,6 +355,13 @@
 
                 // 移除键盘激活类
                 this.chatContainer.classList.remove('keyboard-active');
+
+                // iOS专用：键盘隐藏时重新检测导航栏
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    setTimeout(() => {
+                        this.detectAndFixNavigationBar();
+                    }, 200);
+                }
 
                 console.log('键盘隐藏');
             }
@@ -496,6 +571,9 @@
                 if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                     console.log('检测到 iOS 设备，启用特殊处理');
 
+                    // 检测并调整iOS导航栏遮挡问题
+                    this.detectAndFixNavigationBar();
+
                     // 防止页面滚动
                     document.addEventListener('touchmove', (e) => {
                         if (!this.messagesArea.contains(e.target)) {
@@ -517,6 +595,7 @@
                         // 延迟处理，确保在iOS原生滚动之后
                         setTimeout(() => {
                             this.scrollToBottom();
+                            this.detectAndFixNavigationBar();
                         }, 50);
                     });
 
@@ -526,7 +605,17 @@
                         clearTimeout(iosTimer);
                         iosTimer = setTimeout(() => {
                             this.forceViewportRecalculation();
+                            this.detectAndFixNavigationBar();
                         }, 500);
+                    });
+
+                    // 页面可见性变化时重新检测
+                    document.addEventListener('visibilitychange', () => {
+                        if (!document.hidden) {
+                            setTimeout(() => {
+                                this.detectAndFixNavigationBar();
+                            }, 200);
+                        }
                     });
 
                     // 添加额外的viewport meta标签优化
@@ -534,6 +623,41 @@
                     if (viewport) {
                         viewport.content = 'width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover';
                     }
+                }
+            }
+
+            detectAndFixNavigationBar() {
+                // 检测iOS导航栏遮挡并动态调整
+                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                    const inputRect = this.inputContainer.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    const actualViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+                    // 检测输入框是否被遮挡
+                    const isObstructed = inputRect.bottom > actualViewportHeight;
+
+                    if (isObstructed) {
+                        console.log('检测到导航栏遮挡，进行调整');
+
+                        // 计算遮挡高度
+                        const obstructionHeight = inputRect.bottom - actualViewportHeight;
+
+                        // 动态调整输入框位置
+                        this.inputContainer.style.transform = `translateY(-${Math.max(obstructionHeight, 0)}px)`;
+
+                        // 同时调整消息区域的底部边距
+                        const extraPadding = Math.max(obstructionHeight, 0) + 20;
+                        this.messagesArea.style.paddingBottom = `calc(80px + env(safe-area-inset-bottom, 0px) + ${extraPadding}px)`;
+
+                    } else {
+                        // 恢复默认位置
+                        this.inputContainer.style.transform = '';
+                        this.messagesArea.style.paddingBottom = '';
+                    }
+
+                    // 记录调试信息
+                    console.log('视口高度:', viewportHeight, '实际视口高度:', actualViewportHeight);
+                    console.log('输入框位置:', inputRect.bottom, '是否被遮挡:', isObstructed);
                 }
             }
         }
