@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐形水印检测器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .upload-section {
+            background: white;
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .image-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .image-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .image-container h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        canvas, img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .control-group label {
+            min-width: 120px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 200px;
+            margin: 0 10px;
+        }
+
+        .value-display {
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            min-width: 60px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .analysis-results {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .result-item.warning {
+            border-left-color: #ffc107;
+            background: #fff9c4;
+        }
+
+        .result-item.danger {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .histogram {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 隐形水印检测器</h1>
+
+        <div class="upload-section" id="uploadSection">
+            <h3>上传图片进行水印检测</h3>
+            <p>支持 JPG, PNG, GIF 等格式</p>
+            <input type="file" id="imageInput" class="file-input" accept="image/*">
+            <button class="upload-btn" onclick="document.getElementById('imageInput').click()">
+                📁 选择图片
+            </button>
+            <p>或者拖拽图片到此区域</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>正在分析图片中...</p>
+        </div>
+
+        <div class="controls" id="controls" style="display: none;">
+            <h3>检测参数调整</h3>
+            <div class="control-group">
+                <label>亮度增强:</label>
+                <input type="range" id="brightnessSlider" min="0" max="200" value="100">
+                <span class="value-display" id="brightnessValue">100%</span>
+            </div>
+            <div class="control-group">
+                <label>对比度增强:</label>
+                <input type="range" id="contrastSlider" min="0" max="300" value="100">
+                <span class="value-display" id="contrastValue">100%</span>
+            </div>
+            <div class="control-group">
+                <label>伽马矫正:</label>
+                <input type="range" id="gammaSlider" min="10" max="300" value="100">
+                <span class="value-display" id="gammaValue">1.0</span>
+            </div>
+            <div class="control-group">
+                <label>锐化程度:</label>
+                <input type="range" id="sharpenSlider" min="0" max="100" value="0">
+                <span class="value-display" id="sharpenValue">0</span>
+            </div>
+        </div>
+
+        <div class="image-display" id="imageDisplay"></div>
+        <div class="analysis-results" id="analysisResults" style="display: none;"></div>
+    </div>
+
+    <script>
+        let originalImageData = null;
+        let canvas = null;
+        let ctx = null;
+
+        // 初始化事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('imageInput');
+            const uploadSection = document.getElementById('uploadSection');
+
+            // 文件选择事件
+            imageInput.addEventListener('change', handleFileSelect);
+
+            // 拖拽事件
+            uploadSection.addEventListener('dragover', handleDragOver);
+            uploadSection.addEventListener('drop', handleDrop);
+            uploadSection.addEventListener('dragenter', () => uploadSection.classList.add('dragover'));
+            uploadSection.addEventListener('dragleave', () => uploadSection.classList.remove('dragover'));
+
+            // 滑块事件监听器
+            setupSliderListeners();
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('uploadSection').classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            // 验证文件类型
+            if (!file.type.startsWith('image/')) {
+                alert('请选择有效的图片文件！');
+                return;
+            }
+
+            // 重置界面状态
+            document.getElementById('imageDisplay').innerHTML = '';
+            document.getElementById('analysisResults').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+
+            showLoading(true);
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    initializeCanvas(img);
+                    performWatermarkDetection();
+                    showLoading(false);
+                    document.getElementById('controls').style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function initializeCanvas(img) {
+            const imageDisplay = document.getElementById('imageDisplay');
+            imageDisplay.innerHTML = '';
+
+            // 创建原始图片显示
+            const originalContainer = document.createElement('div');
+            originalContainer.className = 'image-container';
+            originalContainer.innerHTML = `
+                <h3>原始图片</h3>
+                <img src="${img.src}" alt="原始图片">
+            `;
+            imageDisplay.appendChild(originalContainer);
+
+            // 创建分析画布
+            canvas = document.createElement('canvas');
+            ctx = canvas.getContext('2d');
+
+            // 设置画布尺寸（限制最大尺寸以提高性能）
+            const maxSize = 800;
+            let { width, height } = img;
+
+            if (width > maxSize || height > maxSize) {
+                const ratio = Math.min(maxSize / width, maxSize / height);
+                width *= ratio;
+                height *= ratio;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // 绘制原始图片
+            ctx.drawImage(img, 0, 0, width, height);
+            originalImageData = ctx.getImageData(0, 0, width, height);
+        }
+
+        function performWatermarkDetection() {
+            const results = [];
+
+            // 1. 统计分析检测
+            const stats = analyzeImageStatistics();
+            results.push({
+                type: 'info',
+                title: '图像统计分析',
+                content: `
+                    平均亮度: ${stats.avgBrightness.toFixed(2)}<br>
+                    亮度标准差: ${stats.brightnessStd.toFixed(2)}<br>
+                    颜色分布熵: ${stats.colorEntropy.toFixed(3)}
+                `
+            });
+
+            // 2. 边缘检测分析
+            const edgeAnalysis = performEdgeDetection();
+            if (edgeAnalysis.suspiciousEdges > 100) {
+                results.push({
+                    type: 'warning',
+                    title: '边缘异常检测',
+                    content: `检测到 ${edgeAnalysis.suspiciousEdges} 个可疑边缘特征，可能存在隐藏内容`
+                });
+            }
+
+            // 3. 频域分析
+            const frequencyAnalysis = analyzeFrequencyDomain();
+            results.push({
+                type: 'info',
+                title: '频域分析',
+                content: `
+                    高频成分: ${(frequencyAnalysis.highFreq * 100).toFixed(1)}%<br>
+                    中频成分: ${(frequencyAnalysis.midFreq * 100).toFixed(1)}%<br>
+                    低频成分: ${(frequencyAnalysis.lowFreq * 100).toFixed(1)}%
+                `
+            });
+
+            // 4. LSB（最低有效位）分析
+            const lsbAnalysis = analyzeLSB();
+            if (lsbAnalysis.anomaly > 0.3) {
+                results.push({
+                    type: 'danger',
+                    title: 'LSB隐写检测',
+                    content: `LSB位异常度: ${(lsbAnalysis.anomaly * 100).toFixed(1)}% - 强烈怀疑存在LSB隐写`
+                });
+            } else if (lsbAnalysis.anomaly > 0.15) {
+                results.push({
+                    type: 'warning',
+                    title: 'LSB隐写检测',
+                    content: `LSB位异常度: ${(lsbAnalysis.anomaly * 100).toFixed(1)}% - 可能存在LSB隐写`
+                });
+            }
+
+            // 5. 颜色直方图异常检测
+            const histogramAnalysis = analyzeColorHistogram();
+            if (histogramAnalysis.anomaly > 0.4) {
+                results.push({
+                    type: 'warning',
+                    title: '颜色分布异常',
+                    content: `颜色直方图异常度: ${(histogramAnalysis.anomaly * 100).toFixed(1)}% - 检测到非自然颜色分布`
+                });
+            }
+
+            // 6. 噪声模式分析
+            const noiseAnalysis = analyzeNoisePattern();
+            results.push({
+                type: 'info',
+                title: '噪声分析',
+                content: `
+                    噪声强度: ${noiseAnalysis.intensity.toFixed(3)}<br>
+                    噪声一致性: ${(noiseAnalysis.consistency * 100).toFixed(1)}%<br>
+                    ${noiseAnalysis.isArtificial ? '⚠️ 检测到人工噪声特征' : '✓ 噪声模式正常'}
+                `
+            });
+
+            // 7. 重采样检测
+            const resamplingAnalysis = detectResampling();
+            if (resamplingAnalysis.likelihood > 0.6) {
+                results.push({
+                    type: 'warning',
+                    title: '重采样检测',
+                    content: `重采样可能性: ${(resamplingAnalysis.likelihood * 100).toFixed(1)}% - 图像可能被重新缩放或旋转过`
+                });
+            }
+
+            // 8. 双重压缩检测
+            const compressionAnalysis = detectDoubleCompression();
+            if (compressionAnalysis.likelihood > 0.5) {
+                results.push({
+                    type: 'warning',
+                    title: '双重压缩检测',
+                    content: `双重压缩可能性: ${(compressionAnalysis.likelihood * 100).toFixed(1)}% - 图像可能经过多次压缩`
+                });
+            }
+
+            // 9. 块效应检测
+            const blockingAnalysis = detectBlockingArtifacts();
+            if (blockingAnalysis.severity > 0.3) {
+                results.push({
+                    type: 'info',
+                    title: '块效应分析',
+                    content: `块效应强度: ${(blockingAnalysis.severity * 100).toFixed(1)}% - ${blockingAnalysis.severity > 0.6 ? '强烈的' : '轻微的'}JPEG压缩痕迹`
+                });
+            }
+
+            // 创建增强显示
+            createEnhancedDisplays();
+
+            displayResults(results);
+        }
+
+        function analyzeImageStatistics() {
+            const data = originalImageData.data;
+            let totalR = 0, totalG = 0, totalB = 0;
+            let brightnessValues = [];
+
+            // 计算基本统计信息
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const brightness = (r + g + b) / 3;
+
+                totalR += r;
+                totalG += g;
+                totalB += b;
+                brightnessValues.push(brightness);
+            }
+
+            const pixelCount = data.length / 4;
+            const avgBrightness = brightnessValues.reduce((a, b) => a + b) / brightnessValues.length;
+
+            // 计算标准差
+            const variance = brightnessValues.reduce((acc, val) => acc + Math.pow(val - avgBrightness, 2), 0) / brightnessValues.length;
+            const brightnessStd = Math.sqrt(variance);
+
+            // 计算颜色熵（简化版）
+            const histogram = new Array(256).fill(0);
+            brightnessValues.forEach(val => histogram[Math.floor(val)]++);
+            let colorEntropy = 0;
+            histogram.forEach(count => {
+                if (count > 0) {
+                    const p = count / pixelCount;
+                    colorEntropy -= p * Math.log2(p);
+                }
+            });
+
+            return { avgBrightness, brightnessStd, colorEntropy };
+        }
+
+        function performEdgeDetection() {
+            const data = originalImageData.data;
+            const width = originalImageData.width;
+            const height = originalImageData.height;
+            let suspiciousEdges = 0;
+
+            // Sobel算子边缘检测
+            const sobelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+            const sobelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    let gx = 0, gy = 0;
+
+                    for (let ky = -1; ky <= 1; ky++) {
+                        for (let kx = -1; kx <= 1; kx++) {
+                            const idx = ((y + ky) * width + (x + kx)) * 4;
+                            const gray = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+                            const kernelIdx = (ky + 1) * 3 + (kx + 1);
+
+                            gx += gray * sobelX[kernelIdx];
+                            gy += gray * sobelY[kernelIdx];
+                        }
+                    }
+
+                    const magnitude = Math.sqrt(gx * gx + gy * gy);
+                    if (magnitude > 30) suspiciousEdges++;
+                }
+            }
+
+            return { suspiciousEdges };
+        }
+
+        function analyzeFrequencyDomain() {
+            // 简化的频域分析（使用图像梯度来估算频率分布）
+            const data = originalImageData.data;
+            const width = originalImageData.width;
+            const height = originalImageData.height;
+
+            let highFreq = 0, midFreq = 0, lowFreq = 0;
+            let totalPixels = 0;
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const idx = (y * width + x) * 4;
+                    const current = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+
+                    // 计算周围像素的梯度
+                    const right = ((data[idx + 4] + data[idx + 5] + data[idx + 6]) / 3);
+                    const bottom = ((data[(y + 1) * width * 4 + x * 4] + data[(y + 1) * width * 4 + x * 4 + 1] + data[(y + 1) * width * 4 + x * 4 + 2]) / 3);
+
+                    const gradX = Math.abs(current - right);
+                    const gradY = Math.abs(current - bottom);
+                    const gradient = Math.sqrt(gradX * gradX + gradY * gradY);
+
+                    if (gradient > 50) highFreq++;
+                    else if (gradient > 15) midFreq++;
+                    else lowFreq++;
+
+                    totalPixels++;
+                }
+            }
+
+            return {
+                highFreq: highFreq / totalPixels,
+                midFreq: midFreq / totalPixels,
+                lowFreq: lowFreq / totalPixels
+            };
+        }
+
+        function analyzeLSB() {
+            const data = originalImageData.data;
+            let anomalyScore = 0;
+            let totalPixels = 0;
+
+            // 分析LSB位的随机性
+            const lsbHistogram = { r: new Array(2).fill(0), g: new Array(2).fill(0), b: new Array(2).fill(0) };
+
+            for (let i = 0; i < data.length; i += 4) {
+                lsbHistogram.r[data[i] & 1]++;
+                lsbHistogram.g[data[i + 1] & 1]++;
+                lsbHistogram.b[data[i + 2] & 1]++;
+                totalPixels++;
+            }
+
+            // 计算LSB分布的偏差（理想情况下应该接近50/50）
+            const expectedRatio = 0.5;
+            const rDeviation = Math.abs((lsbHistogram.r[0] / totalPixels) - expectedRatio);
+            const gDeviation = Math.abs((lsbHistogram.g[0] / totalPixels) - expectedRatio);
+            const bDeviation = Math.abs((lsbHistogram.b[0] / totalPixels) - expectedRatio);
+
+            anomalyScore = (rDeviation + gDeviation + bDeviation) / 3;
+
+            return { anomaly: anomalyScore };
+        }
+
+        // 颜色直方图异常检测
+        function analyzeColorHistogram() {
+            const data = originalImageData.data;
+            const histR = new Array(256).fill(0);
+            const histG = new Array(256).fill(0);
+            const histB = new Array(256).fill(0);
+            const pixelCount = data.length / 4;
+
+            // 构建RGB直方图
+            for (let i = 0; i < data.length; i += 4) {
+                histR[data[i]]++;
+                histG[data[i + 1]]++;
+                histB[data[i + 2]]++;
+            }
+
+            // 检测异常峰值和分布
+            let anomaly = 0;
+            const expectedAvg = pixelCount / 256;
+
+            [histR, histG, histB].forEach(hist => {
+                let peaks = 0;
+                let variance = 0;
+
+                hist.forEach(count => {
+                    if (count > expectedAvg * 3) peaks++; // 异常峰值
+                    variance += Math.pow(count - expectedAvg, 2);
+                });
+
+                anomaly += (peaks / 256) + (Math.sqrt(variance / 256) / pixelCount);
+            });
+
+            return { anomaly: anomaly / 3 };
+        }
+
+        // 噪声模式分析
+        function analyzeNoisePattern() {
+            const data = originalImageData.data;
+            const width = originalImageData.width;
+            const height = originalImageData.height;
+            let noiseValues = [];
+            let totalNoise = 0;
+
+            // 计算局部噪声强度
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const idx = (y * width + x) * 4;
+                    const center = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+
+                    // 计算与周围8个像素的差异
+                    let localNoise = 0;
+                    let count = 0;
+
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            if (dx === 0 && dy === 0) continue;
+                            const nIdx = ((y + dy) * width + (x + dx)) * 4;
+                            const neighbor = (data[nIdx] + data[nIdx + 1] + data[nIdx + 2]) / 3;
+                            localNoise += Math.abs(center - neighbor);
+                            count++;
+                        }
+                    }
+
+                    localNoise /= count;
+                    noiseValues.push(localNoise);
+                    totalNoise += localNoise;
+                }
+            }
+
+            const intensity = totalNoise / noiseValues.length / 255;
+
+            // 计算噪声一致性（检测人工添加的噪声）
+            const noiseAvg = totalNoise / noiseValues.length;
+            let consistency = 0;
+            noiseValues.forEach(noise => {
+                consistency += Math.abs(noise - noiseAvg);
+            });
+            consistency = 1 - (consistency / noiseValues.length / noiseAvg);
+
+            // 人工噪声通常具有较高的一致性
+            const isArtificial = consistency > 0.8 && intensity > 0.05;
+
+            return { intensity, consistency, isArtificial };
+        }
+
+        // 重采样检测
+        function detectResampling() {
+            const data = originalImageData.data;
+            const width = originalImageData.width;
+            const height = originalImageData.height;
+            let periodicityScore = 0;
+            let edgeAnomalies = 0;
+
+            // 检测周期性模式（重采样的特征）
+            for (let y = 0; y < height - 4; y += 2) {
+                for (let x = 0; x < width - 4; x += 2) {
+                    const samples = [];
+                    for (let i = 0; i < 4; i++) {
+                        const idx = ((y + i) * width + (x + i)) * 4;
+                        samples.push((data[idx] + data[idx + 1] + data[idx + 2]) / 3);
+                    }
+
+                    // 检测线性模式
+                    const diff1 = Math.abs(samples[1] - samples[0]);
+                    const diff2 = Math.abs(samples[2] - samples[1]);
+                    const diff3 = Math.abs(samples[3] - samples[2]);
+
+                    if (Math.abs(diff1 - diff2) < 2 && Math.abs(diff2 - diff3) < 2) {
+                        periodicityScore++;
+                    }
+                }
+            }
+
+            // 检测边缘异常
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const idx = (y * width + x) * 4;
+                    const center = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+
+                    const left = (data[idx - 4] + data[idx - 3] + data[idx - 2]) / 3;
+                    const right = (data[idx + 4] + data[idx + 5] + data[idx + 6]) / 3;
+
+                    // 检测异常锐利的边缘（重采样造成的）
+                    if (Math.abs(center - left) > 50 && Math.abs(center - right) > 50) {
+                        edgeAnomalies++;
+                    }
+                }
+            }
+
+            const totalSamples = (width / 2) * (height / 2);
+            const likelihood = (periodicityScore / totalSamples) + (edgeAnomalies / (width * height) * 10);
+
+            return { likelihood: Math.min(1, likelihood) };
+        }
+
+        // 双重压缩检测
+        function detectDoubleCompression() {
+            const data = originalImageData.data;
+            const width = originalImageData.width;
+            const height = originalImageData.height;
+            let blockiness = 0;
+            let quantizationErrors = 0;
+
+            // 检测8x8块边界上的不连续性（JPEG压缩特征）
+            for (let y = 8; y < height; y += 8) {
+                for (let x = 0; x < width - 1; x++) {
+                    const upperIdx = ((y - 1) * width + x) * 4;
+                    const lowerIdx = (y * width + x) * 4;
+
+                    const upperGray = (data[upperIdx] + data[upperIdx + 1] + data[upperIdx + 2]) / 3;
+                    const lowerGray = (data[lowerIdx] + data[lowerIdx + 1] + data[lowerIdx + 2]) / 3;
+
+                    blockiness += Math.abs(upperGray - lowerGray);
+                }
+            }
+
+            for (let y = 0; y < height - 1; y++) {
+                for (let x = 8; x < width; x += 8) {
+                    const leftIdx = (y * width + (x - 1)) * 4;
+                    const rightIdx = (y * width + x) * 4;
+
+                    const leftGray = (data[leftIdx] + data[leftIdx + 1] + data[leftIdx + 2]) / 3;
+                    const rightGray = (data[rightIdx] + data[rightIdx + 1] + data[rightIdx + 2]) / 3;
+
+                    blockiness += Math.abs(leftGray - rightGray);
+                }
+            }
+
+            // 检测量化误差模式
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                // 检测特定的量化级别
+                if (r % 8 === 0 || g % 8 === 0 || b % 8 === 0) {
+                    quantizationErrors++;
+                }
+            }
+
+            const totalPixels = data.length / 4;
+            const normalizedBlockiness = blockiness / (width * height * 255);
+            const quantizationRate = quantizationErrors / totalPixels;
+
+            const likelihood = Math.min(1, normalizedBlockiness * 2 + quantizationRate);
+
+            return { likelihood };
+        }
+
+        // 块效应检测
+        function detectBlockingArtifacts() {
+            const data = originalImageData.data;
+            const width = originalImageData.width;
+            const height = originalImageData.height;
+            let horizontalBlocking = 0;
+            let verticalBlocking = 0;
+            let blockCount = 0;
+
+            // 检测水平块边界
+            for (let y = 8; y < height; y += 8) {
+                for (let x = 0; x < width; x++) {
+                    const above = ((y - 1) * width + x) * 4;
+                    const below = (y * width + x) * 4;
+
+                    if (above >= 0 && below < data.length) {
+                        const aboveGray = (data[above] + data[above + 1] + data[above + 2]) / 3;
+                        const belowGray = (data[below] + data[below + 1] + data[below + 2]) / 3;
+                        horizontalBlocking += Math.abs(aboveGray - belowGray);
+                        blockCount++;
+                    }
+                }
+            }
+
+            // 检测垂直块边界
+            for (let y = 0; y < height; y++) {
+                for (let x = 8; x < width; x += 8) {
+                    const left = (y * width + (x - 1)) * 4;
+                    const right = (y * width + x) * 4;
+
+                    if (left >= 0 && right < data.length) {
+                        const leftGray = (data[left] + data[left + 1] + data[left + 2]) / 3;
+                        const rightGray = (data[right] + data[right + 1] + data[right + 2]) / 3;
+                        verticalBlocking += Math.abs(leftGray - rightGray);
+                    }
+                }
+            }
+
+            const totalBlocking = (horizontalBlocking + verticalBlocking) / (blockCount * 255);
+            const severity = Math.min(1, totalBlocking * 5);
+
+            return { severity };
+        }
+
+        function createEnhancedDisplays() {
+            const imageDisplay = document.getElementById('imageDisplay');
+
+            // 创建多种增强显示
+            const enhancements = [
+                { name: '亮度增强', func: enhanceBrightness },
+                { name: '对比度增强', func: enhanceContrast },
+                { name: 'LSB可视化', func: visualizeLSB },
+                { name: '边缘检测', func: detectEdges },
+                { name: '噪声可视化', func: visualizeNoise },
+                { name: '颜色差异分析', func: analyzeColorDifferences },
+                { name: '高频分量', func: visualizeHighFreq }
+            ];
+
+            enhancements.forEach(enhancement => {
+                const container = document.createElement('div');
+                container.className = 'image-container';
+
+                const enhancedCanvas = document.createElement('canvas');
+                enhancedCanvas.width = canvas.width;
+                enhancedCanvas.height = canvas.height;
+
+                const enhancedCtx = enhancedCanvas.getContext('2d');
+                enhancement.func(enhancedCtx);
+
+                container.innerHTML = `<h3>${enhancement.name}</h3>`;
+                container.appendChild(enhancedCanvas);
+
+                imageDisplay.appendChild(container);
+            });
+        }
+
+        function enhanceBrightness(targetCtx) {
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, data[i] * 1.5);     // R通道增强
+                data[i + 1] = Math.min(255, data[i + 1] * 1.5); // G通道增强
+                data[i + 2] = Math.min(255, data[i + 2] * 1.5); // B通道增强
+            }
+
+            targetCtx.putImageData(imageData, 0, 0);
+        }
+
+        function enhanceContrast(targetCtx) {
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+            const factor = 2.0;
+
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.max(0, Math.min(255, (data[i] - 128) * factor + 128));
+                data[i + 1] = Math.max(0, Math.min(255, (data[i + 1] - 128) * factor + 128));
+                data[i + 2] = Math.max(0, Math.min(255, (data[i + 2] - 128) * factor + 128));
+            }
+
+            targetCtx.putImageData(imageData, 0, 0);
+        }
+
+        function visualizeLSB(targetCtx) {
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+
+            // 将LSB位放大显示
+            for (let i = 0; i < data.length; i += 4) {
+                const rLSB = (data[i] & 1) * 255;
+                const gLSB = (data[i + 1] & 1) * 255;
+                const bLSB = (data[i + 2] & 1) * 255;
+
+                data[i] = rLSB;
+                data[i + 1] = gLSB;
+                data[i + 2] = bLSB;
+            }
+
+            targetCtx.putImageData(imageData, 0, 0);
+        }
+
+        function detectEdges(targetCtx) {
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            const outputData = new Uint8ClampedArray(data.length);
+
+            // Sobel边缘检测
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    let gx = 0, gy = 0;
+
+                    // 计算Sobel算子
+                    for (let ky = -1; ky <= 1; ky++) {
+                        for (let kx = -1; kx <= 1; kx++) {
+                            const idx = ((y + ky) * width + (x + kx)) * 4;
+                            const gray = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+
+                            if (kx === -1 && ky === -1) { gx -= gray; gy -= gray; }
+                            else if (kx === 0 && ky === -1) { gy -= 2 * gray; }
+                            else if (kx === 1 && ky === -1) { gx += gray; gy -= gray; }
+                            else if (kx === -1 && ky === 0) { gx -= 2 * gray; }
+                            else if (kx === 1 && ky === 0) { gx += 2 * gray; }
+                            else if (kx === -1 && ky === 1) { gx -= gray; gy += gray; }
+                            else if (kx === 0 && ky === 1) { gy += 2 * gray; }
+                            else if (kx === 1 && ky === 1) { gx += gray; gy += gray; }
+                        }
+                    }
+
+                    const magnitude = Math.sqrt(gx * gx + gy * gy);
+                    const outputIdx = (y * width + x) * 4;
+
+                    outputData[outputIdx] = magnitude;
+                    outputData[outputIdx + 1] = magnitude;
+                    outputData[outputIdx + 2] = magnitude;
+                    outputData[outputIdx + 3] = 255;
+                }
+            }
+
+            const outputImageData = new ImageData(outputData, width, height);
+            targetCtx.putImageData(outputImageData, 0, 0);
+        }
+
+        // 噪声可视化
+        function visualizeNoise(targetCtx) {
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const idx = (y * width + x) * 4;
+                    const center = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+
+                    // 计算局部变化
+                    let variance = 0;
+                    let count = 0;
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            const nIdx = ((y + dy) * width + (x + dx)) * 4;
+                            const neighbor = (data[nIdx] + data[nIdx + 1] + data[nIdx + 2]) / 3;
+                            variance += Math.pow(center - neighbor, 2);
+                            count++;
+                        }
+                    }
+                    variance = Math.sqrt(variance / count) * 5; // 放大噪声
+
+                    data[idx] = Math.min(255, variance);
+                    data[idx + 1] = Math.min(255, variance);
+                    data[idx + 2] = Math.min(255, variance);
+                }
+            }
+
+            targetCtx.putImageData(imageData, 0, 0);
+        }
+
+        // 颜色差异分析
+        function analyzeColorDifferences(targetCtx) {
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+
+                    // 分析RGB通道差异
+                    const rg_diff = Math.abs(r - g);
+                    const rb_diff = Math.abs(r - b);
+                    const gb_diff = Math.abs(g - b);
+
+                    // 突出显示颜色异常
+                    if (rg_diff > 30 || rb_diff > 30 || gb_diff > 30) {
+                        data[idx] = 255;
+                        data[idx + 1] = Math.min(255, rg_diff * 3);
+                        data[idx + 2] = Math.min(255, rb_diff * 3);
+                    } else {
+                        // 正常区域显示为灰度
+                        const gray = (r + g + b) / 3;
+                        data[idx] = gray * 0.3;
+                        data[idx + 1] = gray * 0.3;
+                        data[idx + 2] = gray * 0.3;
+                    }
+                }
+            }
+
+            targetCtx.putImageData(imageData, 0, 0);
+        }
+
+        // 高频分量可视化
+        function visualizeHighFreq(targetCtx) {
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            const outputData = new Uint8ClampedArray(data.length);
+
+            // 高通滤波器内核
+            const kernel = [
+                -1, -1, -1,
+                -1,  8, -1,
+                -1, -1, -1
+            ];
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    for (let c = 0; c < 3; c++) { // RGB通道
+                        let sum = 0;
+                        for (let ky = -1; ky <= 1; ky++) {
+                            for (let kx = -1; kx <= 1; kx++) {
+                                const idx = ((y + ky) * width + (x + kx)) * 4 + c;
+                                const kernelIdx = (ky + 1) * 3 + (kx + 1);
+                                sum += data[idx] * kernel[kernelIdx];
+                            }
+                        }
+                        const outputIdx = (y * width + x) * 4 + c;
+                        outputData[outputIdx] = Math.max(0, Math.min(255, sum + 128));
+                    }
+                    outputData[(y * width + x) * 4 + 3] = 255; // Alpha
+                }
+            }
+
+            const outputImageData = new ImageData(outputData, width, height);
+            targetCtx.putImageData(outputImageData, 0, 0);
+        }
+
+        function setupSliderListeners() {
+            const sliders = ['brightness', 'contrast', 'gamma', 'sharpen'];
+
+            sliders.forEach(type => {
+                const slider = document.getElementById(type + 'Slider');
+                const valueDisplay = document.getElementById(type + 'Value');
+
+                slider.addEventListener('input', function() {
+                    let value = this.value;
+                    let displayValue = value;
+
+                    if (type === 'gamma') {
+                        displayValue = (value / 100).toFixed(1);
+                    } else if (type === 'sharpen') {
+                        displayValue = value;
+                    } else {
+                        displayValue = value + '%';
+                    }
+
+                    valueDisplay.textContent = displayValue;
+
+                    // 实时更新图像处理效果
+                    if (originalImageData) {
+                        updateEnhancedImage();
+                    }
+                });
+            });
+        }
+
+        function updateEnhancedImage() {
+            if (!originalImageData || !canvas) return;
+
+            const brightness = document.getElementById('brightnessSlider').value / 100;
+            const contrast = document.getElementById('contrastSlider').value / 100;
+            const gamma = document.getElementById('gammaSlider').value / 100;
+            const sharpen = document.getElementById('sharpenSlider').value / 100;
+
+            // 创建实时调整的图像
+            const imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), originalImageData.width, originalImageData.height);
+            const data = imageData.data;
+
+            // 应用各种图像处理效果
+            for (let i = 0; i < data.length; i += 4) {
+                // 伽马矫正
+                let r = Math.pow(data[i] / 255, gamma) * 255;
+                let g = Math.pow(data[i + 1] / 255, gamma) * 255;
+                let b = Math.pow(data[i + 2] / 255, gamma) * 255;
+
+                // 亮度调整
+                r *= brightness;
+                g *= brightness;
+                b *= brightness;
+
+                // 对比度调整
+                r = (r - 128) * contrast + 128;
+                g = (g - 128) * contrast + 128;
+                b = (b - 128) * contrast + 128;
+
+                // 限制值范围
+                data[i] = Math.max(0, Math.min(255, r));
+                data[i + 1] = Math.max(0, Math.min(255, g));
+                data[i + 2] = Math.max(0, Math.min(255, b));
+            }
+
+            // 应用锐化效果
+            if (sharpen > 0) {
+                applySharpenFilter(imageData, sharpen);
+            }
+
+            // 更新实时预览画布
+            updateRealtimePreview(imageData);
+        }
+
+        function applySharpenFilter(imageData, intensity) {
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            const output = new Uint8ClampedArray(data.length);
+
+            // 锐化卷积核
+            const kernel = [
+                0, -intensity, 0,
+                -intensity, 1 + 4 * intensity, -intensity,
+                0, -intensity, 0
+            ];
+
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    for (let c = 0; c < 3; c++) { // RGB通道
+                        let sum = 0;
+                        for (let ky = -1; ky <= 1; ky++) {
+                            for (let kx = -1; kx <= 1; kx++) {
+                                const idx = ((y + ky) * width + (x + kx)) * 4 + c;
+                                const kernelIdx = (ky + 1) * 3 + (kx + 1);
+                                sum += data[idx] * kernel[kernelIdx];
+                            }
+                        }
+                        const outputIdx = (y * width + x) * 4 + c;
+                        output[outputIdx] = Math.max(0, Math.min(255, sum));
+                    }
+                    // Alpha通道保持不变
+                    output[(y * width + x) * 4 + 3] = data[(y * width + x) * 4 + 3];
+                }
+            }
+
+            // 复制处理后的数据回原数组
+            for (let i = 0; i < data.length; i++) {
+                data[i] = output[i];
+            }
+        }
+
+        function updateRealtimePreview(imageData) {
+            // 查找或创建实时预览容器
+            let previewContainer = document.querySelector('.realtime-preview');
+            if (!previewContainer) {
+                previewContainer = document.createElement('div');
+                previewContainer.className = 'image-container realtime-preview';
+                previewContainer.innerHTML = '<h3>实时调整预览</h3>';
+
+                const previewCanvas = document.createElement('canvas');
+                previewCanvas.width = canvas.width;
+                previewCanvas.height = canvas.height;
+                previewContainer.appendChild(previewCanvas);
+
+                // 插入到第二个位置
+                const imageDisplay = document.getElementById('imageDisplay');
+                imageDisplay.insertBefore(previewContainer, imageDisplay.children[1]);
+            }
+
+            const previewCanvas = previewContainer.querySelector('canvas');
+            const previewCtx = previewCanvas.getContext('2d');
+            previewCtx.putImageData(imageData, 0, 0);
+        }
+
+        function displayResults(results) {
+            const analysisResults = document.getElementById('analysisResults');
+            analysisResults.style.display = 'block'; // 显示结果区域
+            analysisResults.innerHTML = '<h3>🔍 检测结果分析</h3>';
+
+            if (results.length === 0) {
+                analysisResults.innerHTML += '<p>未检测到明显的水印特征</p>';
+                return;
+            }
+
+            results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `result-item ${result.type}`;
+                resultDiv.innerHTML = `
+                    <h4>${result.title}</h4>
+                    <p>${result.content}</p>
+                `;
+                analysisResults.appendChild(resultDiv);
+            });
+
+            // 添加检测摘要
+            const summary = createDetectionSummary(results);
+            analysisResults.appendChild(summary);
+
+            // 添加检测建议
+            const suggestions = document.createElement('div');
+            suggestions.className = 'result-item';
+            suggestions.innerHTML = `
+                <h4>🔧 检测建议</h4>
+                <p>
+                    • 调整上方的参数滑块来增强可能的隐藏内容<br>
+                    • 重点关注LSB可视化、噪声可视化和边缘检测结果<br>
+                    • 颜色差异分析可以帮助发现颜色通道中的异常<br>
+                    • 高频分量可视化能够突出显示图像中的细微变化<br>
+                    • 如果怀疑存在水印，可以尝试不同的亮度和对比度组合<br>
+                    • 噪声分析和重采样检测有助于识别图像的处理历史<br>
+                    • 双重压缩检测能够发现图像是否经过多次压缩<br>
+                    • 某些水印可能需要专业工具进行深度分析
+                </p>
+            `;
+            analysisResults.appendChild(suggestions);
+
+            // 添加导出按钮
+            const exportButton = document.createElement('div');
+            exportButton.className = 'result-item';
+            exportButton.innerHTML = `
+                <h4>📊 导出报告</h4>
+                <button class="upload-btn" onclick="exportReport()" style="margin: 0;">
+                    💾 导出检测报告
+                </button>
+                <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                    导出包含所有检测结果的详细HTML报告
+                </p>
+            `;
+            analysisResults.appendChild(exportButton);
+        }
+
+        function createDetectionSummary(results) {
+            const summary = document.createElement('div');
+            summary.className = 'result-item';
+
+            let dangerCount = 0;
+            let warningCount = 0;
+            let infoCount = 0;
+
+            results.forEach(result => {
+                if (result.type === 'danger') dangerCount++;
+                else if (result.type === 'warning') warningCount++;
+                else infoCount++;
+            });
+
+            let riskLevel = '低风险';
+            let riskClass = '';
+            let riskIcon = '✅';
+
+            if (dangerCount > 0) {
+                riskLevel = '高风险';
+                riskClass = 'danger';
+                riskIcon = '⚠️';
+            } else if (warningCount > 1) {
+                riskLevel = '中等风险';
+                riskClass = 'warning';
+                riskIcon = '⚡';
+            }
+
+            summary.className += ` ${riskClass}`;
+            summary.innerHTML = `
+                <h4>${riskIcon} 检测摘要</h4>
+                <p>
+                    <strong>风险评估: ${riskLevel}</strong><br>
+                    高风险项目: ${dangerCount} 个<br>
+                    警告项目: ${warningCount} 个<br>
+                    信息项目: ${infoCount} 个<br>
+                    <br>
+                    ${dangerCount > 0 ?
+                        '🔴 检测到可疑的水印或隐写特征，建议进一步分析' :
+                        warningCount > 1 ?
+                        '🟡 存在一些可疑迹象，可能有轻微的图像处理痕迹' :
+                        '🟢 未发现明显的水印特征，图像看起来是原始的'
+                    }
+                </p>
+            `;
+
+            return summary;
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        // 添加更多检测方法的扩展功能
+        function performAdvancedAnalysis() {
+            // 这里可以添加更多高级检测算法
+            // 例如：DCT系数分析、小波变换分析等
+            console.log('执行高级分析...');
+        }
+
+        // 导出检测报告功能
+        function exportReport() {
+            const results = document.getElementById('analysisResults').innerHTML;
+            const blob = new Blob([`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>水印检测报告</title>
+                    <style>
+                        body { font-family: Microsoft YaHei, Arial, sans-serif; margin: 20px; }
+                        .result-item { margin: 10px 0; padding: 10px; border-left: 4px solid #ccc; }
+                        .warning { border-left-color: #ffc107; background: #fff9c4; }
+                        .danger { border-left-color: #dc3545; background: #f8d7da; }
+                    </style>
+                </head>
+                <body>
+                    <h1>隐形水印检测报告</h1>
+                    <p>生成时间: ${new Date().toLocaleString('zh-CN')}</p>
+                    ${results}
+                </body>
+                </html>
+            `], { type: 'text/html' });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '水印检测报告.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                switch(e.key) {
+                    case 'o': // Ctrl+O 打开文件
+                        e.preventDefault();
+                        document.getElementById('imageInput').click();
+                        break;
+                    case 's': // Ctrl+S 导出报告
+                        e.preventDefault();
+                        if (document.getElementById('analysisResults').innerHTML) {
+                            exportReport();
+                        }
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
