@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心理咨询预约时间线</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .timeline-overview {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .day-timeline {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .time-axis {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            width: 100%;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            position: relative;
+        }
+
+        .hour-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #6c757d;
+            border-right: 1px solid #e9ecef;
+            position: relative;
+        }
+
+        .hour-slot:last-child {
+            border-right: none;
+        }
+
+        .hour-slot.rest-time {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .hour-slot.work-time {
+            background: rgba(102, 187, 106, 0.1);
+        }
+
+        .time-labels {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            width: 100%;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .scenario {
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            position: relative;
+        }
+
+        .scenario.morning {
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%);
+        }
+
+        .scenario.afternoon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .scenario.evening {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .scenario.night {
+            background: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
+        }
+
+        .scenario h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .time-range {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .booking-details {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .booking-details h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+
+        .booking-details p {
+            margin: 5px 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .interval-bar {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .interval-visual {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            margin: 0 10px;
+            position: relative;
+        }
+
+        .interval-segment {
+            height: 100%;
+            border-radius: 4px;
+            position: absolute;
+            top: 0;
+        }
+
+        .waiting {
+            background: #ff6b6b;
+        }
+
+        .buffer {
+            background: #ffa726;
+        }
+
+        .available {
+            background: #66bb6a;
+        }
+
+        .example-case {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        .rules-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .rule-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .rule-card h4 {
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 1024px) {
+            .scenario-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .time-labels {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .rules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>心理咨询智能预约时间线</h1>
+            <p>基于预约时间段的精确间隔策略</p>
+        </div>
+
+        <div class="timeline-overview">
+            <h3 style="color: #2c3e50; margin-bottom: 20px;">📅 24小时时间轴概览</h3>
+            <div class="day-timeline">
+                <div class="time-axis">
+                    <!-- 0-8点：休息时间 -->
+                    <div class="hour-slot rest-time">0</div>
+                    <div class="hour-slot rest-time">1</div>
+                    <div class="hour-slot rest-time">2</div>
+                    <div class="hour-slot rest-time">3</div>
+                    <div class="hour-slot rest-time">4</div>
+                    <div class="hour-slot rest-time">5</div>
+                    <div class="hour-slot rest-time">6</div>
+                    <div class="hour-slot rest-time">7</div>
+                    <!-- 8-22点：工作时间 -->
+                    <div class="hour-slot work-time">8</div>
+                    <div class="hour-slot work-time">9</div>
+                    <div class="hour-slot work-time">10</div>
+                    <div class="hour-slot work-time">11</div>
+                    <div class="hour-slot work-time">12</div>
+                    <div class="hour-slot work-time">13</div>
+                    <div class="hour-slot work-time">14</div>
+                    <div class="hour-slot work-time">15</div>
+                    <div class="hour-slot work-time">16</div>
+                    <div class="hour-slot work-time">17</div>
+                    <div class="hour-slot work-time">18</div>
+                    <div class="hour-slot work-time">19</div>
+                    <div class="hour-slot work-time">20</div>
+                    <div class="hour-slot work-time">21</div>
+                    <!-- 22-24点：休息时间 -->
+                    <div class="hour-slot rest-time">22</div>
+                    <div class="hour-slot rest-time">23</div>
+                </div>
+            </div>
+            <div class="time-labels">
+                <span>00:00</span>
+                <span>02:00</span>
+                <span>04:00</span>
+                <span>06:00</span>
+                <span>08:00</span>
+                <span>10:00</span>
+                <span>12:00</span>
+                <span>14:00</span>
+                <span>16:00</span>
+                <span>18:00</span>
+                <span>20:00</span>
+                <span>22:00</span>
+            </div>
+        </div>
+
+        <div class="scenario-grid">
+            <!-- 上午预约 -->
+            <div class="scenario morning">
+                <h3>🌅 上午预约时段 (08:00-12:00)</h3>
+                <div class="time-range">预约发起时间：上午8点-12点</div>
+
+                <div class="booking-details">
+                    <h4>📋 预约规则</h4>
+                    <p>• 预约间隔：<strong>12小时</strong>（标准间隔）</p>
+                    <p>• 最早可约：<strong>当日20:00</strong></p>
+                    <p>• 推荐时段：<strong>次日09:00-18:00</strong></p>
+                </div>
+
+                <div class="example-case">
+                    <strong>💡 示例：</strong>上午10:00预约 → 当晚22:00后可选择咨询时间
+                </div>
+
+                <div class="interval-bar">
+                    <span style="font-size: 12px;">10:00</span>
+                    <div class="interval-visual">
+                        <div class="interval-segment waiting" style="width: 50%; left: 0;"></div>
+                        <div class="interval-segment available" style="width: 50%; left: 50%;"></div>
+                    </div>
+                    <span style="font-size: 12px;">次日10:00</span>
+                </div>
+            </div>
+
+            <!-- 下午预约 -->
+            <div class="scenario afternoon">
+                <h3>☀️ 下午预约时段 (12:00-18:00)</h3>
+                <div class="time-range">预约发起时间：下午12点-18点</div>
+
+                <div class="booking-details">
+                    <h4>📋 预约规则</h4>
+                    <p>• 预约间隔：<strong>12小时</strong>（标准间隔）</p>
+                    <p>• 最早可约：<strong>次日00:00-06:00</strong></p>
+                    <p>• 推荐时段：<strong>次日08:00-18:00</strong></p>
+                </div>
+
+                <div class="example-case">
+                    <strong>💡 示例：</strong>下午15:00预约 → 次日03:00后理论可约，实际推荐次日上午
+                </div>
+
+                <div class="interval-bar">
+                    <span style="font-size: 12px;">15:00</span>
+                    <div class="interval-visual">
+                        <div class="interval-segment waiting" style="width: 50%; left: 0;"></div>
+                        <div class="interval-segment available" style="width: 50%; left: 50%;"></div>
+                    </div>
+                    <span style="font-size: 12px;">次日15:00</span>
+                </div>
+            </div>
+
+            <!-- 傍晚预约 -->
+            <div class="scenario evening">
+                <h3>🌆 傍晚预约时段 (18:00-22:00)</h3>
+                <div class="time-range">预约发起时间：傍晚18点-22点</div>
+
+                <div class="booking-details">
+                    <h4>📋 预约规则</h4>
+                    <p>• 预约间隔：<strong>16小时</strong>（跨夜延长）</p>
+                    <p>• 最早可约：<strong>次日10:00-14:00</strong></p>
+                    <p>• 推荐时段：<strong>次日下午时段</strong></p>
+                </div>
+
+                <div class="example-case">
+                    <strong>💡 示例：</strong>晚上20:00预约 → 次日12:00后可约，避开咨询师休息时间
+                </div>
+
+                <div class="interval-bar">
+                    <span style="font-size: 12px;">20:00</span>
+                    <div class="interval-visual">
+                        <div class="interval-segment waiting" style="width: 33%; left: 0;"></div>
+                        <div class="interval-segment buffer" style="width: 34%; left: 33%;"></div>
+                        <div class="interval-segment available" style="width: 33%; left: 67%;"></div>
+                    </div>
+                    <span style="font-size: 12px;">次日20:00</span>
+                </div>
+            </div>
+
+            <!-- 夜间预约 -->
+            <div class="scenario night">
+                <h3>🌙 夜间预约时段 (22:00-08:00)</h3>
+                <div class="time-range">预约发起时间：晚上22点-次日8点</div>
+
+                <div class="booking-details">
+                    <h4>📋 预约规则</h4>
+                    <p>• 预约间隔：<strong>18小时</strong>（充分跨夜缓冲）</p>
+                    <p>• 最早可约：<strong>当日16:00-20:00</strong></p>
+                    <p>• 推荐时段：<strong>当日下午-傍晚</strong></p>
+                </div>
+
+                <div class="example-case">
+                    <strong>💡 示例：</strong>凌晨02:00预约 → 当日20:00后可约，确保咨询师充分休息
+                </div>
+
+                <div class="interval-bar">
+                    <span style="font-size: 12px;">02:00</span>
+                    <div class="interval-visual">
+                        <div class="interval-segment waiting" style="width: 25%; left: 0;"></div>
+                        <div class="interval-segment buffer" style="width: 50%; left: 25%;"></div>
+                        <div class="interval-segment available" style="width: 25%; left: 75%;"></div>
+                    </div>
+                    <span style="font-size: 12px;">次日02:00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color waiting"></div>
+                <span>等待期（不可预约）</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color buffer"></div>
+                <span>缓冲期（咨询师休息）</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color available"></div>
+                <span>可预约时段</span>
+            </div>
+        </div>
+
+        <div class="rules-summary">
+            <h3 style="text-align: center; margin-bottom: 25px;">🎯 智能预约策略总结</h3>
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <h4>⏰ 标准间隔 (08:00-18:00预约)</h4>
+                    <p>保持12小时标准间隔，适用于常规工作时间内的预约请求，确保基本的准备时间。</p>
+                </div>
+                <div class="rule-card">
+                    <h4>🌙 跨夜缓冲 (18:00-08:00预约)</h4>
+                    <p>延长至16-18小时间隔，充分考虑咨询师休息时间，避免影响服务质量。</p>
+                </div>
+                <div class="rule-card">
+                    <h4>🎯 智能推荐</h4>
+                    <p>系统自动推荐最佳咨询时段，引导用户选择对双方都合适的时间。</p>
+                </div>
+                <div class="rule-card">
+                    <h4>🛡️ 质量保障</h4>
+                    <p>确保咨询师有充足的休息和准备时间，维护专业咨询服务标准。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
