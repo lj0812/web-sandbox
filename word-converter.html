@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词格式转换器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            /* background: linear-gradient(135deg, #ffb3ba 0%, #ffdfba 50%, #ffffba 100%); */
+            min-height: 100vh;
+            padding: 10px;
+            /* animation: backgroundShift 8s ease-in-out infinite alternate; */
+        }
+
+        /* @keyframes backgroundShift {
+            0% { background: linear-gradient(135deg, #ffb3ba 0%, #ffdfba 50%, #ffffba 100%); }
+            100% { background: linear-gradient(135deg, #bae1ff 0%, #baffc9 50%, #ffdfba 100%); }
+        } */
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(255, 179, 186, 0.2);
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+            animation: containerFloat 6s ease-in-out infinite;
+            border: 1px solid rgba(255, 223, 186, 0.5);
+        }
+
+        @keyframes containerFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b9d, #ffa07a);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+            animation: titlePulse 4s ease-in-out infinite;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #e74c3c;
+            font-size: 1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 18px;
+            font-size: 1rem;
+            border: 2px solid #ffb3ba;
+            border-radius: 10px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff6b9d;
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-1px);
+        }
+
+        .results {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 179, 186, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: slideInUp 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-item:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(255, 107, 157, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(255, 107, 157, 0.6);
+        }
+
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b9d, #ffa07a, #48cae4);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .result-item:hover::before {
+            transform: scaleX(1);
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #e74c3c;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .result-value {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 1rem;
+            color: #333;
+            background: rgba(255, 179, 186, 0.1);
+            padding: 10px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #ff6b9d;
+            word-break: break-all;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-value:hover {
+            background: rgba(255, 107, 157, 0.15);
+            transform: translateX(2px);
+            border-left-color: #e74c3c;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 4px 7px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-value:hover .copy-btn {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .copy-btn:hover {
+            background: #e74c3c;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #ff6b9d;
+            font-size: 1rem;
+            padding: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 12px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+                margin-bottom: 5px;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .input-section {
+                margin-bottom: 20px;
+            }
+
+            .results {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .result-item {
+                padding: 12px;
+            }
+
+            .result-label {
+                font-size: 0.85rem;
+                margin-bottom: 6px;
+            }
+
+            .result-value {
+                font-size: 0.9rem;
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>单词格式转换器</h1>
+            <p>支持各种编程命名规范的转换</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="wordInput">输入单词或短语：</label>
+                    <input type="text" id="wordInput" placeholder="例如: hello world, user-name, camelCase..." autocomplete="off">
+                </div>
+            </div>
+
+            <div id="results" class="results">
+                <div class="empty-state">
+                    请输入单词开始转换
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const input = document.getElementById('wordInput');
+        const resultsContainer = document.getElementById('results');
+
+        // 格式转换函数（按常用程度排序）
+        const formatters = {
+            // 驼峰命名（最常用）
+            camelCase: (words) => {
+                if (words.length === 0) return '';
+                return words[0].toLowerCase() + words.slice(1).map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join('');
+            },
+
+            // 帕斯卡命名（类名）
+            pascalCase: (words) => words.map(word =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            ).join(''),
+
+            // 小写 + 下划线（Python风格）
+            lowerUnderscore: (words) => words.join('_').toLowerCase(),
+
+            // 小写 + 连字符（CSS/HTML）
+            kebabCase: (words) => words.join('-').toLowerCase(),
+
+            // 常量命名（全大写 + _）
+            constantCase: (words) => words.join('_').toUpperCase(),
+
+            // 标题格式（每个单词首字母大写）
+            titleCase: (words) => words.map(word =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            ).join(' '),
+
+            // 句子格式（首单词首字母大写）
+            sentenceCase: (words) => {
+                if (words.length === 0) return '';
+                const result = words.join(' ').toLowerCase();
+                return result.charAt(0).toUpperCase() + result.slice(1);
+            },
+
+            // 全小写 + 空格
+            lowerSpaced: (words) => words.join(' ').toLowerCase(),
+
+            // 点分隔（包名/配置）
+            dotCase: (words) => words.join('.').toLowerCase(),
+
+            // 路径格式
+            pathCase: (words) => words.join('/').toLowerCase(),
+
+            // 全大写 + 空格
+            upperSpaced: (words) => words.join(' ').toUpperCase(),
+
+            // 全大写 + _（废弃的常量风格）
+            upperUnderscore: (words) => words.join('_').toUpperCase()
+        };
+
+        // 格式描述和图标（按使用频率排序）
+        const formatDescriptions = {
+            camelCase: { name: '驼峰命名', icon: '🐪', desc: 'helloWorld (最常用)' },
+            pascalCase: { name: '帕斯卡命名', icon: '🏛️', desc: 'HelloWorld (类名)' },
+            lowerUnderscore: { name: '下划线命名', icon: '🐍', desc: 'hello_world (Python)' },
+            kebabCase: { name: '连字符命名', icon: '🔗', desc: 'hello-world (CSS)' },
+            constantCase: { name: '常量命名', icon: '⚡', desc: 'HELLO_WORLD' },
+            titleCase: { name: '标题格式', icon: '📰', desc: 'Hello World' },
+            sentenceCase: { name: '句子格式', icon: '📄', desc: 'Hello world' },
+            lowerSpaced: { name: '小写空格', icon: '📖', desc: 'hello world' },
+            dotCase: { name: '点分隔', icon: '🔘', desc: 'hello.world' },
+            pathCase: { name: '路径格式', icon: '📁', desc: 'hello/world' },
+            upperSpaced: { name: '大写空格', icon: '📝', desc: 'HELLO WORLD' },
+            upperUnderscore: { name: '大写下划线', icon: '🔧', desc: 'HELLO_WORLD' }
+        };
+
+        // 解析输入文本为单词数组
+        function parseWords(text) {
+            if (!text.trim()) return [];
+
+            // 处理多种分隔符和命名格式
+            return text
+                .replace(/([a-z])([A-Z])/g, '$1 $2') // 驼峰转空格
+                .replace(/[_\-\.\/]/g, ' ') // 替换常见分隔符为空格
+                .split(/\s+/) // 按空格分割
+                .filter(word => word.length > 0) // 过滤空字符串
+                .map(word => word.replace(/[^a-zA-Z0-9]/g, '')); // 清理特殊字符
+        }
+
+        // 复制到剪贴板
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                // 显示复制成功提示
+                showToast('已复制到剪贴板！');
+            } catch (err) {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('已复制到剪贴板！');
+            }
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #48cae4;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 8px 25px rgba(168, 148, 137, 0.3);
+            `;
+
+            // 添加动画样式
+            if (!document.querySelector('#toast-styles')) {
+                const style = document.createElement('style');
+                style.id = 'toast-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // 渲染结果
+        function renderResults(words) {
+            if (words.length === 0) {
+                resultsContainer.innerHTML = '<div class="empty-state">请输入单词开始转换</div>';
+                return;
+            }
+
+            const results = Object.entries(formatters).map(([key, formatter], index) => {
+                const formatted = formatter(words);
+                const description = formatDescriptions[key];
+
+                return `
+                    <div class="result-item" style="animation-delay: ${index * 0.1}s">
+                        <div class="result-label">
+                            <span>${description.icon}</span>
+                            <span>${description.name}</span>
+                        </div>
+                        <div class="result-value" onclick="copyToClipboard('${formatted.replace(/'/g, "\\'")}')">
+                            ${formatted || '(空)'}
+                            <button class="copy-btn">复制</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            resultsContainer.innerHTML = results;
+        }
+
+        // 输入事件监听
+        input.addEventListener('input', (e) => {
+            const words = parseWords(e.target.value);
+            renderResults(words);
+        });
+
+        // 初始化
+        renderResults([]);
+
+        // 回车键快速复制第一个结果
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const words = parseWords(e.target.value);
+                if (words.length > 0) {
+                    const firstResult = formatters.camelCase(words);
+                    copyToClipboard(firstResult);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
