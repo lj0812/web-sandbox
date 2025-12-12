@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词云可视化组件</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ffecd2, #fcb69f);
+            color: #333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .input-group label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .input-group input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 80px;
+        }
+
+        .word-cloud-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: radial-gradient(circle at center, #ffffff 0%, #f8f9fa 100%);
+            overflow: hidden;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .word-cloud {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-item {
+            position: absolute;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        .word-item:hover {
+            transform: scale(1.1);
+            z-index: 1000;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #6c757d;
+            font-size: 18px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 3000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.success {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+        }
+
+        .notification.error {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .input-group {
+                margin-left: 0;
+                justify-content: center;
+            }
+
+            .word-cloud-container {
+                height: 400px;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .word-cloud-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 词云可视化组件</h1>
+            <p>智能词云生成器 - 文字大小、颜色、位置自动优化</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="generateWordCloud()">
+                🎨 生成词云
+            </button>
+            <button class="btn btn-secondary" onclick="copyToClipboard()">
+                📋 复制内容
+            </button>
+            <button class="btn btn-secondary" onclick="downloadImage()">
+                💾 下载图片
+            </button>
+
+            <div class="input-group">
+                <label for="wordCount">词语数量:</label>
+                <input type="number" id="wordCount" value="30" min="10" max="100">
+            </div>
+        </div>
+
+        <div class="word-cloud-container">
+            <div class="word-cloud" id="wordCloud">
+                <div class="loading">正在生成词云...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // 示例词语数据
+        const sampleWords = [
+            { text: "人工智能", weight: 100 },
+            { text: "机器学习", weight: 90 },
+            { text: "深度学习", weight: 85 },
+            { text: "数据科学", weight: 80 },
+            { text: "自然语言处理", weight: 75 },
+            { text: "计算机视觉", weight: 70 },
+            { text: "神经网络", weight: 65 },
+            { text: "大数据", weight: 60 },
+            { text: "云计算", weight: 55 },
+            { text: "区块链", weight: 50 },
+            { text: "物联网", weight: 45 },
+            { text: "量子计算", weight: 40 },
+            { text: "边缘计算", weight: 38 },
+            { text: "数字化转型", weight: 36 },
+            { text: "人机交互", weight: 34 },
+            { text: "虚拟现实", weight: 32 },
+            { text: "增强现实", weight: 30 },
+            { text: "5G网络", weight: 28 },
+            { text: "网络安全", weight: 26 },
+            { text: "数据挖掘", weight: 24 },
+            { text: "算法优化", weight: 22 },
+            { text: "模式识别", weight: 20 },
+            { text: "智能推荐", weight: 18 },
+            { text: "语音识别", weight: 16 },
+            { text: "图像处理", weight: 14 },
+            { text: "知识图谱", weight: 12 },
+            { text: "强化学习", weight: 10 },
+            { text: "联邦学习", weight: 8 },
+            { text: "迁移学习", weight: 6 },
+            { text: "生成对抗网络", weight: 4 },
+            { text: "transformer", weight: 3 },
+            { text: "attention机制", weight: 2 },
+            { text: "预训练模型", weight: 1 }
+        ];
+
+        // 颜色主题
+        const colorSchemes = [
+            ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'],
+            ['#6C5CE7', '#A29BFE', '#FD79A8', '#FDCB6E', '#E17055'],
+            ['#00B894', '#00CEC9', '#74B9FF', '#A29BFE', '#FD79A8'],
+            ['#E84393', '#A29BFE', '#74B9FF', '#00CEC9', '#55A3FF'],
+            ['#FF7675', '#74B9FF', '#55A3FF', '#00B894', '#FDCB6E']
+        ];
+
+        let currentWords = [];
+        let wordElements = [];
+
+        class WordCloudGenerator {
+            constructor(container) {
+                this.container = container;
+                this.width = container.offsetWidth;
+                this.height = container.offsetHeight;
+                this.centerX = this.width / 2;
+                this.centerY = this.height / 2;
+                this.occupiedAreas = [];
+            }
+
+            // 检查两个矩形是否重叠
+            isOverlapping(rect1, rect2, margin = 15) {
+                return !(rect1.right + margin < rect2.left ||
+                        rect2.right + margin < rect1.left ||
+                        rect1.bottom + margin < rect2.top ||
+                        rect2.bottom + margin < rect1.top);
+            }
+
+            // 获取元素实际尺寸
+            getElementDimensions(element) {
+                // 创建临时测量容器
+                const measure = document.createElement('div');
+                measure.style.position = 'absolute';
+                measure.style.visibility = 'hidden';
+                measure.style.pointerEvents = 'none';
+                measure.style.left = '0px';
+                measure.style.top = '0px';
+                measure.style.fontSize = element.style.fontSize;
+                measure.style.fontFamily = element.style.fontFamily || 'Microsoft YaHei, Arial, sans-serif';
+                measure.style.fontWeight = element.style.fontWeight || 'bold';
+                measure.style.whiteSpace = 'nowrap';
+                measure.textContent = element.textContent;
+
+                document.body.appendChild(measure);
+                const rect = measure.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                document.body.removeChild(measure);
+
+                return { width, height };
+            }
+
+            // 计算文字的边界矩形（考虑旋转）
+            getTextBounds(element, x, y, rotation) {
+                const { width, height } = this.getElementDimensions(element);
+
+                if (Math.abs(rotation) < 1) {
+                    return {
+                        left: x - width / 2,
+                        top: y - height / 2,
+                        right: x + width / 2,
+                        bottom: y + height / 2,
+                        width: width,
+                        height: height
+                    };
+                }
+
+                // 更准确的旋转后边界框计算
+                const rad = Math.abs(rotation) * Math.PI / 180;
+                const cos = Math.cos(rad);
+                const sin = Math.sin(rad);
+
+                // 计算旋转后包围盒的实际大小
+                const newWidth = Math.abs(width * cos) + Math.abs(height * sin);
+                const newHeight = Math.abs(width * sin) + Math.abs(height * cos);
+
+                return {
+                    left: x - newWidth / 2,
+                    top: y - newHeight / 2,
+                    right: x + newWidth / 2,
+                    bottom: y + newHeight / 2,
+                    width: newWidth,
+                    height: newHeight
+                };
+            }
+
+            // 螺旋查找可用位置
+            findPosition(element, fontSize, rotation) {
+                const attempts = 2000;
+                let angle = 0;
+                let radius = 0;
+                const radiusStep = Math.max(2, fontSize * 0.15); // 动态步长
+
+                // 首先尝试中心位置
+                if (this.occupiedAreas.length === 0) {
+                    const bounds = this.getTextBounds(element, this.centerX, this.centerY, rotation);
+                    if (bounds.left >= 20 && bounds.right <= this.width - 20 &&
+                        bounds.top >= 20 && bounds.bottom <= this.height - 20) {
+                        this.occupiedAreas.push(bounds);
+                        return { x: this.centerX, y: this.centerY };
+                    }
+                }
+
+                for (let i = 0; i < attempts; i++) {
+                    const x = this.centerX + radius * Math.cos(angle);
+                    const y = this.centerY + radius * Math.sin(angle);
+
+                    // 检查是否在容器内（留更多边距）
+                    const bounds = this.getTextBounds(element, x, y, rotation);
+                    if (bounds.left >= 20 && bounds.right <= this.width - 20 &&
+                        bounds.top >= 20 && bounds.bottom <= this.height - 20) {
+
+                        // 检查是否与其他元素重叠
+                        let hasCollision = false;
+                        for (let area of this.occupiedAreas) {
+                            if (this.isOverlapping(bounds, area)) {
+                                hasCollision = true;
+                                break;
+                            }
+                        }
+
+                        if (!hasCollision) {
+                            this.occupiedAreas.push(bounds);
+                            return { x, y };
+                        }
+                    }
+
+                    // 改进的螺旋递增
+                    angle += 0.3;
+                    radius += radiusStep * 0.3;
+                }
+
+                // 如果找不到位置，尝试更宽的搜索范围
+                for (let i = 0; i < 100; i++) {
+                    const x = this.centerX + (Math.random() - 0.5) * this.width * 0.9;
+                    const y = this.centerY + (Math.random() - 0.5) * this.height * 0.9;
+
+                    const bounds = this.getTextBounds(element, x, y, 0); // 不旋转降低碰撞
+                    if (bounds.left >= 10 && bounds.right <= this.width - 10 &&
+                        bounds.top >= 10 && bounds.bottom <= this.height - 10) {
+
+                        let hasCollision = false;
+                        for (let area of this.occupiedAreas) {
+                            if (this.isOverlapping(bounds, area, 10)) {
+                                hasCollision = true;
+                                break;
+                            }
+                        }
+
+                        if (!hasCollision) {
+                            this.occupiedAreas.push(bounds);
+                            return { x, y, forceNoRotation: true };
+                        }
+                    }
+                }
+
+                // 最后的降级方案
+                return {
+                    x: this.centerX + (Math.random() - 0.5) * this.width * 0.6,
+                    y: this.centerY + (Math.random() - 0.5) * this.height * 0.6,
+                    forceNoRotation: true
+                };
+            }
+
+            // 生成词云
+            generate(words) {
+                this.container.innerHTML = '';
+                this.occupiedAreas = [];
+                wordElements = [];
+
+                // 获取当前主题颜色
+                const colors = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+
+                // 按权重排序，权重高的先放置
+                const sortedWords = [...words].sort((a, b) => b.weight - a.weight);
+
+                sortedWords.forEach((word, index) => {
+                    const element = document.createElement('div');
+                    element.className = 'word-item';
+                    element.textContent = word.text;
+
+                    // 计算字体大小（权重越高字体越大）
+                    const fontSize = Math.max(12, Math.min(60, word.weight * 0.8 + 12));
+
+                    // 随机旋转角度（限制在可读性范围内）
+                    let rotation = (Math.random() - 0.5) * 40; // -20到20度
+
+                    // 对于长文本，减少旋转角度
+                    if (word.text.length > 4) {
+                        rotation = (Math.random() - 0.5) * 20; // -10到10度
+                    }
+
+                    // 随机颜色
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+
+                    element.style.fontSize = fontSize + 'px';
+                    element.style.color = color;
+                    element.style.transform = `rotate(${rotation}deg)`;
+
+                    // 临时添加到容器中以计算尺寸
+                    element.style.position = 'absolute';
+                    element.style.left = '-9999px';
+                    this.container.appendChild(element);
+
+                    // 查找合适位置
+                    const position = this.findPosition(element, fontSize, rotation);
+
+                    // 如果位置查找建议不旋转，则取消旋转
+                    if (position.forceNoRotation) {
+                        rotation = 0;
+                    }
+
+                    // 设置最终位置
+                    element.style.left = position.x + 'px';
+                    element.style.top = position.y + 'px';
+                    element.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+
+                    // 添加交互效果
+                    this.addInteractivity(element, word);
+
+                    wordElements.push({ element, word, position, rotation });
+                });
+            }
+
+            // 添加交互效果
+            addInteractivity(element, word) {
+                const tooltip = document.getElementById('tooltip');
+
+                element.addEventListener('mouseenter', (e) => {
+                    tooltip.textContent = `${word.text} (权重: ${word.weight})`;
+                    tooltip.style.opacity = '1';
+                });
+
+                element.addEventListener('mousemove', (e) => {
+                    tooltip.style.left = e.pageX + 10 + 'px';
+                    tooltip.style.top = e.pageY - 30 + 'px';
+                });
+
+                element.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = '0';
+                });
+
+                element.addEventListener('click', () => {
+                    showNotification(`您点击了: ${word.text}`, 'success');
+                });
+            }
+        }
+
+        // 生成词云
+        function generateWordCloud() {
+            const container = document.getElementById('wordCloud');
+            const wordCount = parseInt(document.getElementById('wordCount').value);
+
+            // 随机选择词语
+            const shuffled = [...sampleWords].sort(() => Math.random() - 0.5);
+            currentWords = shuffled.slice(0, wordCount);
+
+            const generator = new WordCloudGenerator(container);
+            generator.generate(currentWords);
+
+            showNotification('词云生成完成！', 'success');
+        }
+
+        // 复制到剪贴板
+        async function copyToClipboard() {
+            if (currentWords.length === 0) {
+                showNotification('请先生成词云！', 'error');
+                return;
+            }
+
+            const content = currentWords.map(word => word.text).join(', ');
+
+            try {
+                await navigator.clipboard.writeText(content);
+                showNotification('词云内容已复制到剪贴板！', 'success');
+            } catch (err) {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = content;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('词云内容已复制到剪贴板！', 'success');
+            }
+        }
+
+        // 下载图片
+        function downloadImage() {
+            if (wordElements.length === 0) {
+                showNotification('请先生成词云！', 'error');
+                return;
+            }
+
+            const container = document.getElementById('wordCloud');
+
+            // 使用html2canvas库进行截图（这里用简化实现）
+            // 创建SVG版本供下载
+            const svg = createSVGFromWordCloud();
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.download = 'wordcloud.svg';
+            link.href = url;
+            link.click();
+
+            URL.revokeObjectURL(url);
+            showNotification('词云图片下载完成！', 'success');
+        }
+
+        // 创建SVG格式的词云
+        function createSVGFromWordCloud() {
+            const container = document.getElementById('wordCloud');
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+
+            let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`;
+            svg += `<rect width="100%" height="100%" fill="white"/>`;
+
+            wordElements.forEach(({ element, word, position, rotation }) => {
+                const fontSize = parseFloat(element.style.fontSize);
+                const color = element.style.color;
+                const x = position.x;
+                const y = position.y;
+
+                svg += `<text x="${x}" y="${y}" font-size="${fontSize}" fill="${color}"
+                       text-anchor="middle" dominant-baseline="middle"
+                       transform="rotate(${rotation} ${x} ${y})"
+                       font-family="Microsoft YaHei, Arial, sans-serif"
+                       font-weight="bold">${word.text}</text>`;
+            });
+
+            svg += '</svg>';
+            return svg;
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // 响应式处理
+        window.addEventListener('resize', () => {
+            if (currentWords.length > 0) {
+                setTimeout(generateWordCloud, 300);
+            }
+        });
+
+        // 页面加载完成后自动生成词云
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(generateWordCloud, 500);
+        });
+    </script>
+</body>
+</html>
