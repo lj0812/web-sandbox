@@ -317,11 +317,14 @@
                 let inRules = false;
                 let currentIndent = '';
 
-                // 用于存储家宽代理的名称
+                // 硬编码的国家列表（可根据需要修改）
+                const targetCountries = ['美国', '日本', '新加坡', '香港', '台湾'];
+
+                // 用于存储符合条件的代理名称（家宽或指定国家）
                 const homeProxies = [];
                 let googleGroupTemplate = null;
 
-                // 第一遍：找出所有家宽代理和Google代理组模板
+                // 第一遍：找出所有家宽代理、指定国家代理和Google代理组模板
                 for (let line of lines) {
                     if (line.trim().startsWith('proxies:')) {
                         inProxies = true;
@@ -335,11 +338,17 @@
                         inProxies = false;
                         inProxyGroups = false;
                         inRules = true;
-                    } else if (inProxies && line.includes('name:') && line.includes('家宽')) {
-                        // 提取代理名称
-                        const nameMatch = line.match(/name:\s*['"]*([^'"]+)['"]*[,}]/);
-                        if (nameMatch) {
-                            homeProxies.push(nameMatch[1]);
+                    } else if (inProxies && line.includes('name:')) {
+                        // 检查是否包含"家宽"或指定国家
+                        const containsHomeOrCountry = line.includes('家宽') ||
+                            targetCountries.some(country => line.includes(country));
+
+                        if (containsHomeOrCountry) {
+                            // 提取代理名称
+                            const nameMatch = line.match(/name:\s*['"]*([^'"]+)['"]*[,}]/);
+                            if (nameMatch) {
+                                homeProxies.push(nameMatch[1]);
+                            }
                         }
                     } else if (inProxyGroups && line.includes('🔎 Google')) {
                         // 保存Google代理组作为模板
@@ -392,8 +401,11 @@
                     if (inProxies) {
                         // 处理 proxies 部分
                         if (line.trim().startsWith('- {') || line.trim().startsWith('-   {')) {
-                            // 检查是否包含"家宽"
-                            if (line.includes('家宽')) {
+                            // 检查是否包含"家宽"或指定国家
+                            const containsHomeOrCountry = line.includes('家宽') ||
+                                targetCountries.some(country => line.includes(country));
+
+                            if (containsHomeOrCountry) {
                                 result.push(line);
                                 skipProxy = false;
                             } else {
@@ -434,10 +446,11 @@
                 const newStats = {
                     homeProxyCount: homeProxies.length,
                     groupCount: getProxyGroupCount(content) + 2, // 原有 + 新增2个
-                    rulesAdded: 29 // 新增规则数量
+                    rulesAdded: 29, // 新增规则数量
+                    targetCountries: targetCountries
                 };
                 showStats(newStats);
-                showSuccess('✅ 处理完成！已过滤出家宽代理、更新代理组配置并添加新规则');
+                showSuccess('✅ 处理完成！已过滤出家宽及指定国家代理、更新代理组配置并添加新规则');
 
             } catch (error) {
                 console.error('处理错误:', error);
@@ -563,7 +576,8 @@
             const statsContent = document.getElementById('statsContent');
 
             statsContent.innerHTML = `
-                <p>🏠 家宽代理数量: <strong>${statsData.homeProxyCount}</strong></p>
+                <p>🌍 保留条件: <strong>家宽</strong> + <strong>${statsData.targetCountries.join('、')}</strong></p>
+                <p>✅ 保留节点数量: <strong>${statsData.homeProxyCount}</strong></p>
                 <p>👥 代理组数量: <strong>${statsData.groupCount}</strong> <span style="color: #20c997;">(+2 新增)</span></p>
                 <p>📋 新增规则数量: <strong>${statsData.rulesAdded}</strong></p>
             `;
