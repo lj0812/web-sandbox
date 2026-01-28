@@ -17,6 +17,7 @@
             color: hsl(222.2 84% 4.9%);
             line-height: 1.4;
             padding: 1rem;
+            overflow-x: hidden;
         }
 
         .container {
@@ -201,10 +202,7 @@
 
         .day-details {
             display: none;
-            position: absolute;
-            top: calc(100% + 0.5rem);
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed;
             background: hsl(222.2 84% 4.9%);
             color: white;
             padding: 0.5rem 0.75rem;
@@ -218,38 +216,14 @@
             max-width: 200px;
         }
 
-        .day-card:last-child .day-details,
-        .day-card:nth-child(7n) .day-details {
-            left: auto;
-            right: 0;
-            transform: none;
-        }
-
-        .day-card:last-child .day-details::before,
-        .day-card:nth-child(7n) .day-details::before {
-            left: auto;
-            right: 1rem;
-            transform: none;
-        }
-
-        .day-details::before {
-            content: '';
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-bottom-color: hsl(222.2 84% 4.9%);
-        }
-
-        .day-card:hover .day-details {
-            display: block;
-        }
-
         .day-card:hover {
-            transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border-color: hsl(221.2 83.2% 53.3%);
             z-index: 100;
+        }
+
+        .day-details.show {
+            display: block;
         }
 
         .day-detail-item {
@@ -766,7 +740,43 @@
                 { activity: '休息', type: 'rest' },
                 { activity: '慢跑', distance: '5-6km', type: 'running' },
                 { activity: '休息', type: 'rest' },
-                { activity: '慢跑', distance: '4-6km', note: '庆祝完成', type: 'running' },
+                { activity: '慢跑', distance: '4-6km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 45, total: '18-21km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '间歇跑', distance: '6km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 46, total: '20-23km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-9km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 47, total: '15-18km', phase: '调整期', days: [
+                { activity: '休息', note: '冬至', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '休息', note: '圣诞节', type: 'rest' },
+                { activity: '慢跑', distance: '4-6km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 48, total: '12-15km', phase: '调整期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '4-5km', type: 'running' },
+                { activity: '休息', note: '跨年准备', type: 'rest' },
+                { activity: '休息', type: 'rest' },
                 { activity: '休息', type: 'rest' }
             ]}
         ];
@@ -866,7 +876,69 @@
             app.innerHTML = `<div class="weeks-container">${weekElements.join('')}</div>`;
         }
 
+        // ========== Hover 事件处理 ==========
+        function positionTooltip(card, tooltip) {
+            const cardRect = card.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // 默认位置：卡片下方居中
+            let top = cardRect.bottom + 8;
+            let left = cardRect.left + (cardRect.width / 2) - (tooltipRect.width / 2);
+            
+            // 检查右边界
+            if (left + tooltipRect.width > viewportWidth - 10) {
+                left = viewportWidth - tooltipRect.width - 10;
+            }
+            
+            // 检查左边界
+            if (left < 10) {
+                left = 10;
+            }
+            
+            // 检查下边界，如果超出则显示在上方
+            if (top + tooltipRect.height > viewportHeight - 10) {
+                top = cardRect.top - tooltipRect.height - 8;
+            }
+            
+            // 检查上边界
+            if (top < 10) {
+                top = 10;
+            }
+            
+            tooltip.style.top = `${top}px`;
+            tooltip.style.left = `${left}px`;
+        }
+
+        // 添加事件监听的函数
+        function attachHoverEvents() {
+            const dayCards = document.querySelectorAll('.day-card');
+            
+            dayCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    const tooltip = this.querySelector('.day-details');
+                    if (tooltip) {
+                        tooltip.classList.add('show');
+                        // 等待 tooltip 显示后再计算位置
+                        setTimeout(() => {
+                            positionTooltip(this, tooltip);
+                        }, 0);
+                    }
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    const tooltip = this.querySelector('.day-details');
+                    if (tooltip) {
+                        tooltip.classList.remove('show');
+                    }
+                });
+            });
+        }
+
+        // 渲染并初始化
         renderApp();
+        attachHoverEvents();
     </script>
 </body>
 </html>
