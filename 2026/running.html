@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026年跑步训练计划</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: hsl(0 0% 98%);
+            color: hsl(222.2 84% 4.9%);
+            line-height: 1.4;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: hsl(222.2 84% 4.9%);
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            color: hsl(217.2 32.6% 17.5%);
+            font-size: 0.875rem;
+        }
+
+        .weeks-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            max-width: 100%;
+            padding: 1.5rem 0.5rem 0;
+        }
+
+        .week-wrapper {
+            position: relative;
+            min-width: 0;
+        }
+
+        .week-card {
+            background: white;
+            border: 1px solid hsl(214.3 31.8% 91.4%);
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            margin-top: 0.375rem;
+        }
+
+        .week-card:hover {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .week-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .week-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: hsl(222.2 84% 4.9%);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .week-total {
+            font-size: 0.75rem;
+            color: hsl(217.2 32.6% 17.5%);
+            background: hsl(214.3 31.8% 91.4%);
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            white-space: nowrap;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.375rem;
+        }
+
+        .day-card {
+            background: white;
+            border: 1px solid hsl(214.3 31.8% 91.4%);
+            border-radius: 0.25rem;
+            padding: 0.5rem 0.375rem 0.375rem;
+            text-align: center;
+            transition: all 0.2s;
+            position: relative;
+            min-height: 4.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            gap: 0.125rem;
+        }
+
+        .day-card.first-day-of-month {
+            border-top: 3px solid hsl(221.2 83.2% 53.3%);
+        }
+
+        .month-label {
+            position: absolute;
+            top: -1.125rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: hsl(221.2 83.2% 53.3%);
+            color: white;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 20;
+            box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.1);
+            line-height: 1.2;
+        }
+
+        .day-card.rest {
+            background: hsl(0 0% 98%);
+            opacity: 0.7;
+        }
+
+        .day-card.running {
+            background: hsl(142.1 76.2% 36.3% / 0.1);
+            border-color: hsl(142.1 76.2% 36.3% / 0.3);
+        }
+
+        .day-weekday {
+            font-size: 0.625rem;
+            font-weight: 600;
+            color: hsl(217.2 32.6% 17.5%);
+            line-height: 1.2;
+            width: 100%;
+            opacity: 0.8;
+        }
+
+        .day-date {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: hsl(222.2 84% 4.9%);
+            line-height: 1.2;
+            width: 100%;
+            margin-bottom: 0.125rem;
+        }
+
+        .day-card.running .day-date {
+            color: hsl(142.1 76.2% 36.3%);
+        }
+
+        .day-activity {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: hsl(222.2 84% 4.9%);
+            line-height: 1.3;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0.375rem 0 0.125rem;
+            word-break: keep-all;
+            white-space: nowrap;
+        }
+
+        .day-card.running .day-activity {
+            color: hsl(142.1 76.2% 36.3%);
+        }
+
+        .day-distance {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: hsl(142.1 76.2% 36.3%);
+            line-height: 1.2;
+            margin-top: 0.125rem;
+        }
+
+        .day-details {
+            display: none;
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            left: 50%;
+            transform: translateX(-50%);
+            background: hsl(222.2 84% 4.9%);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            pointer-events: none;
+            min-width: 120px;
+            max-width: 200px;
+        }
+
+        .day-card:last-child .day-details,
+        .day-card:nth-child(7n) .day-details {
+            left: auto;
+            right: 0;
+            transform: none;
+        }
+
+        .day-card:last-child .day-details::before,
+        .day-card:nth-child(7n) .day-details::before {
+            left: auto;
+            right: 1rem;
+            transform: none;
+        }
+
+        .day-details::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-bottom-color: hsl(222.2 84% 4.9%);
+        }
+
+        .day-card:hover .day-details {
+            display: block;
+        }
+
+        .day-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            z-index: 100;
+        }
+
+        .day-detail-item {
+            margin-bottom: 0.25rem;
+            line-height: 1.4;
+        }
+
+        .day-detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .day-detail-label {
+            opacity: 0.8;
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .weeks-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .weeks-container {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .days-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 0.25rem;
+            }
+
+            .day-card {
+                padding: 0.375rem 0.25rem;
+                min-height: 3.5rem;
+                gap: 0.0625rem;
+            }
+
+            .month-label {
+                font-size: 0.5rem;
+                padding: 0.125rem 0.375rem;
+                top: -0.875rem;
+            }
+
+            .week-card {
+                margin-top: 0.25rem;
+            }
+
+            .day-weekday {
+                font-size: 0.5rem;
+            }
+
+            .day-date {
+                font-size: 0.625rem;
+            }
+
+            .day-activity {
+                font-size: 0.6rem;
+                margin: 0.25rem 0 0.0625rem;
+            }
+
+            .day-distance {
+                font-size: 0.55rem;
+            }
+
+            .day-details {
+                font-size: 0.625rem;
+                padding: 0.375rem 0.5rem;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2026年跑步训练计划</h1>
+            <p>科学训练，循序渐进</p>
+        </div>
+
+        <div id="app"></div>
+    </div>
+
+    <script>
+        // ========== 配置区 ==========
+        // 起始日期：训练计划开始的日期
+        const START_DATE = '2026-02-02'; // 格式：YYYY-MM-DD，2026年2月2日（周一）
+        
+        // ========== 训练数据 ==========
+        // 二维数组：每周7天的训练计划
+        // weekNumber: 周数, total: 总里程, phase: 阶段, days: 7天数据
+        // 每天: activity(活动), distance(距离,可选), note(备注,可选), type(rest/running)
+        const trainingWeeks = [
+            // 2月 - 适应期
+            { weekNumber: 1, total: '9-12km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '走跑结合', distance: '3km', note: '跑2分钟走1分钟', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '走跑结合', distance: '3km', note: '跑2分钟走1分钟', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-7km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 2, total: '10-13km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '走跑结合', distance: '3-4km', note: '跑3分钟走1分钟', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '走跑结合', distance: '3-4km', note: '跑3分钟走1分钟', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-7km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 3, total: '11-14km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '走跑结合', distance: '3-4km', note: '跑4分钟走1分钟', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '4km', note: '首次连续慢跑', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '4-5km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 4, total: '12-15km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '3-4km', note: '恢复周', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '4-5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 3月 - 适应期
+            { weekNumber: 5, total: '14-16km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '4km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '长跑', distance: '6-7km', note: '周末长距离', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 6, total: '15-17km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', note: '配速6:30-7:30', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '4-5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '长跑', distance: '6-7km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 7, total: '16-18km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '力量训练', note: '核心+腿部', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '长跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 8, total: '17-19km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '长跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 4月 - 适应期
+            { weekNumber: 9, total: '18-20km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '长跑', distance: '8-10km', note: '周末长距离', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 10, total: '18-21km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '长跑', distance: '8-10km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 11, total: '19-22km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '长跑', distance: '10km', note: '首个10公里', type: 'running' }
+            ]},
+            { weekNumber: 12, total: '17-19km', phase: '适应期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 5月 - 提升期
+            { weekNumber: 13, total: '20-23km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '节奏跑', distance: '6km', note: '稍快配速', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '10-12km', type: 'running' }
+            ]},
+            { weekNumber: 14, total: '20-23km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '间歇跑', distance: '6km', note: '400m×8', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '长跑', distance: '10-12km', type: 'running' }
+            ]},
+            { weekNumber: 15, total: '21-24km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '节奏跑', distance: '6-7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '12km', type: 'running' }
+            ]},
+            { weekNumber: 16, total: '18-20km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7-9km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 6月 - 提升期
+            { weekNumber: 17, total: '21-24km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '节奏跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '长跑', distance: '12km', type: 'running' }
+            ]},
+            { weekNumber: 18, total: '22-25km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '间歇跑', distance: '6-7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '12km', type: 'running' }
+            ]},
+            { weekNumber: 19, total: '22-25km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '节奏跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '12km', type: 'running' }
+            ]},
+            { weekNumber: 20, total: '18-20km', phase: '提升期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '5km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7-9km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 7月 - 提升期（夏季）
+            { weekNumber: 21, total: '19-22km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', note: '避开高温', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '晨跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-9km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 22, total: '19-22km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-7km', note: '注意补水', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '晨跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 23, total: '20-23km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-9km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 24, total: '17-19km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '晨跑', distance: '5-6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 8月 - 提升期（夏季）
+            { weekNumber: 25, total: '19-22km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '晨跑', distance: '6-7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 26, total: '19-22km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '晨跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 27, total: '20-23km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-9km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            { weekNumber: 28, total: '17-19km', phase: '提升期（夏季）', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '晨跑', distance: '5-6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '晨跑', distance: '6-7km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 9月 - 巩固期
+            { weekNumber: 29, total: '21-24km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '节奏跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '12-13km', type: 'running' }
+            ]},
+            { weekNumber: 30, total: '22-25km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '间歇跑', distance: '7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '13-15km', type: 'running' }
+            ]},
+            { weekNumber: 31, total: '22-26km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '节奏跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '14-15km', type: 'running' }
+            ]},
+            { weekNumber: 32, total: '18-20km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 10月 - 巩固期
+            { weekNumber: 33, total: '22-25km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '8km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '节奏跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '14-15km', type: 'running' }
+            ]},
+            { weekNumber: 34, total: '23-26km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '间歇跑', distance: '7-8km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '15km', type: 'running' }
+            ]},
+            { weekNumber: 35, total: '23-26km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '节奏跑', distance: '8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '15km', note: '可参加趣味跑', type: 'running' }
+            ]},
+            { weekNumber: 36, total: '18-21km', phase: '巩固期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-7km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 11月 - 稳定期
+            { weekNumber: 37, total: '21-24km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7-8km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '节奏跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '13-14km', type: 'running' }
+            ]},
+            { weekNumber: 38, total: '21-24km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '间歇跑', distance: '7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6-8km', type: 'running' },
+                { activity: '长跑', distance: '12-13km', type: 'running' }
+            ]},
+            { weekNumber: 39, total: '21-24km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '节奏跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '13-14km', type: 'running' }
+            ]},
+            { weekNumber: 40, total: '18-21km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-7km', note: '恢复周', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-8km', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]},
+            
+            // 12月 - 稳定期
+            { weekNumber: 41, total: '21-24km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7-8km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '节奏跑', distance: '7-8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', type: 'running' },
+                { activity: '长跑', distance: '13-14km', type: 'running' }
+            ]},
+            { weekNumber: 42, total: '21-24km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '8km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '间歇跑', distance: '7km', type: 'running' },
+                { activity: '力量训练', type: 'rest' },
+                { activity: '慢跑', distance: '6-8km', type: 'running' },
+                { activity: '长跑', distance: '12-13km', type: 'running' }
+            ]},
+            { weekNumber: 43, total: '20-23km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '7km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6-9km', type: 'running' },
+                { activity: '休息', note: '年终总结', type: 'rest' }
+            ]},
+            { weekNumber: 44, total: '15-18km', phase: '稳定期', days: [
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '6km', note: '放松周', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '5-6km', type: 'running' },
+                { activity: '休息', type: 'rest' },
+                { activity: '慢跑', distance: '4-6km', note: '庆祝完成', type: 'running' },
+                { activity: '休息', type: 'rest' }
+            ]}
+        ];
+
+        // ========== 辅助函数 ==========
+        function getWeekDayName(date) {
+            const names = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            return names[date.getDay()];
+        }
+
+        function formatDate(date) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${month}/${day}`;
+        }
+
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        // ========== 渲染函数 ==========
+        function renderApp() {
+            const app = document.getElementById('app');
+            const startDate = new Date(START_DATE);
+            let currentDate = new Date(startDate);
+            let seenMonths = new Set();
+
+            const monthNames = ['', '一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+
+            const weekElements = trainingWeeks.map((week, weekIndex) => {
+                // 计算这周的日期范围
+                const weekStartDate = new Date(currentDate);
+                const weekEndDate = addDays(weekStartDate, 6);
+
+                // 渲染这周的7天
+                const daysHtml = week.days.map((day, dayIndex) => {
+                    const dayDate = addDays(weekStartDate, dayIndex);
+                    const weekDayName = getWeekDayName(dayDate);
+                    const dateStr = formatDate(dayDate);
+                    const dayNum = dayDate.getDate();
+                    const month = dayDate.getMonth() + 1;
+                    
+                    // 判断是否是这个月的第一天（第一次遇到这个月份）
+                    const isFirstDayOfMonth = !seenMonths.has(month);
+                    if (isFirstDayOfMonth) {
+                        seenMonths.add(month);
+                    }
+
+                    const details = [];
+                    details.push(`<div class="day-detail-item"><span class="day-detail-label">日期:</span>${dateStr} ${weekDayName}</div>`);
+                    details.push(`<div class="day-detail-item"><span class="day-detail-label">行动:</span>${day.activity}</div>`);
+                    if (day.distance) {
+                        details.push(`<div class="day-detail-item"><span class="day-detail-label">量:</span>${day.distance}</div>`);
+                    }
+                    if (day.note) {
+                        details.push(`<div class="day-detail-item"><span class="day-detail-label">其他:</span>${day.note}</div>`);
+                    }
+
+                    const monthLabel = isFirstDayOfMonth ? `
+                        <div class="month-label">${month}月 · ${monthNames[month]} · ${week.phase}</div>
+                    ` : '';
+
+                    return `
+                        <div class="day-card ${day.type} ${isFirstDayOfMonth ? 'first-day-of-month' : ''}">
+                            ${monthLabel}
+                            <div class="day-weekday">${weekDayName}</div>
+                            <div class="day-date">${dayNum}日</div>
+                            <div class="day-activity">${day.activity}</div>
+                            ${day.distance ? `<div class="day-distance">${day.distance}</div>` : ''}
+                            <div class="day-details">${details.join('')}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                // 移动到下一周
+                currentDate = addDays(currentDate, 7);
+
+                const dateRange = `${weekStartDate.getDate()}日 - ${weekEndDate.getDate()}日`;
+                
+                return `
+                    <div class="week-wrapper">
+                        <div class="week-card">
+                            <div class="week-header">
+                                <span class="week-title">第 ${week.weekNumber} 周 (${dateRange})</span>
+                                <span class="week-total">总里程: ${week.total}</span>
+                            </div>
+                            <div class="days-grid">
+                                ${daysHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            app.innerHTML = `<div class="weeks-container">${weekElements.join('')}</div>`;
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>
