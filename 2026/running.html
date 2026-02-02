@@ -227,6 +227,7 @@
         }
 
         .day-detail-item {
+            text-align: left;
             margin-bottom: 0.25rem;
             line-height: 1.4;
         }
@@ -911,7 +912,7 @@
                     details.push(`<div class="day-detail-item"><span class="day-detail-label">日期:</span>${dateStr} ${weekDayName}</div>`);
                     details.push(`<div class="day-detail-item"><span class="day-detail-label">行动:</span>${day.activity}</div>`);
                     if (day.distance) {
-                        details.push(`<div class="day-detail-item"><span class="day-detail-label">量:</span>${day.distance}</div>`);
+                        details.push(`<div class="day-detail-item"><span class="day-detail-label">跑量:</span>${day.distance}</div>`);
                     }
                     if (duration) {
                         details.push(`<div class="day-detail-item"><span class="day-detail-label">时长:</span>${duration}</div>`);
