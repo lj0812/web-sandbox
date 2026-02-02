@@ -320,7 +320,7 @@
         // ========== 配置区 ==========
         // 起始日期：训练计划开始的日期
         const START_DATE = '2026-02-02'; // 格式：YYYY-MM-DD，2026年2月2日（周一）
-        
+
         // ========== 训练数据 ==========
         // 二维数组：每周7天的训练计划
         // weekNumber: 周数, total: 总里程, phase: 阶段, days: 7天数据
@@ -363,7 +363,7 @@
                 { activity: '慢跑', distance: '5-6km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 3月 - 适应期
             { weekNumber: 5, total: '14-16km', phase: '适应期', days: [
                 { activity: '休息', type: 'rest' },
@@ -401,7 +401,7 @@
                 { activity: '长跑', distance: '7-8km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 4月 - 适应期
             { weekNumber: 9, total: '18-20km', phase: '适应期', days: [
                 { activity: '休息', type: 'rest' },
@@ -439,7 +439,7 @@
                 { activity: '慢跑', distance: '6-8km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 5月 - 提升期
             { weekNumber: 13, total: '20-23km', phase: '提升期', days: [
                 { activity: '休息', type: 'rest' },
@@ -477,7 +477,7 @@
                 { activity: '慢跑', distance: '7-9km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 6月 - 提升期
             { weekNumber: 17, total: '21-24km', phase: '提升期', days: [
                 { activity: '休息', type: 'rest' },
@@ -515,7 +515,7 @@
                 { activity: '慢跑', distance: '7-9km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 7月 - 提升期（夏季）
             { weekNumber: 21, total: '19-22km', phase: '提升期（夏季）', days: [
                 { activity: '休息', type: 'rest' },
@@ -553,7 +553,7 @@
                 { activity: '晨跑', distance: '6-8km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 8月 - 提升期（夏季）
             { weekNumber: 25, total: '19-22km', phase: '提升期（夏季）', days: [
                 { activity: '休息', type: 'rest' },
@@ -591,7 +591,7 @@
                 { activity: '晨跑', distance: '6-7km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 9月 - 巩固期
             { weekNumber: 29, total: '21-24km', phase: '巩固期', days: [
                 { activity: '休息', type: 'rest' },
@@ -629,7 +629,7 @@
                 { activity: '慢跑', distance: '6-8km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 10月 - 巩固期
             { weekNumber: 33, total: '22-25km', phase: '巩固期', days: [
                 { activity: '休息', type: 'rest' },
@@ -667,7 +667,7 @@
                 { activity: '慢跑', distance: '6-8km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 11月 - 稳定期
             { weekNumber: 37, total: '21-24km', phase: '稳定期', days: [
                 { activity: '休息', type: 'rest' },
@@ -705,7 +705,7 @@
                 { activity: '慢跑', distance: '6-8km', type: 'running' },
                 { activity: '休息', type: 'rest' }
             ]},
-            
+
             // 12月 - 稳定期
             { weekNumber: 41, total: '21-24km', phase: '稳定期', days: [
                 { activity: '休息', type: 'rest' },
@@ -799,6 +799,84 @@
             return result;
         }
 
+        // 计算运动时长
+        function calculateDuration(activity, distance, phase) {
+            // 休息日
+            if (activity === '休息') {
+                return null;
+            }
+
+            // 力量训练
+            if (activity === '力量训练') {
+                return '30-40分钟';
+            }
+
+            // 如果没有距离信息，返回估算时间
+            if (!distance) {
+                return '30-40分钟';
+            }
+
+            // 提取距离数值（处理 "3km", "3-4km", "6-7km" 等格式）
+            const distanceMatch = distance.match(/(\d+)(?:-(\d+))?/);
+            if (!distanceMatch) return null;
+
+            const minDist = parseInt(distanceMatch[1]);
+            const maxDist = distanceMatch[2] ? parseInt(distanceMatch[2]) : minDist;
+            const avgDist = (minDist + maxDist) / 2;
+
+            // 根据活动类型和阶段确定配速（分钟/公里）
+            let paceMin, paceMax;
+
+            if (activity.includes('走跑') || activity.includes('走跑结合')) {
+                // 走跑结合：较慢
+                paceMin = 8;
+                paceMax = 10;
+            } else if (activity === '间歇跑') {
+                // 间歇跑：包含休息，整体时间较长
+                paceMin = 5.5;
+                paceMax = 7;
+            } else if (activity === '长跑') {
+                // 长跑：配速较慢
+                paceMin = 7;
+                paceMax = 8;
+            } else if (activity === '慢跑' || activity === '晨跑') {
+                // 慢跑/晨跑：根据阶段调整
+                if (phase === '适应期') {
+                    paceMin = 7;
+                    paceMax = 8;
+                } else if (phase === '基础期') {
+                    paceMin = 6.5;
+                    paceMax = 7.5;
+                } else if (phase === '提升期') {
+                    paceMin = 6;
+                    paceMax = 7;
+                } else if (phase === '稳定期') {
+                    paceMin = 6;
+                    paceMax = 7;
+                } else if (phase === '调整期') {
+                    paceMin = 7;
+                    paceMax = 8;
+                } else {
+                    paceMin = 6.5;
+                    paceMax = 7.5;
+                }
+            } else {
+                // 默认配速
+                paceMin = 6.5;
+                paceMax = 7.5;
+            }
+
+            // 计算总时长
+            const minTime = Math.round(minDist * paceMin);
+            const maxTime = Math.round(maxDist * paceMax);
+
+            if (minTime === maxTime) {
+                return `${minTime}分钟`;
+            } else {
+                return `${minTime}-${maxTime}分钟`;
+            }
+        }
+
         // ========== 渲染函数 ==========
         function renderApp() {
             const app = document.getElementById('app');
@@ -820,18 +898,23 @@
                     const dateStr = formatDate(dayDate);
                     const dayNum = dayDate.getDate();
                     const month = dayDate.getMonth() + 1;
-                    
+
                     // 判断是否是这个月的第一天（第一次遇到这个月份）
                     const isFirstDayOfMonth = !seenMonths.has(month);
                     if (isFirstDayOfMonth) {
                         seenMonths.add(month);
                     }
 
+                    const duration = calculateDuration(day.activity, day.distance, week.phase);
+
                     const details = [];
                     details.push(`<div class="day-detail-item"><span class="day-detail-label">日期:</span>${dateStr} ${weekDayName}</div>`);
                     details.push(`<div class="day-detail-item"><span class="day-detail-label">行动:</span>${day.activity}</div>`);
                     if (day.distance) {
                         details.push(`<div class="day-detail-item"><span class="day-detail-label">量:</span>${day.distance}</div>`);
+                    }
+                    if (duration) {
+                        details.push(`<div class="day-detail-item"><span class="day-detail-label">时长:</span>${duration}</div>`);
                     }
                     if (day.note) {
                         details.push(`<div class="day-detail-item"><span class="day-detail-label">其他:</span>${day.note}</div>`);
@@ -857,7 +940,7 @@
                 currentDate = addDays(currentDate, 7);
 
                 const dateRange = `${weekStartDate.getDate()}日 - ${weekEndDate.getDate()}日`;
-                
+
                 return `
                     <div class="week-wrapper">
                         <div class="week-card">
@@ -882,31 +965,31 @@
             const tooltipRect = tooltip.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            
+
             // 默认位置：卡片下方居中
             let top = cardRect.bottom + 8;
             let left = cardRect.left + (cardRect.width / 2) - (tooltipRect.width / 2);
-            
+
             // 检查右边界
             if (left + tooltipRect.width > viewportWidth - 10) {
                 left = viewportWidth - tooltipRect.width - 10;
             }
-            
+
             // 检查左边界
             if (left < 10) {
                 left = 10;
             }
-            
+
             // 检查下边界，如果超出则显示在上方
             if (top + tooltipRect.height > viewportHeight - 10) {
                 top = cardRect.top - tooltipRect.height - 8;
             }
-            
+
             // 检查上边界
             if (top < 10) {
                 top = 10;
             }
-            
+
             tooltip.style.top = `${top}px`;
             tooltip.style.left = `${left}px`;
         }
@@ -914,7 +997,7 @@
         // 添加事件监听的函数
         function attachHoverEvents() {
             const dayCards = document.querySelectorAll('.day-card');
-            
+
             dayCards.forEach(card => {
                 card.addEventListener('mouseenter', function() {
                     const tooltip = this.querySelector('.day-details');
@@ -926,7 +1009,7 @@
                         }, 0);
                     }
                 });
-                
+
                 card.addEventListener('mouseleave', function() {
                     const tooltip = this.querySelector('.day-details');
                     if (tooltip) {
