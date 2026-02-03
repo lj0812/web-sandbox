@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小时光</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Serif+SC:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fafaf9;
+            --surface: #ffffff;
+            --text-primary: #1c1917;
+            --text-secondary: #78716c;
+            --text-tertiary: #d6d3d1;
+            --accent: #292524;
+            --accent-soft: #57534e;
+            --timeline-line: #e7e5e4;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            cursor: default;
+        }
+
+        /* 顶部标题区域 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 3rem;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, var(--bg) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
+            opacity: 0;
+            animation: fadeInDown 1s ease 0.3s forwards;
+        }
+
+        .date-display {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeInDown 1s ease 0.5s forwards;
+        }
+
+        /* 时间轴容器 */
+        .timeline-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-track {
+            position: absolute;
+            left: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            will-change: transform;
+        }
+
+        /* 时间轴线 */
+        .timeline-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--timeline-line);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .timeline-content {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-left: 5vw;
+            padding-right: 50vw;
+        }
+
+        /* 日期刻度 */
+        .day {
+            position: relative;
+            width: 50px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .day-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--text-tertiary);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .day:hover .day-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-soft);
+        }
+
+        /* 月份标记 */
+        .day.month .day-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+        }
+
+        .month-label {
+            position: absolute;
+            top: calc(50% - 80px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            font-weight: 500;
+            opacity: 0;
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .day-number {
+            position: absolute;
+            bottom: calc(50% + 30px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.625rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.05em;
+        }
+
+        /* 记忆点 */
+        .memory {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+
+        .memory-stack {
+            position: relative;
+            width: 160px;
+            height: 200px;
+        }
+
+        .memory-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 160px;
+            height: 200px;
+            background: var(--surface);
+            border-radius: 2px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* 扑克牌叠加效果 */
+        .memory-content:nth-child(1) {
+            transform: rotate(-3deg);
+            z-index: 1;
+        }
+
+        .memory-content:nth-child(2) {
+            transform: rotate(2deg) translate(8px, 4px);
+            z-index: 2;
+        }
+
+        .memory-content:nth-child(3) {
+            transform: rotate(-2deg) translate(16px, 8px);
+            z-index: 3;
+        }
+
+        .memory-content:nth-child(4) {
+            transform: rotate(3deg) translate(24px, 12px);
+            z-index: 4;
+        }
+
+        .memory:hover .memory-content {
+            transform: translateY(-8px) scale(1.02) !important;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.15);
+        }
+
+        /* 多图片计数 */
+        .memory-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.625rem;
+            font-weight: 500;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        .memory-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .memory-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+            color: white;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .memory:hover .memory-overlay {
+            opacity: 1;
+        }
+
+        /* 视频标记 */
+        .memory.video .memory-content::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 5;
+            transition: all 0.3s ease;
+        }
+
+        .memory.video .memory-content::after {
+            content: '▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-45%, -50%);
+            font-size: 1rem;
+            color: var(--accent);
+            z-index: 6;
+        }
+
+        .memory.video:hover .memory-content::before {
+            background: rgba(255, 255, 255, 1);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* 连接线 */
+        .memory::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            width: 1px;
+            background: var(--timeline-line);
+            z-index: -1;
+        }
+
+        .memory.above::before {
+            top: 100%;
+            height: 80px;
+        }
+
+        .memory.below::before {
+            bottom: 100%;
+            height: 80px;
+        }
+
+        /* 特殊标记 */
+        .marker {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: var(--surface);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 20;
+        }
+
+        .marker.start {
+            left: 0;
+        }
+
+        .marker.today {
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        /* 底部提示 */
+        .hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.1em;
+            opacity: 0;
+            animation: fadeInUp 1s ease 1s forwards, float 3s ease-in-out 2s infinite;
+        }
+
+        /* 右下角控制 */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.5s forwards;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--timeline-line);
+            background: var(--surface);
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .control-btn:hover {
+            background: var(--accent);
+            color: var(--surface);
+            border-color: var(--accent);
+        }
+
+        /* 动画 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        /* 选择状态 */
+        ::selection {
+            background: var(--accent);
+            color: var(--surface);
+        }
+
+        /* 滚动条隐藏 */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 全屏查看器 */
+        .viewer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .viewer-overlay.active {
+            display: flex;
+        }
+
+        .viewer-content {
+            width: 90vw;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 2rem;
+            scroll-behavior: smooth;
+        }
+
+        .viewer-content::-webkit-scrollbar {
+            height: 8px;
+            display: block;
+        }
+
+        .viewer-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .viewer-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .viewer-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .viewer-image-container {
+            flex-shrink: 0;
+            max-width: 600px;
+            max-height: 100%;
+            animation: scaleIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .viewer-image-container:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .viewer-image-container:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .viewer-image-container:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .viewer-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .viewer-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .viewer-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .viewer-info {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 0.875rem;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部标题 -->
+    <div class="header">
+        <h1 class="title">小时光</h1>
+        <div class="date-display" id="currentDate">2024 — 2026</div>
+    </div>
+
+    <!-- 时间轴 -->
+    <div class="timeline-container">
+        <div class="timeline-track" id="track">
+            <div class="timeline-line"></div>
+            <div class="timeline-content" id="timeline">
+                <!-- 起点标记 -->
+                <div class="marker start">诞生</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部提示 -->
+    <div class="hint">滚动浏览时光</div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+        <button class="control-btn" onclick="jumpToStart()" title="回到起点">⟨⟨</button>
+        <button class="control-btn" onclick="jumpToToday()" title="回到今天">●</button>
+        <button class="control-btn" onclick="addMemory()" title="添加记忆">+</button>
+    </div>
+
+    <!-- 全屏查看器 -->
+    <div class="viewer-overlay" id="viewer">
+        <button class="viewer-close" onclick="closeViewer()">×</button>
+        <div class="viewer-content" id="viewerContent"></div>
+        <div class="viewer-info" id="viewerInfo"></div>
+    </div>
+
+    <script>
+        // 配置常量
+        const START_DATE = new Date('2024-04-01');
+        const TODAY = new Date();
+        const DAY_WIDTH = 50; // 每天50px
+
+        let scrollOffset = 0; // 当前滚动偏移量
+        let targetOffset = 0; // 目标偏移量
+        let isScrolling = false;
+        let rafId = null;
+
+        // 工具函数：计算两个日期之间的天数
+        function daysBetween(start, end) {
+            return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+        }
+
+        // 工具函数：格式化日期
+        function formatDate(date, format = 'YYYY-MM-DD') {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+
+            if (format === 'YYYY-MM') return `${y}.${m}`;
+            if (format === 'MM-DD') return `${m}.${d}`;
+            return `${y}-${m}-${d}`;
+        }
+
+        // 示例记忆数据（支持多张图片）
+        const memories = [
+            {
+                day: 0,
+                caption: '第一天',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' },
+                ]
+            },
+            {
+                day: 3,
+                caption: '第一次睁眼',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' }
+                ]
+            },
+            {
+                day: 7,
+                caption: '第一周',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400' }
+                ]
+            },
+            {
+                day: 10,
+                caption: '第一次微笑',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=400' }
+                ]
+            },
+            {
+                day: 14,
+                caption: '两周大',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' }
+                ]
+            },
+            {
+                day: 21,
+                caption: '三周纪念',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' }
+                ]
+            },
+            {
+                day: 30,
+                caption: '满月',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1499084732479-de2c02d45fcc?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' },
+                ]
+            },
+            {
+                day: 35,
+                caption: '第一次笑出声',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400' }
+                ]
+            },
+            {
+                day: 42,
+                caption: '六周',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=400' }
+                ]
+            },
+            {
+                day: 50,
+                caption: '认得妈妈了',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' },
+                ]
+            },
+            {
+                day: 60,
+                caption: '学会翻身',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400' }
+                ]
+            },
+            {
+                day: 70,
+                caption: '抓玩具',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400' }
+                ]
+            },
+            {
+                day: 80,
+                caption: '吃手手',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' }
+                ]
+            },
+            {
+                day: 90,
+                caption: '三个月啦',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400' },
+                ]
+            },
+            {
+                day: 100,
+                caption: '第一次爬行',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=400' },
+                ]
+            },
+            {
+                day: 110,
+                caption: '趴着玩',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' }
+                ]
+            },
+            {
+                day: 120,
+                caption: '四个月',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=400' }
+                ]
+            },
+            {
+                day: 130,
+                caption: '咯咯笑',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=400' }
+                ]
+            },
+            {
+                day: 140,
+                caption: '认生了',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1499084732479-de2c02d45fcc?w=400' }
+                ]
+            },
+            {
+                day: 150,
+                caption: '百日宴',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400' },
+                ]
+            },
+            {
+                day: 160,
+                caption: '五个月',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' }
+                ]
+            },
+            {
+                day: 170,
+                caption: '坐起来了',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400' }
+                ]
+            },
+            {
+                day: 180,
+                caption: '半岁啦',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400' },
+                ]
+            },
+            {
+                day: 190,
+                caption: '长牙了',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400' }
+                ]
+            },
+            {
+                day: 200,
+                caption: '开始吃辅食',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400' }
+                ]
+            },
+            {
+                day: 210,
+                caption: '第一次吃米糊',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=400' }
+                ]
+            },
+            {
+                day: 220,
+                caption: '七个月',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=400' }
+                ]
+            },
+            {
+                day: 230,
+                caption: '爬得很快',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' },
+                ]
+            },
+            {
+                day: 240,
+                caption: '扶着站',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1499084732479-de2c02d45fcc?w=400' }
+                ]
+            },
+            {
+                day: 250,
+                caption: '咿呀学语',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' }
+                ]
+            },
+            {
+                day: 260,
+                caption: '八个月',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400' }
+                ]
+            },
+            {
+                day: 270,
+                caption: '会挥手拜拜',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400' }
+                ]
+            },
+            {
+                day: 280,
+                caption: '爬楼梯',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=400' }
+                ]
+            },
+            {
+                day: 290,
+                caption: '扶着走',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400' },
+                ]
+            },
+            {
+                day: 300,
+                caption: '第一次站立',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400' }
+                ]
+            },
+            {
+                day: 310,
+                caption: '九个月',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' }
+                ]
+            },
+            {
+                day: 320,
+                caption: '叫妈妈',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1566004100631-35d015d6a491?w=400' }
+                ]
+            },
+            {
+                day: 330,
+                caption: '会拍手',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' }
+                ]
+            },
+            {
+                day: 340,
+                caption: '十个月',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1499084732479-de2c02d45fcc?w=400' }
+                ]
+            },
+            {
+                day: 350,
+                caption: '摇摇晃晃走路',
+                images: [
+                    { type: 'video', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400' },
+                ]
+            },
+            {
+                day: 360,
+                caption: '快一岁了',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=400' }
+                ]
+            },
+            {
+                day: 365,
+                caption: '周岁生日',
+                images: [
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400' },
+                    { type: 'photo', url: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400' },
+                ]
+            },
+        ];
+
+        // 生成时间轴
+        function generateTimeline() {
+            const timeline = document.getElementById('timeline');
+            const totalDays = daysBetween(START_DATE, TODAY) + 30; // 多生成30天
+
+            // 生成每一天
+            for (let i = 0; i <= totalDays; i++) {
+                const currentDate = new Date(START_DATE);
+                currentDate.setDate(currentDate.getDate() + i);
+
+                const isMonthStart = currentDate.getDate() === 1;
+
+                const dayEl = document.createElement('div');
+                dayEl.className = `day ${isMonthStart ? 'month' : ''}`;
+
+                const dot = document.createElement('div');
+                dot.className = 'day-dot';
+                dayEl.appendChild(dot);
+
+                // 月份标签
+                if (isMonthStart) {
+                    const label = document.createElement('div');
+                    label.className = 'month-label';
+                    label.textContent = formatDate(currentDate, 'YYYY-MM');
+                    label.style.animationDelay = `${i * 0.01}s`;
+                    dayEl.appendChild(label);
+                }
+
+                // 每周显示日期
+                if (i % 7 === 0 && !isMonthStart) {
+                    const num = document.createElement('div');
+                    num.className = 'day-number';
+                    num.textContent = formatDate(currentDate, 'MM-DD');
+                    dayEl.appendChild(num);
+                }
+
+                timeline.appendChild(dayEl);
+            }
+
+            // 添加记忆点
+            memories.forEach((memory, index) => {
+                const memDate = new Date(START_DATE);
+                memDate.setDate(memDate.getDate() + memory.day);
+
+                const memEl = document.createElement('div');
+                const position = index % 2 === 0 ? 'above' : 'below';
+                memEl.className = `memory ${position}`;
+                memEl.style.left = `${memory.day * DAY_WIDTH + 25}px`;
+                memEl.style.top = index % 2 === 0 ? 'calc(50% - 280px)' : 'calc(50% + 80px)';
+
+                // 创建扑克牌堆叠容器
+                const stack = document.createElement('div');
+                stack.className = 'memory-stack';
+
+                // 创建每张图片（最多显示4张）
+                const displayImages = memory.images.slice(0, 4);
+                displayImages.forEach((img, imgIndex) => {
+                    const content = document.createElement('div');
+                    content.className = `memory-content ${img.type}`;
+
+                    const imgEl = document.createElement('img');
+                    imgEl.className = 'memory-image';
+                    imgEl.src = img.url;
+                    imgEl.alt = memory.caption;
+                    content.appendChild(imgEl);
+
+                    // 只在第一张图片上显示overlay
+                    if (imgIndex === 0) {
+                        const overlay = document.createElement('div');
+                        overlay.className = 'memory-overlay';
+                        overlay.textContent = memory.caption;
+                        content.appendChild(overlay);
+                    }
+
+                    // 视频播放标记（只在第一张且是视频时显示）
+                    if (img.type === 'video' && imgIndex === 0) {
+                        content.classList.add('video');
+                    }
+
+                    stack.appendChild(content);
+                });
+
+                // 如果有多张图片，显示计数
+                if (memory.images.length > 1) {
+                    const count = document.createElement('div');
+                    count.className = 'memory-count';
+                    count.textContent = memory.images.length;
+                    stack.appendChild(count);
+                }
+
+                memEl.appendChild(stack);
+
+                // 点击展开查看器
+                memEl.onclick = () => {
+                    openViewer(memory, formatDate(memDate));
+                };
+
+                timeline.appendChild(memEl);
+            });
+
+            // 今天的标记
+            const todayDays = daysBetween(START_DATE, TODAY);
+            const todayMarker = document.createElement('div');
+            todayMarker.className = 'marker today';
+            todayMarker.textContent = '今天';
+            todayMarker.style.left = `${todayDays * DAY_WIDTH + 25}px`;
+            timeline.appendChild(todayMarker);
+        }
+
+        // 更新轨道位置
+        function updateTrack() {
+            const track = document.getElementById('track');
+            track.style.transform = `translateX(${scrollOffset}px)`;
+        }
+
+        // RAF 平滑动画
+        function animate() {
+            const diff = targetOffset - scrollOffset;
+
+            // 如果差距很小，直接设置为目标值
+            if (Math.abs(diff) < 0.5) {
+                scrollOffset = targetOffset;
+                updateTrack();
+                rafId = null;
+                return;
+            }
+
+            // 平滑过渡（类似弹簧效果）
+            scrollOffset += diff * 0.15;
+            updateTrack();
+
+            rafId = requestAnimationFrame(animate);
+        }
+
+        // 跳转到起点
+        function jumpToStart() {
+            targetOffset = 0;
+            if (!rafId) {
+                rafId = requestAnimationFrame(animate);
+            }
+        }
+
+        // 跳转到今天
+        function jumpToToday() {
+            const todayDays = daysBetween(START_DATE, TODAY);
+            targetOffset = -(todayDays * DAY_WIDTH - window.innerWidth * 0.25);
+            if (!rafId) {
+                rafId = requestAnimationFrame(animate);
+            }
+        }
+
+        // 添加记忆（示例）
+        function addMemory() {
+            alert('点击时间轴上的日期来添加新的照片或视频记忆！');
+        }
+
+        // 打开查看器
+        function openViewer(memory, dateStr) {
+            const viewer = document.getElementById('viewer');
+            const viewerContent = document.getElementById('viewerContent');
+            const viewerInfo = document.getElementById('viewerInfo');
+
+            // 清空内容
+            viewerContent.innerHTML = '';
+
+            // 添加所有图片
+            memory.images.forEach(img => {
+                const container = document.createElement('div');
+                container.className = 'viewer-image-container';
+
+                const imgEl = document.createElement('img');
+                imgEl.className = 'viewer-image';
+                imgEl.src = img.url;
+                imgEl.alt = memory.caption;
+
+                container.appendChild(imgEl);
+                viewerContent.appendChild(container);
+            });
+
+            // 显示信息
+            viewerInfo.textContent = `${memory.caption} · ${dateStr}`;
+
+            // 显示查看器
+            viewer.classList.add('active');
+        }
+
+        // 关闭查看器
+        function closeViewer() {
+            const viewer = document.getElementById('viewer');
+            viewer.classList.remove('active');
+        }
+
+        // 点击背景关闭查看器
+        document.getElementById('viewer').addEventListener('click', (e) => {
+            if (e.target.id === 'viewer') {
+                closeViewer();
+            }
+        });
+
+        // ESC键关闭查看器
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeViewer();
+            }
+        });
+
+        // 鼠标滚轮事件
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            // 向下滚动 = 往过去（向左）
+            // 向上滚动 = 往未来（向右）
+            const delta = e.deltaY;
+            const scrollSpeed = 2.5;
+
+            targetOffset += delta * scrollSpeed;
+
+            // 限制滚动范围
+            const todayDays = daysBetween(START_DATE, TODAY);
+            const maxScroll = 100; // 可以稍微看到起点之前
+            const minScroll = -(todayDays * DAY_WIDTH + 200);
+
+            targetOffset = Math.max(minScroll, Math.min(maxScroll, targetOffset));
+
+            // 启动RAF动画
+            if (!rafId) {
+                rafId = requestAnimationFrame(animate);
+            }
+
+            // 更新日期显示
+            clearTimeout(isScrolling);
+            isScrolling = setTimeout(() => {
+                const currentDays = Math.abs(scrollOffset / DAY_WIDTH);
+                const currentDate = new Date(START_DATE);
+                currentDate.setDate(currentDate.getDate() + currentDays);
+
+                const dateDisplay = document.getElementById('currentDate');
+                dateDisplay.textContent = formatDate(currentDate, 'YYYY-MM');
+            }, 100);
+        }, { passive: false });
+
+        // 初始化
+        generateTimeline();
+        // 初始显示最近时间
+        jumpToToday();
+    </script>
+</body>
+
+</html>
