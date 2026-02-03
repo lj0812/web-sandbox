@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岁月深浅</title>
+    <style>
+        /* 导入字体 - 使用优雅的字体组合 */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Crimson+Text:wght@400;600&family=Covered+By+Your+Grace&display=swap');
+
+        :root {
+            /* 柔和温馨的配色方案 */
+            --bg-cream: #faf8f3;
+            --ruler-wood: #d4a574;
+            --ruler-dark: #8b6f47;
+            --text-soft: #5a4a3a;
+            --mark-pink: #f4a6b8;
+            --mark-coral: #ff8e9e;
+            --mark-rose: #ffb5c5;
+            --mark-lavender: #d4b5e8;
+            --shadow-subtle: rgba(139, 111, 71, 0.15);
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #faf8f3 0%, #f5f0e8 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景装饰 - 柔和的几何图案 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(244, 166, 184, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(212, 181, 232, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            gap: 60px;
+            height: 100vh;
+        }
+
+        .left-panel {
+            flex: 0 0 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            height: 100%;
+            padding: 40px 0;
+            overflow: visible; /* 允许诗句溢出显示 */
+            position: relative;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .left-panel::-webkit-scrollbar {
+            display: none;
+        }
+
+
+        .header {
+            text-align: left;
+            animation: fadeInDown 0.8s ease-out;
+            margin-bottom: 40px;
+        }
+
+        .poetry-section {
+            position: absolute;
+            top: 160px; /* 避开标题区域 */
+            left: 0;
+            width: 120%; /* 扩展到右侧 */
+            height: calc(100% - 160px);
+            pointer-events: none;
+            overflow: visible; /* 允许内容溢出显示 */
+            z-index: 15; /* 确保在其他元素上方 */
+            animation: fadeInDown 0.8s ease-out; /* 和标题同时出现 */
+        }
+
+        .star-verse {
+            position: absolute;
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 20px; /* 适中的默认字体 */
+            color: var(--ruler-dark);
+            opacity: 0.9; /* 直接设置最终透明度 */
+            white-space: nowrap;
+            pointer-events: none;
+            letter-spacing: 1px;
+            font-weight: 500; /* 适中字重，提升可读性 */
+        }
+
+
+        /* 优雅的霓虹颜色和效果 */
+        .star-verse.neon-pink {
+            color: #ff6b9d;
+            text-shadow:
+                0 0 2px #ff6b9d,
+                0 0 5px rgba(255, 107, 157, 0.6),
+                0 0 10px rgba(255, 107, 157, 0.3);
+            animation: neonPulse 4s ease-in-out infinite alternate;
+        }
+
+        .star-verse.neon-blue {
+            color: #4ecdc4;
+            text-shadow:
+                0 0 2px #4ecdc4,
+                0 0 5px rgba(78, 205, 196, 0.6),
+                0 0 10px rgba(78, 205, 196, 0.3);
+            animation: neonFlicker 5s ease-in-out infinite;
+        }
+
+        .star-verse.neon-purple {
+            color: #a855f7;
+            text-shadow:
+                0 0 2px #a855f7,
+                0 0 5px rgba(168, 85, 247, 0.6),
+                0 0 10px rgba(168, 85, 247, 0.3);
+            animation: neonWave 6s ease-in-out infinite;
+        }
+
+        .star-verse.neon-orange {
+            color: #ff9800;
+            text-shadow:
+                0 0 2px #ff9800,
+                0 0 5px rgba(255, 152, 0, 0.6),
+                0 0 10px rgba(255, 152, 0, 0.3);
+            animation: neonGlow 4.5s ease-in-out infinite alternate;
+        }
+
+        .star-verse.neon-coral {
+            color: #ff8a80;
+            text-shadow:
+                0 0 2px #ff8a80,
+                0 0 5px rgba(255, 138, 128, 0.6),
+                0 0 10px rgba(255, 138, 128, 0.3);
+            animation: neonShimmer 3.5s ease-in-out infinite;
+        }
+
+        .star-verse.neon-cyan {
+            color: #26c6da;
+            text-shadow:
+                0 0 2px #26c6da,
+                0 0 5px rgba(38, 198, 218, 0.6),
+                0 0 10px rgba(38, 198, 218, 0.3);
+            animation: neonSpark 5.5s ease-in-out infinite;
+        }
+
+        .star-verse.neon-lime {
+            color: #8bc34a;
+            text-shadow:
+                0 0 2px #8bc34a,
+                0 0 5px rgba(139, 195, 74, 0.6),
+                0 0 10px rgba(139, 195, 74, 0.3);
+            animation: neonBreath 4.8s ease-in-out infinite alternate;
+        }
+
+        /* 柔和的霓虹动画效果 */
+        @keyframes neonPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.95; }
+        }
+
+        @keyframes neonFlicker {
+            0%, 90%, 100% { opacity: 0.85; }
+            10%, 80% { opacity: 0.95; }
+        }
+
+        @keyframes neonWave {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.9; }
+        }
+
+        @keyframes neonGlow {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.95; }
+        }
+
+        @keyframes neonShimmer {
+            0%, 100% { opacity: 0.85; }
+            50% { opacity: 0.95; }
+        }
+
+        @keyframes neonSpark {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.9; }
+        }
+
+        @keyframes neonBreath {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.9; }
+        }
+
+        .right-panel {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 20; /* 确保身高记录的交互正常 */
+
+            /* 隐藏滚动条但保持滚动功能 */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        /* 隐藏 Webkit 浏览器的滚动条 */
+        .right-panel::-webkit-scrollbar {
+            display: none;
+        }
+
+
+        .ruler-container {
+            position: relative;
+            width: 180px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 6804px; /* 初始高度，将由JS动态调整 */
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-soft);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.5rem;
+            color: var(--ruler-dark);
+            opacity: 0.7;
+        }
+
+
+        .ruler-marks {
+            position: relative;
+            height: 100%;
+        }
+
+        .mark {
+            position: absolute;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            transform-origin: right center;
+        }
+
+        .mark-line {
+            height: 2px;
+            background: var(--ruler-dark);
+            transition: all 0.3s ease;
+        }
+
+        /* 刻度线长度 - 按规则设置 */
+        .mark.cm-10 .mark-line {
+            width: 50px;
+            height: 2.5px;
+            background: var(--text-soft);
+        }
+
+        .mark.cm-5 .mark-line {
+            width: 40px;
+            height: 2px;
+        }
+
+        .mark.cm-1 .mark-line {
+            width: 25px;
+            height: 1.5px;
+            opacity: 0.6;
+        }
+
+        /* 出生前的虚线样式 */
+        .mark.pre-birth .mark-line {
+            background: repeating-linear-gradient(
+                to right,
+                var(--ruler-dark) 0,
+                var(--ruler-dark) 4px,
+                transparent 4px,
+                transparent 8px
+            );
+            opacity: 0.4;
+        }
+
+        .mark.pre-birth.cm-10 .mark-line {
+            background: repeating-linear-gradient(
+                to right,
+                var(--text-soft) 0,
+                var(--text-soft) 4px,
+                transparent 4px,
+                transparent 8px
+            );
+            opacity: 0.4;
+        }
+
+        .mark-label {
+            position: absolute;
+            right: 60px;
+            font-family: 'Crimson Text', serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-soft);
+            white-space: nowrap;
+        }
+
+        /* 身高记录点 */
+        .height-record {
+            position: absolute;
+            right: 0;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .record-line {
+            position: absolute;
+            right: 20px;
+            height: 4px;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .record-dot {
+            position: absolute;
+            right: 8px;
+            width: 60px;
+            height: 3px;
+            background: white;
+            border-top: 2px solid;
+            border-bottom: 2px solid;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1.5px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 不同记录的颜色 */
+        .height-record:nth-child(1) .record-line { background: var(--mark-pink); width: 80px; }
+        .height-record:nth-child(1) .record-dot { border-top-color: var(--mark-pink); border-bottom-color: var(--mark-pink); }
+
+        .height-record:nth-child(2) .record-line { background: var(--mark-coral); width: 85px; }
+        .height-record:nth-child(2) .record-dot { border-top-color: var(--mark-coral); border-bottom-color: var(--mark-coral); }
+
+        .height-record:nth-child(3) .record-line { background: var(--mark-rose); width: 90px; }
+        .height-record:nth-child(3) .record-dot { border-top-color: var(--mark-rose); border-bottom-color: var(--mark-rose); }
+
+        .height-record:nth-child(4) .record-line { background: var(--mark-lavender); width: 95px; }
+        .height-record:nth-child(4) .record-dot { border-top-color: var(--mark-lavender); border-bottom-color: var(--mark-lavender); }
+
+        /* Hover 效果 */
+        .height-record:hover .record-line {
+            width: 120px !important;
+            filter: brightness(1.1);
+        }
+
+        .height-record:hover .record-dot {
+            width: 80px;
+            transform: translateY(-1.5px);
+            filter: brightness(1.1);
+        }
+
+        /* 照片引导线和卡片 */
+        .photo-tooltip {
+            position: absolute;
+            left: -320px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            z-index: 25; /* 确保在诗句上方 */
+        }
+
+        .photo-tooltip.show-right {
+            left: auto;
+            right: -320px;
+        }
+
+        .height-record:hover .photo-tooltip {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            left: -340px;
+        }
+
+        .height-record:hover .photo-tooltip.show-right {
+            left: auto;
+            right: -340px;
+        }
+
+        .height-record.active .photo-tooltip {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            left: -340px;
+        }
+
+        .height-record.active .photo-tooltip.show-right {
+            left: auto;
+            right: -340px;
+        }
+
+        /* 激活状态的记录点高亮 */
+        .height-record.active .record-line {
+            filter: brightness(1.2) saturate(1.2);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .height-record.active .record-dot {
+            filter: brightness(1.2) saturate(1.2);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .guide-line {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background: currentColor;
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+        }
+
+        .guide-line::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border-left: 6px solid currentColor;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+        }
+
+        /* 右侧显示时的引导线 */
+        .photo-tooltip.show-right .guide-line {
+            right: auto;
+            left: -20px;
+        }
+
+        .photo-tooltip.show-right .guide-line::before {
+            left: auto;
+            right: -6px;
+            border-left: none;
+            border-right: 6px solid currentColor;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow:
+                0 10px 40px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+            min-width: 280px;
+            animation: cardFloat 0.5s ease-out;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .photo-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .photo-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 图片放大模态框 */
+        .photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .photo-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .photo-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .photo-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .photo-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .photo-info {
+            text-align: center;
+        }
+
+        .photo-info .date {
+            font-family: 'Covered By Your Grace', cursive;
+            font-size: 1.1rem;
+            color: var(--ruler-dark);
+            margin-bottom: 4px;
+        }
+
+        .photo-info .height-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-soft);
+        }
+
+        .photo-info .age {
+            font-size: 0.9rem;
+            color: var(--ruler-dark);
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        /* 动画 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardFloat {
+            0% {
+                opacity: 0;
+                transform: translateX(-20px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .left-panel {
+                flex: 0 0 380px;
+            }
+
+            .poetry-section {
+                width: 150%; /* 更宽的显示区域 */
+            }
+
+            .star-verse {
+                font-size: 15px !important; /* 保持适中字体 */
+            }
+
+            .star-verse:nth-child(1) { font-size: 17px !important; }
+            .star-verse:nth-child(2) { font-size: 15px !important; }
+            .star-verse:nth-child(3) { font-size: 16px !important; }
+            .star-verse:nth-child(4) { font-size: 15px !important; }
+            .star-verse:nth-child(5) { font-size: 18px !important; }
+            .star-verse:nth-child(6) { font-size: 14px !important; }
+            .star-verse:nth-child(7) { font-size: 19px !important; }
+            .star-verse:nth-child(8) { font-size: 15px !important; }
+            .star-verse:nth-child(9) { font-size: 15px !important; }
+
+            /* 调整霓虹效果强度 */
+            .star-verse.neon-pink,
+            .star-verse.neon-blue,
+            .star-verse.neon-purple,
+            .star-verse.neon-orange,
+            .star-verse.neon-coral,
+            .star-verse.neon-cyan,
+            .star-verse.neon-lime {
+                text-shadow:
+                    0 0 2px currentColor,
+                    0 0 4px rgba(currentColor, 0.8),
+                    0 0 8px rgba(currentColor, 0.4);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .left-panel {
+                flex: none;
+                height: 50vh;
+                padding: 40px 20px;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .poetry-section {
+                width: 130%;
+                top: 120px;
+            }
+
+            .star-verse {
+                font-size: 14px !important; /* 平板保持适中字体 */
+            }
+
+            .star-verse:nth-child(1) { font-size: 15px !important; }
+            .star-verse:nth-child(2) { font-size: 13px !important; }
+            .star-verse:nth-child(3) { font-size: 14px !important; }
+            .star-verse:nth-child(4) { font-size: 13px !important; }
+            .star-verse:nth-child(5) { font-size: 16px !important; }
+            .star-verse:nth-child(6) { font-size: 12px !important; }
+            .star-verse:nth-child(7) { font-size: 17px !important; }
+            .star-verse:nth-child(8) { font-size: 13px !important; }
+            .star-verse:nth-child(9) { font-size: 13px !important; }
+
+            .right-panel {
+                height: 80vh;
+                padding: 20px;
+            }
+
+            .ruler-container {
+                width: 140px;
+            }
+
+            .photo-tooltip {
+                left: auto;
+                right: 140px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .height-record:hover .photo-tooltip {
+                left: auto;
+                right: 160px;
+            }
+
+            .guide-line {
+                right: auto;
+                left: -20px;
+            }
+
+            .guide-line::before {
+                left: auto;
+                right: -6px;
+                border-left: 6px solid currentColor;
+                border-right: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .left-panel {
+                height: 40vh;
+            }
+
+            .poetry-section {
+                width: 120%;
+                top: 100px;
+            }
+
+            .star-verse {
+                font-size: 12px !important; /* 手机端适中字体 */
+                opacity: 0.9 !important;
+            }
+
+            .star-verse:nth-child(1) { font-size: 13px !important; }
+            .star-verse:nth-child(2) { font-size: 11px !important; }
+            .star-verse:nth-child(3) { font-size: 12px !important; }
+            .star-verse:nth-child(4) { font-size: 11px !important; }
+            .star-verse:nth-child(5) { font-size: 14px !important; }
+            .star-verse:nth-child(6) { font-size: 11px !important; }
+            .star-verse:nth-child(7) { font-size: 15px !important; }
+            .star-verse:nth-child(8) { font-size: 11px !important; }
+            .star-verse:nth-child(9) { font-size: 12px !important; }
+
+            /* 小屏幕霓虹效果 */
+            .star-verse.neon-pink,
+            .star-verse.neon-blue,
+            .star-verse.neon-purple,
+            .star-verse.neon-orange,
+            .star-verse.neon-coral,
+            .star-verse.neon-cyan,
+            .star-verse.neon-lime {
+                text-shadow:
+                    0 0 1px currentColor,
+                    0 0 3px rgba(currentColor, 0.6);
+            }
+
+            .photo-tooltip {
+                left: 50%;
+                right: auto;
+                top: auto;
+                bottom: 120%;
+                transform: translateX(-50%);
+            }
+
+            .height-record:hover .photo-tooltip {
+                left: 50%;
+                right: auto;
+                bottom: 130%;
+            }
+
+            .guide-line {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="header">
+                <h1>岁月深浅</h1>
+                <p>每一刻度都藏着故事</p>
+            </div>
+
+            <div class="poetry-section" id="poetryStars">
+                <div class="star-verse neon-pink" style="top: 15%; left: 10%; font-size: 22px;">小侄名阿宜，未得三尺长</div>
+                <div class="star-verse neon-blue" style="top: 25%; left: 55%; font-size: 19px;">明朝弄梳台，黛眉类扫迹</div>
+                <div class="star-verse neon-purple" style="top: 20%; left: 80%; font-size: 21px;">浓朱衍丹唇，黄吻烂漫赤</div>
+                <div class="star-verse neon-orange" style="top: 35%; left: 20%; font-size: 20px;">当时儿女齐睡额</div>
+                <div class="star-verse neon-coral" style="top: 45%; left: 65%; font-size: 23px;">今日相看俱头白</div>
+                <div class="star-verse neon-cyan" style="top: 40%; left: 5%; font-size: 18px;">昔日还需俯身对话</div>
+                <div class="star-verse neon-lime" style="top: 30%; left: 35%; font-size: 24px;">今朝已与你齐肩</div>
+                <div class="star-verse neon-orange" style="top: 55%; left: 40%; font-size: 20px;">甜蜜的怅惘</div>
+                <div class="star-verse neon-cyan" style="top: 50%; left: 85%; font-size: 19px;">时光的双向流逝</div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="ruler-container">
+                <div class="ruler-marks" id="rulerMarks"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检测屏幕参数并计算真实1:1比例
+        function calculatePixelsPerCm() {
+            const dpr = window.devicePixelRatio || 1;
+
+            // 基准值调整：提高基准值以适应实际情况
+            const basePxPerCm = 42; // 从37.8调整到42
+
+            // 针对不同设备类型的调整
+            let adjustmentFactor = 1;
+
+            // 检测设备类型
+            const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+
+            if (isMac && dpr >= 2) {
+                // Mac内置Retina屏：需要大幅放大（5cm显示为4cm，需要1.25倍）
+                adjustmentFactor = 1.44;
+            } else if (dpr === 1) {
+                // 外接显示器：需要适度放大（5cm显示为4.5cm，需要1.11倍）
+                adjustmentFactor = 1.0;
+            } else {
+                // 其他情况
+                adjustmentFactor = 1;
+            }
+
+            const calculatedPx = basePxPerCm * adjustmentFactor;
+
+            console.log('屏幕检测信息:');
+            console.log('- 操作系统:', isMac ? 'macOS' : '其他');
+            console.log('- 设备像素比:', dpr);
+            console.log('- 调整因子:', adjustmentFactor.toFixed(2));
+            console.log('- 最终像素/厘米:', calculatedPx.toFixed(2));
+
+            return calculatedPx;
+        }
+
+        // 配置参数 - 动态调整1:1真实比例
+        const config = {
+            minHeight: 0,   // 最小高度（厘米）- 从0开始
+            maxHeight: 180, // 最大高度（厘米）
+            birthHeight: 50, // 出生身高（厘米）
+            pixelsPerCm: calculatePixelsPerCm(), // 动态计算每厘米对应像素数
+            get rulerHeight() {
+                return (this.maxHeight - this.minHeight) * this.pixelsPerCm;
+            }
+        };
+
+        // 示例身高记录数据
+        const heightRecords = [
+            {
+                height: 50,
+                date: '出生',
+                age: '新生儿',
+                photos: ['👶'] // 这里用emoji代替，实际使用时替换为真实图片URL
+            },
+            {
+                height: 75,
+                date: '2023年7月',
+                age: '6个月',
+                photos: ['👧']
+            },
+            {
+                height: 85,
+                date: '2024年1月',
+                age: '1岁',
+                photos: ['🎀', '🌸']
+            },
+            {
+                height: 95,
+                date: '2024年7月',
+                age: '1岁半',
+                photos: ['🌺', '🦋', '🎨']
+            }
+        ];
+
+        // 将高度（厘米）转换为像素位置 - 使用1:1真实比例
+        function heightToPx(heightCm) {
+            // 从顶部开始计算位置，最高的身高显示在顶部
+            return (config.maxHeight - heightCm) * config.pixelsPerCm;
+        }
+
+        // 生成刻度线
+        function generateRulerMarks() {
+            const container = document.getElementById('rulerMarks');
+
+            for (let cm = config.minHeight; cm <= config.maxHeight; cm++) {
+                const mark = document.createElement('div');
+                mark.className = 'mark';
+
+                // 出生前的刻度添加虚线样式
+                if (cm < config.birthHeight) {
+                    mark.classList.add('pre-birth');
+                }
+
+                // 判断刻度类型
+                if (cm % 10 === 0) {
+                    mark.classList.add('cm-10');
+                    mark.innerHTML = `
+                        <div class="mark-line"></div>
+                        <div class="mark-label">${cm}cm</div>
+                    `;
+                } else if (cm % 5 === 0) {
+                    mark.classList.add('cm-5');
+                    mark.innerHTML = `<div class="mark-line"></div>`;
+                } else {
+                    mark.classList.add('cm-1');
+                    mark.innerHTML = `<div class="mark-line"></div>`;
+                }
+
+                mark.style.top = heightToPx(cm) + 'px';
+                container.appendChild(mark);
+            }
+        }
+
+        // 生成身高记录
+        function generateHeightRecords() {
+            const container = document.getElementById('rulerMarks');
+
+            heightRecords.forEach((record, index) => {
+                const recordEl = document.createElement('div');
+                recordEl.className = 'height-record';
+                recordEl.style.top = heightToPx(record.height) + 'px';
+
+                // 判断引导线显示方向：检查是否与其他记录太近
+                const showRight = shouldShowRight(record.height, index);
+                const tooltipClass = showRight ? 'photo-tooltip show-right' : 'photo-tooltip';
+
+                // 创建照片网格
+                const photoGridClass = record.photos.length === 1 ? 'photo-grid single' : 'photo-grid';
+                const photoItems = record.photos.map((photo, photoIndex) => `
+                    <div class="photo-item" onclick="event.stopPropagation(); showPhotoModal('${photo}', '${record.date}', '${record.height}cm')" data-photo="${photo}">${photo}</div>
+                `).join('');
+
+                recordEl.innerHTML = `
+                    <div class="record-line"></div>
+                    <div class="record-dot"></div>
+                    <div class="${tooltipClass}" style="color: ${getRecordColor(index)}">
+                        <div class="guide-line"></div>
+                        <div class="photo-card">
+                            <div class="${photoGridClass}">
+                                ${photoItems}
+                            </div>
+                            <div class="photo-info">
+                                <div class="date">${record.date}</div>
+                                <div class="height-value">${record.height}cm</div>
+                                <div class="age">${record.age}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // 添加点击事件，让引导内容常显
+                recordEl.addEventListener('click', function(e) {
+                    // 阻止事件冒泡
+                    e.stopPropagation();
+
+                    // 如果点击的是图片，不要改变激活状态
+                    if (e.target.classList.contains('photo-item')) {
+                        return;
+                    }
+
+                    // 移除其他活跃状态
+                    document.querySelectorAll('.height-record.active').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    // 添加当前活跃状态
+                    this.classList.add('active');
+                });
+
+                container.appendChild(recordEl);
+            });
+        }
+
+        // 判断是否应该在右侧显示引导线
+        function shouldShowRight(currentHeight, currentIndex) {
+            // 检查上下5cm范围内是否有其他记录
+            const threshold = 5; // 5cm阈值
+
+            for (let i = 0; i < heightRecords.length; i++) {
+                if (i === currentIndex) continue;
+                const otherHeight = heightRecords[i].height;
+                if (Math.abs(currentHeight - otherHeight) <= threshold) {
+                    // 如果当前记录的身高更高，显示在右侧
+                    return currentHeight > otherHeight;
+                }
+            }
+            return false; // 默认显示在左侧
+        }
+
+        // 显示图片放大模态框
+        function showPhotoModal(photo, date, height) {
+            // 创建模态框（如果不存在）
+            let modal = document.getElementById('photoModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'photoModal';
+                modal.className = 'photo-modal';
+                modal.innerHTML = `
+                    <img src="" alt="">
+                    <button class="photo-modal-close" onclick="closePhotoModal()">×</button>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            // 设置图片内容（这里用emoji演示，实际使用时替换为真实图片URL）
+            const img = modal.querySelector('img');
+            img.src = ''; // 这里应该是真实的图片URL
+            img.alt = `${date} - ${height}`;
+
+            // 对于emoji，我们创建一个特殊的显示方式
+            if (photo.length <= 2) { // 判断是emoji
+                img.style.display = 'none';
+                let emojiDiv = modal.querySelector('.emoji-display');
+                if (!emojiDiv) {
+                    emojiDiv = document.createElement('div');
+                    emojiDiv.className = 'emoji-display';
+                    emojiDiv.style.cssText = `
+                        font-size: 200px;
+                        text-align: center;
+                        background: white;
+                        border-radius: 20px;
+                        padding: 40px;
+                        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                    `;
+                    modal.insertBefore(emojiDiv, modal.querySelector('button'));
+                }
+                emojiDiv.textContent = photo;
+                emojiDiv.style.display = 'block';
+            } else {
+                img.style.display = 'block';
+                const emojiDiv = modal.querySelector('.emoji-display');
+                if (emojiDiv) emojiDiv.style.display = 'none';
+            }
+
+            // 显示模态框
+            modal.classList.add('show');
+        }
+
+        // 关闭图片模态框
+        function closePhotoModal() {
+            const modal = document.getElementById('photoModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        // 获取记录颜色
+        function getRecordColor(index) {
+            const colors = ['#f4a6b8', '#ff8e9e', '#ffb5c5', '#d4b5e8'];
+            return colors[index % colors.length];
+        }
+
+        // 使用CSS控制的平滑滚动到最新身高记录
+        function scrollToLatestRecord() {
+            if (heightRecords.length === 0) return;
+
+            // 获取最新的身高记录（数组最后一个）
+            const latestRecord = heightRecords[heightRecords.length - 1];
+            const targetHeight = latestRecord.height;
+
+            // 计算目标位置（距离顶部的像素）
+            const targetPosition = heightToPx(targetHeight);
+
+            // 获取右侧滚动容器
+            const rightPanel = document.querySelector('.right-panel');
+            if (!rightPanel) return;
+
+            // 计算需要滚动到的位置（让目标记录显示在视窗中央）
+            const viewportHeight = rightPanel.clientHeight;
+            const scrollTarget = targetPosition - (viewportHeight / 2);
+
+            // 确保滚动位置在有效范围内
+            const maxScroll = rightPanel.scrollHeight - viewportHeight;
+            const finalScrollTarget = Math.max(0, Math.min(scrollTarget, maxScroll));
+
+            // 设置动画参数
+            const startScroll = rightPanel.scrollTop;
+            const targetScroll = finalScrollTarget;
+            let startTime = null;
+
+            function animateScroll(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / 2000, 1); // 2秒动画
+
+                // 使用cubic-bezier(.45,.1,.45,.9)曲线计算当前位置
+                const easedProgress = cubicBezier(0.45, 0.1, 0.45, 0.9, progress);
+                const currentScrollPos = startScroll + (targetScroll - startScroll) * easedProgress;
+
+                rightPanel.scrollTop = currentScrollPos;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateScroll);
+                }
+            }
+
+            // 启动动画
+            requestAnimationFrame(animateScroll);
+
+            console.log('CSS控制滚动到最新记录:', latestRecord.height + 'cm', '目标位置:', finalScrollTarget + 'px');
+        }
+
+        // Cubic Bezier 缓动函数实现
+        function cubicBezier(x1, y1, x2, y2, t) {
+            function sampleCurveX(t) {
+                return ((1 - 3 * x2 + 3 * x1) * t + (3 * x2 - 6 * x1)) * t + (3 * x1) * t;
+            }
+
+            function sampleCurveY(t) {
+                return ((1 - 3 * y2 + 3 * y1) * t + (3 * y2 - 6 * y1)) * t + (3 * y1) * t;
+            }
+
+            function sampleCurveDerivativeX(t) {
+                return (3 * (1 - 3 * x2 + 3 * x1) * t + 2 * (3 * x2 - 6 * x1)) * t + (3 * x1);
+            }
+
+            function solveCurveX(x) {
+                let t0, t1, t2, x2, d2;
+                let i;
+
+                // First try a few iterations of Newton's method -- normally very fast.
+                for (t2 = x, i = 0; i < 8; i++) {
+                    x2 = sampleCurveX(t2) - x;
+                    if (Math.abs(x2) < 1e-6) return t2;
+                    d2 = sampleCurveDerivativeX(t2);
+                    if (Math.abs(d2) < 1e-6) break;
+                    t2 = t2 - x2 / d2;
+                }
+
+                // Fall back to the bisection method for reliability.
+                t0 = 0;
+                t1 = 1;
+                t2 = x;
+
+                if (t2 < t0) return t0;
+                if (t2 > t1) return t1;
+
+                while (t0 < t1) {
+                    x2 = sampleCurveX(t2);
+                    if (Math.abs(x2 - x) < 1e-6) return t2;
+                    if (x > x2) t0 = t2;
+                    else t1 = t2;
+                    t2 = (t1 - t0) * 0.5 + t0;
+                }
+
+                return t2;
+            }
+
+            return sampleCurveY(solveCurveX(t));
+        }
+
+
+        // 初始化
+        function init() {
+            // 动态设置容器高度
+            const rulerContainer = document.querySelector('.ruler-container');
+            if (rulerContainer) {
+                rulerContainer.style.minHeight = config.rulerHeight + 'px';
+            }
+
+            generateRulerMarks();
+            generateHeightRecords();
+
+
+            // 添加全局点击事件，点击空白区域取消激活状态
+            document.addEventListener('click', function(e) {
+                const heightRecord = e.target.closest('.height-record');
+                const photoModal = e.target.closest('.photo-modal');
+
+                // 如果点击的不是身高记录或模态框
+                if (!heightRecord && !photoModal) {
+                    // 移除所有活跃状态
+                    document.querySelectorAll('.height-record.active').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                }
+
+                // 如果点击模态框背景，关闭模态框
+                if (e.target.classList.contains('photo-modal')) {
+                    closePhotoModal();
+                }
+            });
+
+            // 添加键盘事件，支持ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closePhotoModal();
+                }
+            });
+
+            // 延迟1秒后滚动到最新记录
+            setTimeout(() => {
+                scrollToLatestRecord();
+            }, 1000);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
