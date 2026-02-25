@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一日重置协议</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1a1410;
+      --ink-light: #4a3f35;
+      --ink-muted: #8a7a6e;
+      --paper: #f5f0e8;
+      --paper-warm: #ede6d6;
+      --paper-dark: #d4c9b5;
+      --accent: #c4392a;
+      --accent-muted: #e8856a;
+      --gold: #b8963e;
+      --gold-light: #d4af5a;
+      --border: rgba(26, 20, 16, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--paper);
+      color: var(--ink);
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 300;
+      line-height: 1.9;
+      overflow-x: hidden;
+    }
+
+    /* 纸张纹理背景 */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* 封面区域 */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      background: linear-gradient(160deg, var(--paper) 0%, var(--paper-warm) 60%, var(--paper-dark) 100%);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--gold), var(--accent), transparent);
+    }
+
+    /* 装饰线 */
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .ornament-line {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold));
+    }
+
+    .ornament-line.right {
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+
+    .ornament-diamond {
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    .cover-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-family: 'Noto Sans SC', sans-serif;
+      font-weight: 400;
+    }
+
+    .cover-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin: 1rem 0;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.4s;
+    }
+
+    .cover-title em {
+      font-style: italic;
+      color: var(--accent);
+      font-family: 'Playfair Display', serif;
+    }
+
+    .cover-subtitle {
+      font-size: 1rem;
+      color: var(--ink-light);
+      max-width: 480px;
+      margin: 1.5rem auto 0;
+      letter-spacing: 0.05em;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.6s;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 3rem;
+      margin-top: 4rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.8s;
+    }
+
+    .cover-meta-item {
+      text-align: center;
+    }
+
+    .cover-meta-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      color: var(--accent);
+      line-height: 1;
+      display: block;
+    }
+
+    .cover-meta-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+      display: block;
+    }
+
+    /* output-card / lens-item 内的 tooltip 箭头颜色修正 */
+    .output-card[data-en]::after {
+      color: var(--gold-light);
+      opacity: 0.6;
+    }
+
+    .output-card[data-en]:hover::after {
+      opacity: 1;
+    }
+
+    .output-card .en-tooltip::after {
+      background: #2a2018;
+    }
+
+    /* timeline-item tooltip 向上弹出 */
+    .timeline-item .en-tooltip {
+      left: -1px;
+      right: -1px;
+    }
+
+    /* 提示用户可以 hover 的小标记 */
+    [data-en] {
+      cursor: help;
+    }
+
+    .question-card[data-en] {
+      cursor: help;
+    }
+
+    .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    position: relative;
+    }
+
+    /* 阶段标题 */
+    .phase {
+      margin-bottom: 5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .phase.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .phase-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      color: var(--paper-dark);
+      line-height: 1;
+      flex-shrink: 0;
+      padding-top: 0.2rem;
+    }
+
+    .phase-info {
+      flex: 1;
+    }
+
+    .phase-tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(196, 57, 42, 0.08);
+      padding: 0.3rem 0.8rem;
+      border-radius: 0;
+      border-left: 2px solid var(--accent);
+      margin-bottom: 0.8rem;
+    }
+
+    .phase-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .phase-desc {
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      margin-top: 0.5rem;
+      line-height: 1.8;
+    }
+
+    .phase-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--gold);
+      margin-top: 0.8rem;
+    }
+
+    .phase-time::before {
+      content: '◷';
+    }
+
+    /* 子标题 */
+    .section-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 2.5rem 0 1.5rem;
+      padding-left: 1rem;
+      border-left: 3px solid var(--gold);
+      letter-spacing: 0.02em;
+    }
+
+    /* 英文原文 Tooltip */
+    [data-en] {
+      position: relative;
+    }
+
+    [data-en]::after {
+      content: 'EN';
+      position: absolute;
+      top: 0.6rem;
+      right: 0.7rem;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      opacity: 0.5;
+      font-family: 'Playfair Display', serif;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    [data-en]:hover::after {
+      opacity: 1;
+    }
+
+    .en-tooltip {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: calc(100% + 8px);
+      background: var(--ink);
+      color: rgba(245, 240, 232, 0.9);
+      padding: 1rem 1.2rem;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      font-style: normal;
+      font-weight: 300;
+      letter-spacing: 0.01em;
+      z-index: 50;
+      border-top: 2px solid var(--gold);
+      box-shadow: 0 -4px 20px rgba(26, 20, 16, 0.15);
+      pointer-events: none;
+    }
+
+    .en-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 2rem;
+      width: 10px;
+      height: 10px;
+      background: var(--ink);
+      transform: rotate(45deg);
+      border-right: 1px solid var(--gold);
+      border-bottom: 1px solid var(--gold);
+    }
+
+    [data-en]:hover .en-tooltip {
+      display: block;
+      animation: tooltipIn 0.2s ease;
+    }
+
+    @keyframes tooltipIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 问题卡片 */
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .question-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 1.5rem 1.5rem 1.5rem 4.5rem;
+      position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .question-card:hover {
+      border-color: var(--gold-light);
+      box-shadow: 4px 4px 0 var(--paper-dark);
+    }
+
+    .question-num {
+      position: absolute;
+      left: 1.5rem;
+      top: 1.5rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .question-text {
+      font-size: 0.95rem;
+      color: var(--ink-light);
+      line-height: 1.8;
+    }
+
+    .question-hint {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border);
+      font-style: italic;
+    }
+
+    /* 时间线（白天提醒） */
+    .timeline {
+      position: relative;
+      padding-left: 2.5rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0.4rem;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 1.2rem 1.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .timeline-item:hover {
+      border-color: var(--gold-light);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2.15rem;
+      top: 1.4rem;
+      width: 8px;
+      height: 8px;
+      background: var(--gold);
+      border: 2px solid var(--paper);
+      transform: rotate(45deg);
+    }
+
+    .timeline-time {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-q {
+      font-size: 0.9rem;
+      color: var(--ink-light);
+      line-height: 1.7;
+    }
+
+    /* 旁注问题 */
+    .aside-questions {
+      background: var(--paper-warm);
+      border: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      margin-top: 2rem;
+      position: relative;
+    }
+
+    .aside-questions::before {
+      content: '沉思';
+      position: absolute;
+      top: -0.6rem;
+      left: 1.5rem;
+      background: var(--paper-warm);
+      padding: 0 0.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+    }
+
+    .aside-questions li {
+      font-size: 0.88rem;
+      color: var(--ink-light);
+      margin-bottom: 0.6rem;
+      padding-left: 1rem;
+      list-style: none;
+      position: relative;
+    }
+
+    .aside-questions li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+    }
+
+    /* 系统表格 */
+    .system-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 1.5rem;
+    }
+
+    .system-cell {
+      background: white;
+      padding: 1.5rem;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .system-cell:hover {
+      background: var(--paper-warm);
+    }
+
+    .system-cell::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--paper-dark);
+      transition: background 0.2s;
+    }
+
+    .system-cell:nth-child(1)::after {
+      background: var(--accent);
+    }
+
+    .system-cell:nth-child(2)::after {
+      background: var(--gold);
+    }
+
+    .system-cell:nth-child(3)::after {
+      background: #5b8a6e;
+    }
+
+    .system-cell:nth-child(4)::after {
+      background: #4a7a9b;
+    }
+
+    .system-cell:nth-child(5)::after {
+      background: #8a6eb8;
+    }
+
+    .system-cell:nth-child(6)::after {
+      background: var(--ink-muted);
+    }
+
+    .system-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .system-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .system-q {
+      font-size: 0.82rem;
+      color: var(--ink-light);
+      line-height: 1.6;
+    }
+
+    /* 夜晚输出区 */
+    .output-card {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 2rem 2.5rem;
+      margin: 1rem 0;
+      position: relative;
+    }
+
+    .output-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+    }
+
+    .output-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      display: block;
+      margin-bottom: 0.8rem;
+    }
+
+    .output-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .output-desc {
+      font-size: 0.85rem;
+      color: rgba(245, 240, 232, 0.6);
+      line-height: 1.7;
+    }
+
+    /* 目标层次 */
+    .lens-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 1.5rem;
+    }
+
+    .lens-item {
+      background: white;
+      padding: 1.2rem 1.5rem 1.2rem 4rem;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .lens-item:hover {
+      background: var(--paper-warm);
+    }
+
+    .lens-icon {
+      position: absolute;
+      left: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .lens-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .lens-q {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* 准备区 */
+    .prep-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .prep-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.8rem 1.2rem;
+      font-size: 0.88rem;
+      color: var(--ink-light);
+      transition: border-color 0.2s;
+    }
+
+    .prep-item:hover {
+      border-color: var(--gold);
+    }
+
+    .prep-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* 页脚 */
+    footer {
+      text-align: center;
+      padding: 4rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--paper-warm);
+    }
+
+    .footer-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-line {
+      width: 80px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .footer-text {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      letter-spacing: 0.1em;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .footer-quote {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--ink-light);
+      margin: 1.5rem auto;
+      max-width: 400px;
+      line-height: 1.7;
+    }
+
+    /* 分隔符 */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 3rem 0;
+      color: var(--ink-muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* 动画 */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 滚动进度 */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      z-index: 100;
+      transition: width 0.1s;
+    }
+
+    /* 响应式 */
+    @media (max-width: 640px) {
+      .cover-meta {
+        gap: 1.5rem;
+      }
+
+      .system-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .phase-header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .phase-number {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- 封面 -->
+  <div class="cover">
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <span class="cover-label">行动指南 · 2026</span>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+
+    <h1 class="cover-title">
+      一日<br><em>重置</em><br>协议
+    </h1>
+
+    <p class="cover-subtitle">
+      不是新年计划，而是一次对自我的深度挖掘。<br>
+      用一天时间，触发真正的改变。
+    </p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-num">4</span>
+        <span class="cover-meta-label">阶段</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-num">14</span>
+        <span class="cover-meta-label">核心问题</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-num">1</span>
+        <span class="cover-meta-label">整天</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- 准备工作 -->
+    <div class="phase" id="prep">
+      <div class="phase-header">
+        <div class="phase-number">0</div>
+        <div class="phase-info">
+          <div class="phase-tag">Before You Start</div>
+          <h2 class="phase-title">开始之前</h2>
+          <p class="phase-desc">准备好这些，然后把手机静音，今天只属于你自己。</p>
+        </div>
+      </div>
+
+      <div class="prep-list">
+        <div class="prep-item">
+          <span class="prep-icon">✏️</span>
+          <span>一支笔</span>
+        </div>
+        <div class="prep-item">
+          <span class="prep-icon">📄</span>
+          <span>几张白纸</span>
+        </div>
+        <div class="prep-item">
+          <span class="prep-icon">🕐</span>
+          <span>整整一天的时间</span>
+        </div>
+        <div class="prep-item">
+          <span class="prep-icon">🚫</span>
+          <span>不要把问题交给 AI 代答</span>
+        </div>
+        <div class="prep-item">
+          <span class="prep-icon">📵</span>
+          <span>手机静音或勿扰模式</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第一阶段 -->
+    <div class="phase" id="phase1">
+      <div class="phase-header">
+        <div class="phase-number">01</div>
+        <div class="phase-info">
+          <div class="phase-tag">Morning · 15–30 min</div>
+          <h2 class="phase-title">早晨 · 心理挖掘</h2>
+          <p class="phase-desc">分两步：先逼自己直视你不想要的生活，再描绘你真正想要的。</p>
+          <div class="phase-time">建议早起后立即完成，趁思维还未被日常事务占领</div>
+        </div>
+      </div>
+
+      <div class="section-title">第一步：挖掘你的「反愿景」</div>
+      <p style="font-size:0.88rem;color:var(--ink-muted);margin-bottom:1.5rem;font-style:italic;">
+        如果你诚实地回答了这些，你会感到一种深深的不安——这是好事。</p>
+
+      <div class="question-list">
+        <div class="question-card" data-en>
+          <div class="en-tooltip">What is the dull and persistent dissatisfaction you've learned to live with? Not the
+            deep suffering but what you've learned to tolerate.</div>
+          <span class="question-num">1</span>
+          <div class="question-text">你已经习以为常、隐隐感到不满的事情是什么？</div>
+          <div class="question-hint">不是深深的痛苦，而是你已经学会容忍的那种低度不满足。</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">What do you complain about repeatedly but never actually change? Write down the three
+            complaints you've voiced most often in the past year.</div>
+          <span class="question-num">2</span>
+          <div class="question-text">过去一年，你反复抱怨却从未真正改变的三件事是什么？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">For each complaint: What would someone who watched your behavior (not your words)
+            conclude that you actually want?</div>
+          <span class="question-num">3</span>
+          <div class="question-text">对于上面每一个抱怨：如果有人只观察你的行为（而非你的言语），他们会认为你真正想要什么？</div>
+          <div class="question-hint">言行不一处，往往藏着真实的自我。</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">What truth about your current life would be unbearable to admit to someone you deeply
+            respect?</div>
+          <span class="question-num">4</span>
+          <div class="question-text">关于你现在的生活，有什么真相是你无法向你最尊敬的人坦白的？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">If absolutely nothing changes for the next five years, describe an average Tuesday.
+            Where do you wake up? What does your body feel like? What's the first thing you think about? Who's around
+            you? What do you do between 9am and 6pm? How do you feel at 10pm?</div>
+          <span class="question-num">5</span>
+          <div class="question-text">如果接下来五年什么都不改变，描述一个普通的周二——你在哪里醒来？身体感觉如何？第一个念头是什么？周围有谁？早九点到下午六点做什么？晚上十点的感受？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">Now do it but for ten years. What have you missed? What opportunities closed? Who gave
+            up on you? What do people say about you when you're not in the room?</div>
+          <span class="question-num">6</span>
+          <div class="question-text">现在把它延伸到十年后。你错过了什么？哪些机会永远关闭了？谁对你失望了？你不在场时，人们怎么评价你？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">You're at the end of your life. You lived the safe version. You never broke the
+            pattern. What was the cost? What did you never let yourself feel, try, or become?</div>
+          <span class="question-num">7</span>
+          <div class="question-text">你在生命的尽头。你选择了安全版本的人生，从未打破这个模式。代价是什么？你从未让自己感受、尝试或成为什么？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">Who in your life is already living the future you just described? Someone five, ten,
+            twenty years ahead on the same trajectory? What do you feel when you think about becoming them?</div>
+          <span class="question-num">8</span>
+          <div class="question-text">你身边谁已经在过你刚刚描述的那种未来？某个在同样轨迹上比你超前五到二十年的人？想到成为他们，你有什么感觉？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">What identity would you have to give up to actually change? ("I am the type of person
+            who...") What would it cost you socially to no longer be that person?</div>
+          <span class="question-num">9</span>
+          <div class="question-text">为了真正改变，你必须放弃哪个自我标签？（「我是那种会……的人」）不再是那个人，社交上会让你付出什么代价？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">What is the most embarrassing reason you haven't changed? The one that makes you sound
+            weak, scared, or lazy rather than reasonable?</div>
+          <span class="question-num">10</span>
+          <div class="question-text">你没有改变的最令人羞耻的真实原因是什么？那个让你听起来软弱、害怕或懒惰——而非理性的理由？</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">If your current behavior is a form of self-protection, what exactly are you
+            protecting? And what is that protection costing you?</div>
+          <span class="question-num">11</span>
+          <div class="question-text">如果你当前的行为是一种自我保护，你究竟在保护什么？那种保护让你付出了什么代价？</div>
+        </div>
+      </div>
+
+      <div class="divider">最小可行愿景</div>
+
+      <div class="section-title">第二步：描绘你的「最小愿景」</div>
+      <p style="font-size:0.88rem;color:var(--ink-muted);margin-bottom:1.5rem;font-style:italic;">
+        愿景像产品，一开始可以模糊——重要的是先有一个方向。</p>
+
+      <div class="question-list">
+        <div class="question-card" data-en>
+          <div class="en-tooltip">Forget practicality for a minute. If you could snap your fingers and be living a
+            different life in three years, not what's realistic, what you actually want? What does an average Tuesday
+            look like?</div>
+          <span class="question-num">12</span>
+          <div class="question-text">暂时忘记现实可能性。如果三年内可以打个响指过上另一种生活，你真正想要的是什么？描述一个普通的周二，和第5题一样详细。</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">What would you have to believe about yourself for that life to feel natural rather
+            than forced? Write the identity statement: "I am the type of person who..."</div>
+          <span class="question-num">13</span>
+          <div class="question-text">你必须对自己持有什么样的信念，那种生活才会感觉自然而非强迫？写下身份声明：「我是那种会……的人」</div>
+        </div>
+        <div class="question-card" data-en>
+          <div class="en-tooltip">What is one thing you would do this week if you were already that person?</div>
+          <span class="question-num">14</span>
+          <div class="question-text">如果你已经是那个人，这周你会做哪一件事？</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二阶段 -->
+    <div class="phase" id="phase2">
+      <div class="phase-header">
+        <div class="phase-number">02</div>
+        <div class="phase-info">
+          <div class="phase-tag">Daytime · Throughout the Day</div>
+          <h2 class="phase-title">白天 · 打断自动驾驶</h2>
+          <p class="phase-desc">现在就在手机上设置以下提醒——把问题直接写进提醒内容，让自己随时脱离惯性。</p>
+          <div class="phase-time">提醒越随机、越不冲突日程，效果越好</div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item" data-en>
+          <div class="en-tooltip">What am I avoiding right now by doing what I'm doing?</div>
+          <span class="timeline-time">11:00</span>
+          <div class="timeline-q">我现在做这件事，是在回避什么？</div>
+        </div>
+        <div class="timeline-item" data-en>
+          <div class="en-tooltip">If someone filmed the last two hours, what would they conclude I want from my life?
+          </div>
+          <span class="timeline-time">13:30</span>
+          <div class="timeline-q">如果有人录下过去两小时，他们会认为我想要从生活中得到什么？</div>
+        </div>
+        <div class="timeline-item" data-en>
+          <div class="en-tooltip">Am I moving toward the life I hate or the life I want?</div>
+          <span class="timeline-time">15:15</span>
+          <div class="timeline-q">我现在是在朝我讨厌的生活，还是我想要的生活走？</div>
+        </div>
+        <div class="timeline-item" data-en>
+          <div class="en-tooltip">What's the most important thing I'm pretending isn't important?</div>
+          <span class="timeline-time">17:00</span>
+          <div class="timeline-q">我在假装不重要的最重要的事是什么？</div>
+        </div>
+        <div class="timeline-item" data-en>
+          <div class="en-tooltip">What did I do today out of identity protection rather than genuine desire? (Hint: it's
+            most things you do)</div>
+          <span class="timeline-time">19:30</span>
+          <div class="timeline-q">今天我做了哪些事是出于「身份保护」而非真正的欲望？（提示：大多数事都是）</div>
+        </div>
+        <div class="timeline-item" data-en>
+          <div class="en-tooltip">When did I feel most alive today? When did I feel most dead?</div>
+          <span class="timeline-time">21:00</span>
+          <div class="timeline-q">今天什么时候感觉最有活力？什么时候感觉最死气沉沉？</div>
+        </div>
+      </div>
+
+      <div class="aside-questions">
+        <ul>
+          <li data-en style="padding-right:2rem;">
+            <div class="en-tooltip" style="bottom:calc(100% + 6px);font-size:0.75rem;">What would change if I stopped
+              needing people to see me as [the identity you wrote in question 10]?</div>
+            如果我不再需要别人把我看作那个身份，什么会改变？
+          </li>
+          <li data-en style="padding-right:2rem;">
+            <div class="en-tooltip" style="bottom:calc(100% + 6px);font-size:0.75rem;">Where in my life am I trading
+              aliveness for safety?</div>
+            在我生活的哪里，我在用活力换取安全感？
+          </li>
+          <li data-en style="padding-right:2rem;">
+            <div class="en-tooltip" style="bottom:calc(100% + 6px);font-size:0.75rem;">What's the smallest version of
+              the person I want to become that I could be tomorrow?</div>
+            明天我能成为的「想要成为的人的最小版本」是什么样的？
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第三阶段 -->
+    <div class="phase" id="phase3">
+      <div class="phase-header">
+        <div class="phase-number">03</div>
+        <div class="phase-info">
+          <div class="phase-tag">Evening · Before Sleep</div>
+          <h2 class="phase-title">夜晚 · 综合洞见</h2>
+          <p class="phase-desc">将今天的所有感受和洞见落笔，形成一个清晰的方向和明天的第一步。</p>
+          <div class="phase-time">睡前完成，趁情绪还在</div>
+        </div>
+      </div>
+
+      <div class="section-title">四个收尾问题</div>
+
+      <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:2rem;">
+        <div class="output-card" data-en style="cursor:default;">
+          <div class="en-tooltip" style="background:#2a2018;border-top-color:var(--gold-light);">After today, what feels
+            most true about why you've been stuck?</div>
+          <span class="output-label">问题一</span>
+          <div class="output-title">今天过后，你对自己一直停滞的原因，感觉最真实的是什么？</div>
+        </div>
+        <div class="output-card" data-en style="cursor:default;">
+          <div class="en-tooltip" style="background:#2a2018;border-top-color:var(--gold-light);">What is the actual
+            enemy? Name it clearly. Not circumstances. Not other people. The internal pattern or belief that has been
+            running the show.</div>
+          <span class="output-label">问题二</span>
+          <div class="output-title">真正的敌人是什么？</div>
+          <div class="output-desc">不是外部环境，不是其他人——明确命名那个一直在幕后操控的内在模式或信念。</div>
+        </div>
+        <div class="output-card" data-en style="cursor:default;">
+          <div class="en-tooltip" style="background:#2a2018;border-top-color:var(--gold-light);">Write a single sentence
+            that captures what you refuse to let your life become. This is your anti-vision compressed. It should make
+            you feel something when you read it.</div>
+          <span class="output-label">问题三 · 反愿景句子</span>
+          <div class="output-title">写一句话：你拒绝让自己的生活变成什么样子。</div>
+          <div class="output-desc">读到它时应该让你有所感触。</div>
+        </div>
+        <div class="output-card" data-en style="cursor:default;">
+          <div class="en-tooltip" style="background:#2a2018;border-top-color:var(--gold-light);">Write a single sentence
+            that captures what you're building toward, knowing it will evolve. This is your vision MVP.</div>
+          <span class="output-label">问题四 · 愿景 MVP</span>
+          <div class="output-title">写一句话：你正在朝什么方向建设？</div>
+          <div class="output-desc">不必完美，它会随时间演变。</div>
+        </div>
+      </div>
+
+      <div class="section-title">三个层次的目标棱镜</div>
+      <p style="font-size:0.88rem;color:var(--ink-muted);margin-bottom:1rem;font-style:italic;">
+        把目标理解为「视角」而非终点线——享受存在于进步本身。</p>
+
+      <div class="lens-group">
+        <div class="lens-item" data-en>
+          <div class="en-tooltip">One-year lens: What would have to be true in one year for you to know you've broken
+            the old pattern? One concrete thing.</div>
+          <span class="lens-icon">🗓</span>
+          <div class="lens-name">一年棱镜</div>
+          <div class="lens-q">一件事——让你知道自己打破了旧模式</div>
+        </div>
+        <div class="lens-item" data-en>
+          <div class="en-tooltip">One-month lens: What would have to be true in one month for the one-year lens to
+            remain possible?</div>
+          <span class="lens-icon">📅</span>
+          <div class="lens-name">一个月棱镜</div>
+          <div class="lens-q">一件事——让一年棱镜保持可能性</div>
+        </div>
+        <div class="lens-item" data-en>
+          <div class="en-tooltip">Daily lens: What are 2-3 actions you can timeblock tomorrow that the person you're
+            becoming would simply do?</div>
+          <span class="lens-icon">☀️</span>
+          <div class="lens-name">每日棱镜</div>
+          <div class="lens-q">2–3 个具体行动，那个「正在成为的你」明天就会去做</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第四阶段 -->
+    <div class="phase" id="phase4">
+      <div class="phase-header">
+        <div class="phase-number">04</div>
+        <div class="phase-info">
+          <div class="phase-tag">Final Step · One Page</div>
+          <h2 class="phase-title">整理成系统</h2>
+          <p class="phase-desc">取出新的一张纸，写下这六个部分——这是你的「人生游戏」完整规则。</p>
+        </div>
+      </div>
+
+      <div class="system-grid">
+        <div class="system-cell" data-en>
+          <div class="en-tooltip">Anti-vision: What is the bane of my existence, or the life I never want to experience
+            again?</div>
+          <span class="system-label">Anti-Vision</span>
+          <span class="system-name">反愿景</span>
+          <div class="system-q">我绝对不想过的生活是什么？读了要让你感到恶心。</div>
+        </div>
+        <div class="system-cell" data-en>
+          <div class="en-tooltip">Vision: What is the ideal life that I think I want and can improve as I work toward
+            it?</div>
+          <span class="system-label">Vision</span>
+          <span class="system-name">愿景</span>
+          <div class="system-q">我想要的理想生活是什么？可以随时间演变和完善。</div>
+        </div>
+        <div class="system-cell" data-en>
+          <div class="en-tooltip">1-year goal: What will my life look like in 1 year time, and is that closer to the
+            life I want?</div>
+          <span class="system-label">1-Year Goal</span>
+          <span class="system-name">一年目标</span>
+          <div class="system-q">一年后我的生活具体是什么样子？这是你唯一的人生优先项。</div>
+        </div>
+        <div class="system-cell" data-en>
+          <div class="en-tooltip">1-month project: What do I need to learn? What skills do I need to acquire? What can I
+            build that will move me closer to the one year goal?</div>
+          <span class="system-label">1-Month Project</span>
+          <span class="system-name">一月项目</span>
+          <div class="system-q">我需要学什么？获得哪些技能？构建什么来推进目标？</div>
+        </div>
+        <div class="system-cell" data-en>
+          <div class="en-tooltip">Daily levers: What are the priority, needle-moving tasks that bring my project closer
+            to completion?</div>
+          <span class="system-label">Daily Levers</span>
+          <span class="system-name">每日杠杆</span>
+          <div class="system-q">哪 2–3 件事是每天必做的、能移动指针的核心行动？</div>
+        </div>
+        <div class="system-cell" data-en>
+          <div class="en-tooltip">Constraints: What am I not willing to sacrifice to achieve my vision from the ground
+            up?</div>
+          <span class="system-label">Constraints</span>
+          <span class="system-name">约束</span>
+          <div class="system-q">为了实现这个愿景，我不愿意牺牲什么？</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-ornament">
+      <div class="footer-line"></div>
+      <div class="ornament-diamond" style="width:5px;height:5px;background:var(--gold-light);transform:rotate(45deg);">
+      </div>
+      <div class="footer-line"></div>
+    </div>
+    <div class="footer-quote">
+      "Trust only movement. Life happens at the level of events, not of words."
+    </div>
+    <div class="footer-text" style="margin-top:0.5rem;font-style:italic;font-size:0.75rem;">—— Alfred Adler</div>
+    <div class="footer-text" style="margin-top:2rem;">
+      这个协议不保证对所有人立即有效——它能否触发转变，取决于你是否已积累了足够的「对现状的厌倦」。
+    </div>
+  </footer>
+
+  <script>
+    // 滚动进度条
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progressBar').style.width = scrolled + '%';
+    });
+
+    // 滚动进入动画
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.phase').forEach(el => observer.observe(el));
+  </script>
+</body>
+
+</html>
