@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <script>
         // 连续采样，看是否出现小数
@@ -16,6 +18,21 @@
 
         // 同时验证是否被篡改
         console.log('Date.now 是否原生:', Date.now.toString())
-      </script>
+    </script>
+
+    <script>
+        setTimeout(() => {
+            // 连续采样，看是否出现小数
+            const results2 = Array.from({ length: 20 }, () => Date.now())
+
+            const hasFloat2 = results2.some(t => !Number.isInteger(t))
+            console.log('是否包含浮点:', hasFloat)
+            console.log('所有采样值:', results)
+
+            // 同时验证是否被篡改
+            console.log('Date.now 是否原生:', Date.now.toString())
+        }, 3000)
+    </script>
 </body>
+
 </html>
