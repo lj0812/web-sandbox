@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在厂时长计划器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0f0f0f;
+            --bg2: #161616;
+            --bg3: #1e1e1e;
+            --border: rgba(255, 255, 255, 0.08);
+            --border2: rgba(255, 255, 255, 0.14);
+            --text: #e8e4dc;
+            --muted: #6b6760;
+            --amber: #f5a623;
+            --amber-dim: rgba(245, 166, 35, 0.12);
+            --amber-glow: rgba(245, 166, 35, 0.25);
+            --green: #4ade80;
+            --green-dim: rgba(74, 222, 128, 0.1);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.1);
+            --blue: #60a5fa;
+            --blue-dim: rgba(96, 165, 250, 0.1);
+            --radius: 10px;
+            --mono: 'DM Mono', monospace;
+            --sans: 'Syne', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 顶部装饰条 */
+        .top-bar {
+            height: 3px;
+            background: linear-gradient(90deg, var(--amber) 0%, #e07b20 40%, transparent 100%);
+        }
+
+        /* 顶部导航 */
+        header {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: rgba(15, 15, 15, 0.92);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--amber);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .logo-text {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -.02em;
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: var(--mono);
+            margin-top: 1px;
+        }
+
+        .header-tag {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--amber);
+            background: var(--amber-dim);
+            border: 1px solid rgba(245, 166, 35, 0.2);
+            padding: 3px 10px;
+            border-radius: 99px;
+        }
+
+        /* 主内容区 */
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 4rem;
+        }
+
+        /* 区块标题 */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-num {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--amber);
+            background: var(--amber-dim);
+            border: 1px solid rgba(245, 166, 35, 0.25);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* 参数卡片 */
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 2.5rem;
+        }
+
+        .param-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.1rem;
+            transition: border-color .2s;
+        }
+
+        .param-card:focus-within {
+            border-color: var(--amber);
+        }
+
+        .param-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 6px;
+        }
+
+        .param-input {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 18px;
+            font-weight: 500;
+            width: 100%;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .param-input::-webkit-inner-spin-button,
+        .param-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .param-unit {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .param-hint {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 4px;
+            font-family: var(--mono);
+        }
+
+        /* 固定日配置 */
+        .fixed-day-row {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .fixed-day-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 5px;
+        }
+
+        .day-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .day-chip {
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .day-chip.active {
+            background: var(--amber-dim);
+            border-color: rgba(245, 166, 35, 0.4);
+            color: var(--amber);
+        }
+
+        /* 分隔 */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0;
+        }
+
+        /* 结果区 */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        .result-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: border-color .2s;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-color, var(--amber));
+            opacity: .6;
+        }
+
+        .result-card:hover {
+            border-color: var(--border2);
+        }
+
+        .result-q {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: .75rem;
+        }
+
+        .result-time {
+            font-family: var(--mono);
+            font-size: 32px;
+            font-weight: 500;
+            color: var(--text);
+            letter-spacing: -.02em;
+            line-height: 1;
+            margin-bottom: .5rem;
+        }
+
+        .result-desc {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .result-delta {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 99px;
+            margin-top: .5rem;
+        }
+
+        .delta-late {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        .delta-ok {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .delta-warn {
+            background: var(--amber-dim);
+            color: var(--amber);
+        }
+
+        /* 自定义场景 */
+        .scenario-section {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+        }
+
+        .scenario-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 8px;
+        }
+
+        .scenario-slider-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            flex: 1;
+            height: 4px;
+            border-radius: 99px;
+            background: var(--bg3);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--amber);
+            border: 2px solid var(--bg);
+            box-shadow: 0 0 6px var(--amber-glow);
+            cursor: pointer;
+        }
+
+        .slider-val {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--amber);
+            min-width: 28px;
+            text-align: right;
+        }
+
+        input[type=time] {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 16px;
+            padding: 6px 10px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color .2s;
+            color-scheme: dark;
+        }
+
+        input[type=time]:focus {
+            border-color: var(--amber);
+        }
+
+        /* 场景结果条 */
+        .scenario-result-rows {
+            margin-top: 1.25rem;
+        }
+
+        .scenario-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .6rem .75rem;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            background: var(--bg3);
+            gap: 1rem;
+        }
+
+        .scenario-row-label {
+            font-size: 13px;
+            color: var(--muted);
+            flex: 1;
+        }
+
+        .scenario-row-time {
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .scenario-row-hours {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .scenario-row.highlight {
+            background: var(--amber-dim);
+            border: 1px solid rgba(245, 166, 35, 0.2);
+        }
+
+        .scenario-row.highlight .scenario-row-time {
+            color: var(--amber);
+        }
+
+        /* 周览 */
+        .week-view {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .week-bars {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            align-items: end;
+            height: 120px;
+            margin-top: 1.25rem;
+        }
+
+        .week-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .week-bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all .4s cubic-bezier(.34, 1.56, .64, 1);
+            min-height: 4px;
+        }
+
+        .week-bar-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .week-bar-time {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .target-line-wrap {
+            position: relative;
+            grid-column: 1 / -1;
+            pointer-events: none;
+        }
+
+        /* 总计卡片 */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .summary-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .summary-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: .9rem 1rem;
+        }
+
+        .summary-key {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            margin-bottom: 4px;
+        }
+
+        .summary-val {
+            font-family: var(--mono);
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .summary-val.ok {
+            color: var(--green);
+        }
+
+        .summary-val.warn {
+            color: var(--amber);
+        }
+
+        .summary-val.bad {
+            color: var(--red);
+        }
+
+        /* 说明 */
+        .calc-show {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            background: var(--bg3);
+            border-radius: 6px;
+            padding: .75rem 1rem;
+            margin-top: 1rem;
+            line-height: 1.8;
+        }
+
+        .calc-show .em {
+            color: var(--amber);
+        }
+
+        /* footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        /* ===== §6 实际追踪 ===== */
+        .tracker-wrap {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .tracker-today-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .tracker-deficit-box {
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.8;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        .tracker-days {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tracker-day-row {
+            display: grid;
+            grid-template-columns: 52px 1fr 1fr 1fr;
+            align-items: center;
+            gap: 10px;
+            padding: .65rem .9rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg3);
+            transition: border-color .2s;
+        }
+
+        .tracker-day-row.today {
+            background: rgba(74, 222, 128, 0.06);
+            border-color: rgba(74, 222, 128, 0.25);
+        }
+
+        .tracker-day-row.past {
+            background: var(--bg3);
+        }
+
+        .tracker-day-row.future {
+            opacity: .5;
+        }
+
+        .tracker-day-name {
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .tracker-day-badge {
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            width: fit-content;
+            font-weight: 400;
+        }
+
+        .badge-today {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--green);
+        }
+
+        .badge-fixed {
+            background: var(--blue-dim);
+            color: var(--blue);
+        }
+
+        .badge-past {
+            background: var(--bg2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .tracker-plan {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .tracker-plan-label {
+            font-size: 10px;
+        }
+
+        .tracker-plan-time {
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .tracker-actual {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .tracker-actual-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .tracker-actual input[type=time] {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 14px;
+            padding: 4px 8px;
+            outline: none;
+            transition: border-color .2s;
+            width: 100%;
+            color-scheme: dark;
+        }
+
+        .tracker-actual input[type=time]:focus {
+            border-color: var(--green);
+        }
+
+        .tracker-diff {
+            font-family: var(--mono);
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .diff-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .diff-early {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .diff-late {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        .diff-exact {
+            background: var(--amber-dim);
+            color: var(--amber);
+        }
+
+        .diff-sub {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .tracker-conclusion {
+            margin-top: 1.25rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1.25rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .tracker-conclusion {
+                grid-template-columns: 1fr;
+            }
+
+            .tracker-day-row {
+                grid-template-columns: 44px 1fr 1fr;
+            }
+
+            .tracker-diff {
+                display: none;
+            }
+        }
+
+        .conclusion-card {
+            border-radius: 8px;
+            padding: 1rem 1.1rem;
+        }
+
+        .conclusion-card.primary {
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .conclusion-card.secondary {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+        }
+
+        .conclusion-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 5px;
+        }
+
+        .conclusion-time {
+            font-family: var(--mono);
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--green);
+            line-height: 1;
+        }
+
+        .conclusion-sub {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 5px;
+            line-height: 1.7;
+        }
+
+        .conclusion-time.warn {
+            color: var(--amber);
+        }
+
+        .conclusion-time.bad {
+            color: var(--red);
+        }
+
+        .conclusion-time.neutral {
+            color: var(--text);
+        }
+
+        /* ===== 动画 ===== */
+        /* 动画 */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeUp .4s ease both;
+        }
+
+        .delay-1 {
+            animation-delay: .06s;
+        }
+
+        .delay-2 {
+            animation-delay: .12s;
+        }
+
+        .delay-3 {
+            animation-delay: .18s;
+        }
+
+        .delay-4 {
+            animation-delay: .24s;
+        }
+
+        .delay-5 {
+            animation-delay: .30s;
+        }
+
+        /* 计算按钮 */
+        .calc-btn {
+            background: var(--amber);
+            color: #0f0f0f;
+            border: none;
+            border-radius: 8px;
+            padding: .65rem 1.5rem;
+            font-family: var(--sans);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .03em;
+            cursor: pointer;
+            transition: opacity .15s, transform .1s;
+            margin-top: 1rem;
+        }
+
+        .calc-btn:hover {
+            opacity: .9;
+        }
+
+        .calc-btn:active {
+            transform: scale(.97);
+        }
+
+        /* 小提示文字 */
+        .tip {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: .4rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar"></div>
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="8" cy="8" r="5.5" stroke="#0f0f0f" stroke-width="1.5" />
+                    <path d="M8 5v3.5l2 1.5" stroke="#0f0f0f" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div>
+                <div class="logo-text">在厂时长计划器</div>
+                <div class="logo-sub">WORK SCHEDULE PLANNER</div>
+            </div>
+        </div>
+        <div class="header-tag">每日实时计算</div>
+    </header>
+
+    <main>
+
+        <!-- ① 基础参数 -->
+        <div class="section-header animate">
+            <div class="section-num">1</div>
+            <div class="section-title">基础参数设置</div>
+        </div>
+
+        <div class="params-grid animate delay-1">
+            <div class="param-card">
+                <div class="param-label">上班时间</div>
+                <input class="param-input" type="time" id="startTime" value="09:20" step="300" oninput="recalc()">
+                <div class="param-unit">每天固定上班时刻</div>
+            </div>
+            <div class="param-card">
+                <div class="param-label">午休时长</div>
+                <input class="param-input" type="number" id="lunchMin" value="90" min="0" max="180" step="5"
+                    oninput="recalc()">
+                <div class="param-unit">分钟（不计入在厂）</div>
+            </div>
+            <div class="param-card">
+                <div class="param-label">目标日均在厂</div>
+                <input class="param-input" type="number" id="targetH" value="8.5" min="4" max="14" step="0.5"
+                    oninput="recalc()">
+                <div class="param-unit">小时 / 天</div>
+            </div>
+            <div class="param-card">
+                <div class="param-label">每周工作天数</div>
+                <input class="param-input" type="number" id="workDays" value="5" min="1" max="7" step="1"
+                    oninput="recalc()">
+                <div class="param-unit">天</div>
+            </div>
+            <div class="param-card" style="border-color:rgba(248,113,113,0.2);">
+                <div class="param-label" style="color:var(--red);opacity:.8;">每日最少在厂</div>
+                <input class="param-input" type="number" id="minDailyH" value="8" min="1" max="14" step="0.5"
+                    oninput="recalc()">
+                <div class="param-unit">小时（下限约束）</div>
+                <div class="param-hint" style="color:rgba(248,113,113,0.6);">即使盈余也不得早于此</div>
+            </div>
+        </div>
+
+        <!-- ② 固定下班日 -->
+        <div class="section-header animate delay-2">
+            <div class="section-num">2</div>
+            <div class="section-title">固定下班日配置</div>
+        </div>
+
+        <div class="fixed-day-row animate delay-2">
+            <div>
+                <div class="fixed-day-label">固定下班日</div>
+                <div class="day-chips" id="dayChips">
+                    <button class="day-chip" data-d="0" onclick="toggleFixedDay(this)">周一</button>
+                    <button class="day-chip" data-d="1" onclick="toggleFixedDay(this)">周二</button>
+                    <button class="day-chip" data-d="2" onclick="toggleFixedDay(this)">周三</button>
+                    <button class="day-chip" data-d="3" onclick="toggleFixedDay(this)">周四</button>
+                    <button class="day-chip active" data-d="4" onclick="toggleFixedDay(this)">周五</button>
+                </div>
+                <div class="tip" style="margin-top:6px;">可多选（如周三周五都固定）</div>
+            </div>
+            <div>
+                <div class="fixed-day-label">固定下班时间</div>
+                <input type="time" id="fixedEnd" value="18:50" step="300" oninput="recalc()" style="margin-top:2px;">
+            </div>
+            <div id="fixedDaySummary"
+                style="font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.8;"></div>
+        </div>
+
+        <!-- ③ 三种场景结果 -->
+        <div class="section-header animate delay-3">
+            <div class="section-num">3</div>
+            <div class="section-title">自动计算结果</div>
+        </div>
+
+        <div id="summaryRow" class="summary-row animate delay-3"></div>
+
+        <div id="floorBanner"></div>
+        <div class="results-grid animate delay-3" id="resultsGrid"></div>
+
+        <!-- ④ 周视图 -->
+        <div class="section-header animate delay-4">
+            <div class="section-num">4</div>
+            <div class="section-title">本周在厂视图</div>
+        </div>
+
+        <div class="week-view animate delay-4">
+            <div id="weekBars" class="week-bars"></div>
+        </div>
+
+        <!-- ⑤ 自定义场景 -->
+        <div class="section-header animate delay-5">
+            <div class="section-num">5</div>
+            <div class="section-title">自定义场景推演</div>
+        </div>
+
+        <div class="scenario-section animate delay-5">
+            <div class="scenario-grid">
+                <div>
+                    <div class="scenario-label">固定天数（X 天提前/固定下班）</div>
+                    <div class="scenario-slider-wrap">
+                        <input type="range" id="fixedDaysCount" min="0" max="4" value="3" step="1"
+                            oninput="recalcScenario()">
+                        <span class="slider-val" id="fixedDaysCountVal">3</span>
+                        <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">天</span>
+                    </div>
+                    <div class="tip">其余天数自动补足周均值</div>
+                </div>
+                <div>
+                    <div class="scenario-label">固定天的下班时间</div>
+                    <input type="time" id="scenarioFixedTime" value="19:30" step="300" oninput="recalcScenario()">
+                    <div class="tip">这些天固定几点走？</div>
+                </div>
+            </div>
+            <div id="scenarioResult" class="scenario-result-rows"></div>
+            <div id="scenarioCalc" class="calc-show"></div>
+        </div>
+
+
+        <!-- ⑥ 本周实际追踪 -->
+        <div class="section-header animate delay-5" style="margin-top:2.5rem;">
+            <div class="section-num"
+                style="background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green);">6</div>
+            <div class="section-title">本周实际追踪</div>
+            <span
+                style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:auto;">录入已过天的实际下班时间，推算剩余需几点走</span>
+        </div>
+
+        <div class="tracker-wrap animate delay-5">
+            <!-- 今天是哪天 -->
+            <div class="tracker-today-row">
+                <div>
+                    <div class="fixed-day-label" style="margin-bottom:6px;">今天是</div>
+                    <div class="day-chips" id="todayChips"></div>
+                </div>
+                <div id="trackerDeficitBox" class="tracker-deficit-box"></div>
+            </div>
+
+            <!-- 每天行 -->
+            <div id="trackerDays" class="tracker-days"></div>
+
+            <!-- 底部结论 -->
+            <div id="trackerConclusion" class="tracker-conclusion"></div>
+        </div>
+
+    </main>
+
+    <footer>
+        在厂时长计划器 · 所有计算均在本地进行，数据不上传
+    </footer>
+
+    <script>
+        // ============= 工具函数 =============
+        // 将 "HH:MM" 转为分钟数
+        function timeToMin(t) {
+            const [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+        // 将分钟数转为 "HH:MM"
+        function minToTime(m) {
+            const hh = Math.floor(m / 60) % 24;
+            const mm = m % 60;
+            return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+        }
+        // 分钟转 "Xh Ymin"
+        function minToHM(m) {
+            const h = Math.floor(m / 60);
+            const min = m % 60;
+            if (min === 0) return h + 'h';
+            return h + 'h ' + min + 'min';
+        }
+        // 小时数（可小数）转分钟
+        function hToMin(h) { return Math.round(h * 60); }
+
+        // 星期名
+        const DAY_NAMES = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+        const DAY_SHORT = ['一', '二', '三', '四', '五', '六', '日'];
+
+        // ============= 状态 =============
+        let fixedDays = new Set([4]); // 0=周一 ... 4=周五
+
+        function toggleFixedDay(el) {
+            const d = parseInt(el.dataset.d);
+            if (fixedDays.has(d)) {
+                if (fixedDays.size === 1) return; // 至少保留一个
+                fixedDays.delete(d);
+                el.classList.remove('active');
+            } else {
+                fixedDays.add(d);
+                el.classList.add('active');
+            }
+            recalc();
+        }
+
+        // ============= 主计算 =============
+        function getParams() {
+            const start = timeToMin(document.getElementById('startTime').value);
+            const lunch = parseInt(document.getElementById('lunchMin').value) || 0;
+            const target = parseFloat(document.getElementById('targetH').value) || 8.5;
+            const wDays = Math.max(1, Math.min(7, parseInt(document.getElementById('workDays').value) || 5));
+            const fixedEnd = timeToMin(document.getElementById('fixedEnd').value);
+            const minDaily = parseFloat(document.getElementById('minDailyH').value) || 8;
+            return { start, lunch, target, wDays, fixedEnd, minDaily };
+        }
+
+        // 应用每日最少在厂下限
+        function applyFloor(onsiteMin, minOnsiteMin) {
+            if (onsiteMin < minOnsiteMin) return { clamped: true, onsiteMin: minOnsiteMin };
+            return { clamped: false, onsiteMin };
+        }
+
+        function recalc() {
+            const { start, lunch, target, wDays, fixedEnd, minDaily } = getParams();
+            const fds = [...fixedDays].filter(d => d < wDays);
+            const freeDays = wDays - fds.length;
+            const minOnsiteMin = hToMin(minDaily);
+
+            // 固定天在厂时长
+            const fixedOnsite = fixedEnd - start - lunch; // 分钟
+            const fixedOnsiteTotal = fixedOnsite * fds.length;
+
+            // 全周目标总时长
+            const weekTarget = hToMin(target) * wDays;
+
+            // 自由天需要的总时长（原始，不含下限）
+            const freeTotal = weekTarget - fixedOnsiteTotal;
+            const rawFreeAvgMin = freeDays > 0 ? Math.round(freeTotal / freeDays) : 0;
+            // 应用下限
+            const { clamped: avgClamped, onsiteMin: freeAvgMin } = applyFloor(rawFreeAvgMin, minOnsiteMin);
+            const freeEndTime = start + freeAvgMin + lunch;
+
+            // 更新固定日摘要
+            let summaryHtml = '';
+            fds.forEach(d => {
+                summaryHtml += `${DAY_NAMES[d]} 在厂 <span style="color:var(--amber)">${minToHM(fixedOnsite)}</span>　`;
+            });
+            if (fds.length > 0) {
+                summaryHtml += `<br>固定天合计 <span style="color:var(--amber)">${minToHM(fixedOnsiteTotal)}</span>`;
+            }
+            document.getElementById('fixedDaySummary').innerHTML = summaryHtml;
+
+            // ====== 摘要卡片 ======
+            const avgFree = freeAvgMin / 60;
+            let avgClass = avgFree <= target ? 'ok' : avgFree - target < 0.5 ? 'warn' : 'bad';
+            document.getElementById('summaryRow').innerHTML = `
+    <div class="summary-card">
+      <div class="summary-key">全周目标总时长</div>
+      <div class="summary-val">${minToHM(weekTarget)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-key">固定天合计时长</div>
+      <div class="summary-val ${fixedOnsiteTotal < 0 ? 'bad' : ''}">${minToHM(fixedOnsiteTotal)}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-key">自由天需补时长</div>
+      <div class="summary-val ${freeTotal < 0 ? 'ok' : ''}">${minToHM(Math.max(0, freeTotal))}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-key">自由天日均时长</div>
+      <div class="summary-val ${avgClass}">${freeDays > 0 ? minToHM(freeAvgMin) : '—'}</div>
+    </div>
+  `;
+
+            // ====== 下限触发 banner ======
+            let floorBanner = '';
+            if (avgClamped) {
+                const minEndTime = minToTime(start + minOnsiteMin + lunch);
+                floorBanner = `
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:.75rem 1rem;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;margin-bottom:1.25rem;font-family:var(--mono);font-size:12px;color:var(--red);line-height:1.7;">
+        <span style="font-size:14px;flex-shrink:0">⚠</span>
+        <span>
+          计算所得每天在厂时长 <b style="color:var(--text)">${minToHM(rawFreeAvgMin)}</b> 低于每日最少在厂限制 <b style="color:var(--text)">${minDaily}h</b>，已自动取下限。<br>
+          最早下班时间 <b style="color:var(--text)">${minEndTime}</b>，实际总时长将超出周目标 <b style="color:var(--text)">${minToHM(freeAvgMin * freeDays - freeTotal)}</b>。
+        </span>
+      </div>`;
+            }
+            // 插入到 resultsGrid 前
+            const floorEl = document.getElementById('floorBanner');
+            if (floorEl) floorEl.innerHTML = floorBanner;
+
+            // ====== 三大结果卡片 ======
+            const grid = document.getElementById('resultsGrid');
+            if (freeDays < 1) {
+                grid.innerHTML = `<div style="grid-column:1/-1;color:var(--muted);font-family:var(--mono);font-size:12px;">所有工作天均为固定天，无需推算。</div>`;
+            } else {
+                const cards = [];
+
+                // Q1: 均摊（含下限）
+                const q1Time = minToTime(freeEndTime);
+                const deltaQ1 = freeEndTime - (start + hToMin(target) + lunch);
+                const q1Delta = deltaQ1 === 0 ? '' : `${deltaQ1 > 0 ? '+' : ''}${minToHM(Math.abs(deltaQ1))} vs 目标`;
+                const q1Class = deltaQ1 > 15 ? 'delta-late' : deltaQ1 < -15 ? 'delta-ok' : 'delta-warn';
+                const q1FloorNote = avgClamped ? `<span class="result-delta" style="background:rgba(248,113,113,0.1);color:var(--red);">触发 ${minDaily}h 下限</span>` : '';
+                cards.push(`
+      <div class="result-card" style="--accent-color:var(--blue)">
+        <div class="result-q">① 自由天均摊 · ${freeDays}天</div>
+        <div class="result-time">${q1Time}</div>
+        <div class="result-desc">每天在厂 ${minToHM(freeAvgMin)}<br>自由天总计 ${minToHM(freeTotal)}</div>
+        ${q1Delta ? `<span class="result-delta ${q1Class}">${q1Delta}</span>` : ''}
+        ${q1FloorNote}
+      </div>
+    `);
+
+                // Q2：s1Days 天 19:30 + 1天 X，X 天应用下限
+                const s1Days = Math.max(0, freeDays - 1);
+                const s1End = timeToMin("19:30");
+                const s1Onsite = s1End - start - lunch;
+                const s1Total = s1Onsite * s1Days;
+                const s1RawMin = freeTotal - s1Total;
+                const { clamped: s1Clamped, onsiteMin: s1ClampedMin } = applyFloor(s1RawMin, minOnsiteMin);
+                const s1RemainEnd = start + s1ClampedMin + lunch;
+                cards.push(`
+      <div class="result-card" style="--accent-color:var(--amber)">
+        <div class="result-q">② ${s1Days}天 19:30 + 1天 X</div>
+        <div class="result-time">${minToTime(s1RemainEnd)}</div>
+        <div class="result-desc">${s1Days}天固定 19:30（各 ${minToHM(s1Onsite)}）<br>剩余1天需在厂 ${minToHM(s1ClampedMin)}</div>
+        <span class="result-delta ${s1ClampedMin > hToMin(target) + 60 ? 'delta-late' : 'delta-warn'}">${minToHM(s1ClampedMin)} 在厂</span>
+        ${s1Clamped ? `<span class="result-delta" style="background:rgba(248,113,113,0.1);color:var(--red);">触发 ${minDaily}h 下限</span>` : ''}
+      </div>
+    `);
+
+                // Q3：2天 19:30 + 剩余天 X，应用下限
+                const actualS2Fixed = Math.min(2, freeDays);
+                const s2FixedTotal = s1Onsite * actualS2Fixed;
+                const s2RemainDays = freeDays - actualS2Fixed;
+                const s2RawEach = s2RemainDays > 0 ? Math.round((freeTotal - s2FixedTotal) / s2RemainDays) : 0;
+                const { clamped: s2Clamped, onsiteMin: s2ClampedEach } = applyFloor(s2RawEach, minOnsiteMin);
+                const s2RemainEnd = start + s2ClampedEach + lunch;
+                cards.push(`
+      <div class="result-card" style="--accent-color:var(--green)">
+        <div class="result-q">③ ${actualS2Fixed}天 19:30 + ${s2RemainDays}天 X</div>
+        <div class="result-time">${s2RemainDays > 0 ? minToTime(s2RemainEnd) : '—'}</div>
+        <div class="result-desc">${actualS2Fixed}天固定 19:30<br>${s2RemainDays > 0 ? `剩余 ${s2RemainDays} 天各在厂 ${minToHM(s2ClampedEach)}` : '无剩余自由天'}</div>
+        ${s2RemainDays > 0 ? `<span class="result-delta delta-ok">${minToHM(s2ClampedEach)} 在厂</span>` : ''}
+        ${s2Clamped ? `<span class="result-delta" style="background:rgba(248,113,113,0.1);color:var(--red);">触发 ${minDaily}h 下限</span>` : ''}
+      </div>
+    `);
+
+                grid.innerHTML = cards.join('');
+            }
+
+            // ====== 周视图 ======
+            renderWeekBars(freeEndTime, start, lunch, target, wDays, fds, fixedEnd, minOnsiteMin);
+
+            // 更新场景
+            recalcScenario();
+            // 更新实际追踪
+            if (typeof recalcTracker === 'function') {
+                initTodayChips();
+                recalcTracker();
+            }
+        }
+
+        // ====== 周视图渲染 ======
+        function renderWeekBars(freeEnd, start, lunch, target, wDays, fds, fixedEnd, minOnsiteMin) {
+            minOnsiteMin = minOnsiteMin || 0;
+            const container = document.getElementById('weekBars');
+            const MAX_H = 96;
+            const targetMin = hToMin(target);
+
+            let days = [];
+            for (let i = 0; i < wDays; i++) {
+                const isFixed = fds.includes(i);
+                const endMin = isFixed ? fixedEnd : freeEnd;
+                const onsite = endMin - start - lunch;
+                days.push({ name: DAY_NAMES[i], end: endMin, onsite, isFixed });
+            }
+
+            const maxOnsite = Math.max(...days.map(d => d.onsite), targetMin + 60);
+
+            let html = '';
+            days.forEach((d, i) => {
+                const barH = Math.max(4, Math.round((d.onsite / maxOnsite) * MAX_H));
+                const belowFloor = d.onsite < minOnsiteMin - 2;
+                const isOver = d.onsite > targetMin;
+                const isUnder = d.onsite < targetMin - 5;
+                const color = belowFloor
+                    ? 'var(--red)'
+                    : d.isFixed
+                        ? 'var(--blue)'
+                        : isOver
+                            ? 'var(--amber)'
+                            : isUnder
+                                ? 'var(--red)'
+                                : 'var(--green)';
+                const floorMarker = belowFloor
+                    ? `<div style="font-size:9px;color:var(--red);font-family:var(--mono);">⚠ 低于限</div>`
+                    : '';
+
+                html += `
+      <div class="week-col">
+        <div class="week-bar-time" style="${belowFloor ? 'color:var(--red)' : ''}">${minToTime(d.end)}</div>
+        ${floorMarker}
+        <div class="week-bar" style="height:${barH}px;background:${color};opacity:${d.isFixed ? '0.55' : '0.85'}"></div>
+        <div class="week-bar-label">${d.name}</div>
+      </div>
+    `;
+            });
+
+            const targetH = Math.round((targetMin / maxOnsite) * MAX_H);
+            container.innerHTML = html;
+            container.style.position = 'relative';
+            const oldLine = document.getElementById('targetLineEl');
+            if (oldLine) oldLine.remove();
+            const oldFloorLine = document.getElementById('floorLineEl');
+            if (oldFloorLine) oldFloorLine.remove();
+
+            // 目标线
+            const line = document.createElement('div');
+            line.id = 'targetLineEl';
+            line.style.cssText = `position:absolute;left:0;right:0;bottom:${targetH + 22}px;height:1px;background:rgba(245,166,35,0.35);pointer-events:none;`;
+            const label = document.createElement('span');
+            label.style.cssText = `position:absolute;right:0;top:-14px;font-family:var(--mono);font-size:10px;color:rgba(245,166,35,0.6);`;
+            label.textContent = '目标 ' + target + 'h';
+            line.appendChild(label);
+            container.appendChild(line);
+
+            // 最低下限线
+            if (minOnsiteMin > 0) {
+                const floorH = Math.round((minOnsiteMin / maxOnsite) * MAX_H);
+                const floorLine = document.createElement('div');
+                floorLine.id = 'floorLineEl';
+                floorLine.style.cssText = `position:absolute;left:0;right:0;bottom:${floorH + 22}px;height:1px;background:rgba(248,113,113,0.4);pointer-events:none;border-top:1px dashed rgba(248,113,113,0.4);`;
+                const floorLabel = document.createElement('span');
+                floorLabel.style.cssText = `position:absolute;left:0;top:-14px;font-family:var(--mono);font-size:10px;color:rgba(248,113,113,0.7);`;
+                const { minDaily } = getParams();
+                floorLabel.textContent = '下限 ' + minDaily + 'h';
+                floorLine.appendChild(floorLabel);
+                container.appendChild(floorLine);
+            }
+        }
+
+        // ====== 场景推演 ======
+        function recalcScenario() {
+            const { start, lunch, target, wDays, fixedEnd, minDaily } = getParams();
+            const fds = [...fixedDays].filter(d => d < wDays);
+            const freeDays = wDays - fds.length;
+            const minOnsiteMin = hToMin(minDaily);
+
+            const fixedOnsitePerDay = fixedEnd - start - lunch;
+            const weekTarget = hToMin(target) * wDays;
+            const freeTotal = weekTarget - fixedOnsitePerDay * fds.length;
+
+            const slider = document.getElementById('fixedDaysCount');
+            slider.max = Math.max(0, freeDays - 1);
+            let n = Math.min(parseInt(slider.value) || 0, freeDays - 1);
+            slider.value = n;
+            document.getElementById('fixedDaysCountVal').textContent = n;
+
+            const scenarioTime = document.getElementById('scenarioFixedTime').value;
+            const scenarioEnd = timeToMin(scenarioTime);
+            const scenarioOnsite = Math.max(scenarioEnd - start - lunch, minOnsiteMin); // 固定天也应用下限
+            const scenarioTotal = scenarioOnsite * n;
+            const remainDays = freeDays - n;
+            const rawRemainEach = remainDays > 0 ? Math.round((freeTotal - scenarioTotal) / remainDays) : 0;
+            const { clamped: scenarioClamped, onsiteMin: remainEach } = applyFloor(rawRemainEach, minOnsiteMin);
+            const remainEnd = start + remainEach + lunch;
+
+            let rows = '';
+            for (let i = 0; i < n; i++) {
+                rows += `
+      <div class="scenario-row">
+        <span class="scenario-row-label">固定天 ${i + 1}</span>
+        <span class="scenario-row-time">${scenarioTime}</span>
+        <span class="scenario-row-hours">${minToHM(scenarioOnsite)} 在厂</span>
+      </div>
+    `;
+            }
+            if (remainDays > 0) {
+                for (let i = 0; i < remainDays; i++) {
+                    rows += `
+        <div class="scenario-row highlight">
+          <span class="scenario-row-label">弹性天 ${i + 1} <span style="font-size:10px;color:var(--muted)">（需补足）</span></span>
+          <span class="scenario-row-time">${minToTime(remainEnd)}</span>
+          <span class="scenario-row-hours">${minToHM(remainEach)} 在厂${scenarioClamped ? ' <span style="color:var(--red)">⚠下限</span>' : ''}</span>
+        </div>
+      `;
+                }
+            } else {
+                rows += `<div class="scenario-row" style="color:var(--muted);font-size:12px;font-family:var(--mono);">无弹性天，全部时间已分配。</div>`;
+            }
+
+            document.getElementById('scenarioResult').innerHTML = rows;
+
+            const floorNote = scenarioClamped
+                ? `\n<span style="color:var(--red)">⚠ 计算值低于每日下限 ${minDaily}h，已取下限 ${minToHM(minOnsiteMin)}</span>`
+                : '';
+
+            let calcText = `
+<span class="em">全周目标</span>  = ${target}h × ${wDays}天 = ${(target * wDays).toFixed(1)}h = ${minToHM(weekTarget)}
+<span class="em">固定天合计</span> = ${fixedOnsitePerDay > 0 ? minToHM(fixedOnsitePerDay) : '—'} × ${fds.length}天 = ${minToHM(fixedOnsitePerDay * fds.length)}
+<span class="em">自由天总需</span> = ${minToHM(weekTarget)} − ${minToHM(fixedOnsitePerDay * fds.length)} = ${minToHM(freeTotal)}
+<span class="em">场景固定</span>   = ${minToHM(scenarioOnsite)} × ${n}天 = ${minToHM(scenarioTotal)}
+<span class="em">弹性天每天</span> = (${minToHM(freeTotal)} − ${minToHM(scenarioTotal)}) ÷ ${remainDays}天 = <span style="color:var(--text)">${remainDays > 0 ? minToHM(remainEach) : '—'}</span>${floorNote}
+<span class="em">弹性天下班</span> = ${minToTime(start)} 上班 + ${remainDays > 0 ? minToHM(remainEach) : '—'} + ${minToHM(lunch)} 午休 = <span style="color:var(--amber);font-weight:500">${remainDays > 0 ? minToTime(remainEnd) : '—'}</span>
+  `.trim();
+            document.getElementById('scenarioCalc').innerHTML = calcText;
+        }
+
+        // ====== §6 实际追踪 ======
+
+        // 当前是星期几 (0=周一 ... 6=周日)，默认取今天
+        const jsDay = new Date().getDay(); // 0=Sun
+        // 将 JS 的 0(Sun)~6(Sat) 映射为 0(Mon)~6(Sun)
+        let todayIdx = jsDay === 0 ? 6 : jsDay - 1;
+
+        // 存储各天实际下班时间（key=天索引，value="HH:MM" 或 null）
+        const actualTimes = {};
+
+        function initTodayChips() {
+            const container = document.getElementById('todayChips');
+            container.innerHTML = '';
+            const wDays = Math.max(1, Math.min(7, parseInt(document.getElementById('workDays').value) || 5));
+            for (let i = 0; i < wDays; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'day-chip' + (i === todayIdx ? ' active' : '');
+                btn.dataset.d = i;
+                btn.textContent = DAY_NAMES[i];
+                btn.style.setProperty('--chip-active-bg', 'rgba(74,222,128,0.12)');
+                btn.style.setProperty('--chip-active-border', 'rgba(74,222,128,0.4)');
+                btn.style.setProperty('--chip-active-color', 'var(--green)');
+                if (i === todayIdx) {
+                    btn.style.background = 'rgba(74,222,128,0.12)';
+                    btn.style.borderColor = 'rgba(74,222,128,0.35)';
+                    btn.style.color = 'var(--green)';
+                }
+                btn.onclick = () => {
+                    todayIdx = i;
+                    document.querySelectorAll('#todayChips .day-chip').forEach(c => {
+                        const active = parseInt(c.dataset.d) === todayIdx;
+                        c.style.background = active ? 'rgba(74,222,128,0.12)' : '';
+                        c.style.borderColor = active ? 'rgba(74,222,128,0.35)' : '';
+                        c.style.color = active ? 'var(--green)' : '';
+                    });
+                    recalcTracker();
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        function recalcTracker() {
+            const { start, lunch, target, wDays, fixedEnd, minDaily } = getParams();
+            const fds = [...fixedDays].filter(d => d < wDays);
+            const fixedOnsitePerDay = fixedEnd - start - lunch;
+            const weekTarget = hToMin(target) * wDays;
+            const minOnsiteMin = hToMin(minDaily);
+
+            // 计算每天计划下班时间（含下限约束）
+            const freeDays = wDays - fds.length;
+            const fixedOnsiteTotal = fixedOnsitePerDay * fds.length;
+            const freeTotal = weekTarget - fixedOnsiteTotal;
+            const rawFreeAvgMin = freeDays > 0 ? Math.round(freeTotal / freeDays) : 0;
+            const { onsiteMin: freeAvgMin } = applyFloor(rawFreeAvgMin, minOnsiteMin);
+            const plannedFreeEnd = start + freeAvgMin + lunch;
+
+            const container = document.getElementById('trackerDays');
+            container.innerHTML = '';
+
+            let pastActualTotal = 0;   // 已过天实际在厂总分钟
+            let pastPlannedTotal = 0;  // 已过天计划在厂总分钟
+            let pastDaysCount = 0;
+            let pastDeficit = 0;       // 正=欠，负=多
+
+            // 先统计过去天的盈亏
+            for (let i = 0; i < wDays; i++) {
+                if (i >= todayIdx) continue; // 只算过去
+                const isFixed = fds.includes(i);
+                const plannedEnd = isFixed ? fixedEnd : plannedFreeEnd;
+                const plannedOnsite = plannedEnd - start - lunch;
+                const actualVal = actualTimes[i];
+                if (actualVal) {
+                    const actualEnd = timeToMin(actualVal);
+                    const actualOnsite = actualEnd - start - lunch;
+                    pastActualTotal += actualOnsite;
+                    pastPlannedTotal += plannedOnsite;
+                    pastDaysCount++;
+                    pastDeficit += (plannedOnsite - actualOnsite); // 正=少了，负=多了
+                } else {
+                    // 未填写，按计划计
+                    pastActualTotal += plannedOnsite;
+                    pastPlannedTotal += plannedOnsite;
+                    pastDaysCount++;
+                }
+            }
+
+            // 剩余天（今天起）的需求
+            // 固定天用固定时长，自由天需重新分配
+            let remainFixedTotal = 0;
+            let remainFreeDaysCount = 0;
+            for (let i = todayIdx; i < wDays; i++) {
+                if (fds.includes(i)) remainFixedTotal += fixedOnsitePerDay;
+                else remainFreeDaysCount++;
+            }
+            const remainNeed = weekTarget - pastActualTotal - remainFixedTotal;
+            const rawRemainEachMin = remainFreeDaysCount > 0 ? Math.round(remainNeed / remainFreeDaysCount) : 0;
+            const { clamped: trackerClamped, onsiteMin: remainEachMin } = applyFloor(rawRemainEachMin, minOnsiteMin);
+            const remainEnd = start + remainEachMin + lunch;
+
+            // 渲染每天行
+            for (let i = 0; i < wDays; i++) {
+                const isFixed = fds.includes(i);
+                const plannedEnd = isFixed ? fixedEnd : plannedFreeEnd;
+                const plannedOnsite = plannedEnd - start - lunch;
+
+                const isPast = i < todayIdx;
+                const isToday = i === todayIdx;
+                const isFuture = i > todayIdx;
+
+                // 确定本行实际/需要下班时间显示
+                let actualVal = actualTimes[i] || '';
+                let diffTag = '';
+                let diffSub = '';
+                let requiredEnd = null;
+
+                if (!isFixed && (isToday || isFuture)) {
+                    // 今天/未来自由天：显示推算需要时间
+                    requiredEnd = remainEnd;
+                }
+
+                if (isPast && actualVal) {
+                    const actualEnd = timeToMin(actualVal);
+                    const actualOnsite = actualEnd - start - lunch;
+                    const diff = actualOnsite - plannedOnsite;
+                    if (diff > 2) {
+                        diffTag = `<span class="diff-tag diff-late">多 +${minToHM(diff)}</span>`;
+                        diffSub = `<span class="diff-sub">实际 ${minToHM(actualOnsite)}</span>`;
+                    } else if (diff < -2) {
+                        diffTag = `<span class="diff-tag diff-early">早退 −${minToHM(Math.abs(diff))}</span>`;
+                        diffSub = `<span class="diff-sub">实际 ${minToHM(actualOnsite)}</span>`;
+                    } else {
+                        diffTag = `<span class="diff-tag diff-exact">准时</span>`;
+                        diffSub = `<span class="diff-sub">实际 ${minToHM(actualOnsite)}</span>`;
+                    }
+                }
+
+                const rowClass = isToday ? 'today' : isPast ? 'past' : 'future';
+                const badge = isFixed
+                    ? `<span class="tracker-day-badge badge-fixed">固定</span>`
+                    : isToday
+                        ? `<span class="tracker-day-badge badge-today">今天</span>`
+                        : isPast
+                            ? `<span class="tracker-day-badge badge-past">已过</span>`
+                            : '';
+
+                // 实际输入列
+                let actualCol = '';
+                if (isPast) {
+                    actualCol = `
+        <div class="tracker-actual">
+          <span class="tracker-actual-label">实际下班</span>
+          <input type="time" value="${actualVal}" step="300"
+            data-day="${i}"
+            oninput="actualTimes[${i}]=this.value; recalcTracker();"
+            placeholder="--:--">
+        </div>`;
+                } else if (isToday && !isFixed) {
+                    actualCol = `
+        <div class="tracker-actual">
+          <span class="tracker-actual-label" style="color:var(--green)">需要下班</span>
+          <div style="font-family:var(--mono);font-size:16px;font-weight:500;color:var(--green);padding:4px 0">${minToTime(remainEnd)}</div>
+        </div>`;
+                } else if (isToday && isFixed) {
+                    actualCol = `<div class="tracker-actual"><span class="tracker-actual-label">固定下班</span><div style="font-family:var(--mono);font-size:14px;color:var(--blue);padding:4px 0">${minToTime(fixedEnd)}</div></div>`;
+                } else if (isFuture && !isFixed) {
+                    actualCol = `<div class="tracker-actual"><span class="tracker-actual-label">预计需要</span><div style="font-family:var(--mono);font-size:14px;color:var(--muted);padding:4px 0">${minToTime(remainEnd)}</div></div>`;
+                } else {
+                    actualCol = `<div class="tracker-actual"><span class="tracker-actual-label">固定下班</span><div style="font-family:var(--mono);font-size:14px;color:var(--muted);padding:4px 0">${minToTime(fixedEnd)}</div></div>`;
+                }
+
+                const row = document.createElement('div');
+                row.className = `tracker-day-row ${rowClass}`;
+                row.innerHTML = `
+      <div class="tracker-day-name">
+        ${DAY_NAMES[i]}
+        ${badge}
+      </div>
+      <div class="tracker-plan">
+        <span class="tracker-plan-label">计划下班</span>
+        <span class="tracker-plan-time">${minToTime(plannedEnd)}</span>
+        <span style="font-size:10px;color:var(--muted)">${minToHM(plannedOnsite)}</span>
+      </div>
+      ${actualCol}
+      <div class="tracker-diff">${diffTag}${diffSub}</div>
+    `;
+                container.appendChild(row);
+            }
+
+            // 盈亏摘要
+            const deficitMin = pastDeficit;
+            const deficitSign = deficitMin > 0 ? '欠' : '多';
+            const deficitColor = deficitMin > 0 ? 'var(--red)' : 'var(--green)';
+            const filledPast = Object.keys(actualTimes).filter(k => parseInt(k) < todayIdx && actualTimes[k]).length;
+
+            document.getElementById('trackerDeficitBox').innerHTML = filledPast > 0
+                ? `已录入 <span style="color:var(--text)">${filledPast}</span> 天实际数据<br>
+       当前累计&nbsp;<span style="color:${deficitColor};font-weight:500">${deficitMin === 0 ? '准时' : deficitSign + ' ' + minToHM(Math.abs(deficitMin))}</span>`
+                : `填写过去各天的实际下班时间<br>即可看到剩余天需几点下班`;
+
+            // 底部结论
+            const concEl = document.getElementById('trackerConclusion');
+            if (remainFreeDaysCount === 0) {
+                concEl.innerHTML = `<div class="conclusion-card secondary" style="grid-column:1/-1"><div class="conclusion-label">剩余情况</div><div style="font-family:var(--mono);font-size:13px;color:var(--muted);">剩余天均为固定下班天，无需调整。</div></div>`;
+                return;
+            }
+
+            const overMin = remainEachMin - hToMin(target);
+            const timeClass = overMin > 120 ? 'bad' : overMin > 45 ? 'warn' : 'neutral';
+            const statusText = overMin > 5
+                ? `比均值多在厂 ${minToHM(overMin)}`
+                : overMin < -5
+                    ? `比均值少在厂 ${minToHM(Math.abs(overMin))}`
+                    : '恰好达到均值';
+
+            const floorNote = trackerClamped
+                ? `<br><span style="color:var(--red);font-size:10px;">⚠ 原始计算 ${minToHM(rawRemainEachMin)}，低于每日下限 ${minDaily}h，已取下限</span>`
+                : '';
+
+            // 计算过程文字
+            const calcLines = `全周目标 ${minToHM(weekTarget)}　已完成 ${minToHM(pastActualTotal)}　固定天余 ${minToHM(remainFixedTotal)}\n还需在厂 ${minToHM(Math.max(0, remainNeed))} ÷ ${remainFreeDaysCount}天 = 每天 ${minToHM(remainEachMin)}${trackerClamped ? `（下限 ${minDaily}h）` : ''}`;
+
+            concEl.innerHTML = `
+    <div class="conclusion-card primary" style="${trackerClamped ? 'background:rgba(248,113,113,0.06);border-color:rgba(248,113,113,0.2);' : ''}">
+      <div class="conclusion-label">剩余 ${remainFreeDaysCount} 天（今天起）每天需下班</div>
+      <div class="conclusion-time ${trackerClamped ? 'neutral' : timeClass}">${minToTime(remainEnd)}</div>
+      <div class="conclusion-sub">${statusText}${floorNote}<br>每天在厂 ${minToHM(remainEachMin)}</div>
+    </div>
+    <div class="conclusion-card secondary">
+      <div class="conclusion-label">推导过程</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:2;white-space:pre-wrap">${calcLines}</div>
+    </div>
+  `;
+        }
+
+        // ====== 初始化 ======
+        recalc();
+        initTodayChips();
+        recalcTracker();
+    </script>
+</body>
+
+</html>
