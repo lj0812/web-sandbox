@@ -1306,6 +1306,7 @@
                 initTodayChips();
                 recalcTracker();
             }
+            saveConfig();
         }
 
         // ====== 周视图渲染 ======
@@ -1452,6 +1453,7 @@
 <span class="em">弹性天下班</span> = ${minToTime(start)} 上班 + ${remainDays > 0 ? minToHM(remainEach) : '—'} + ${minToHM(lunch)} 午休 = <span style="color:var(--amber);font-weight:500">${remainDays > 0 ? minToTime(remainEnd) : '—'}</span>
   `.trim();
             document.getElementById('scenarioCalc').innerHTML = calcText;
+            saveConfig();
         }
 
         // ====== §6 实际追踪 ======
@@ -1688,7 +1690,52 @@
   `;
         }
 
+        // ====== localStorage 配置持久化 ======
+        const CONFIG_KEY = 'workScheduleConfig';
+
+        function saveConfig() {
+            const config = {
+                startTime: document.getElementById('startTime').value,
+                lunchMin: document.getElementById('lunchMin').value,
+                targetH: document.getElementById('targetH').value,
+                workDays: document.getElementById('workDays').value,
+                minDailyH: document.getElementById('minDailyH').value,
+                fixedDays: [...fixedDays],
+                fixedEnd: document.getElementById('fixedEnd').value,
+                scenarioFixedTime: document.getElementById('scenarioFixedTime').value,
+                fixedDaysCount: document.getElementById('fixedDaysCount').value,
+            };
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+        }
+
+        function loadConfig() {
+            try {
+                const raw = localStorage.getItem(CONFIG_KEY);
+                if (!raw) return false;
+                const c = JSON.parse(raw);
+                if (c.startTime) document.getElementById('startTime').value = c.startTime;
+                if (c.lunchMin != null) document.getElementById('lunchMin').value = c.lunchMin;
+                if (c.targetH != null) document.getElementById('targetH').value = c.targetH;
+                if (c.workDays != null) document.getElementById('workDays').value = c.workDays;
+                if (c.minDailyH != null) document.getElementById('minDailyH').value = c.minDailyH;
+                if (c.fixedEnd) document.getElementById('fixedEnd').value = c.fixedEnd;
+                if (c.scenarioFixedTime) document.getElementById('scenarioFixedTime').value = c.scenarioFixedTime;
+                if (c.fixedDaysCount != null) document.getElementById('fixedDaysCount').value = c.fixedDaysCount;
+                if (Array.isArray(c.fixedDays)) {
+                    fixedDays = new Set(c.fixedDays);
+                    document.querySelectorAll('#dayChips .day-chip').forEach(el => {
+                        const d = parseInt(el.dataset.d);
+                        el.classList.toggle('active', fixedDays.has(d));
+                    });
+                }
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
         // ====== 初始化 ======
+        loadConfig();
         recalc();
         initTodayChips();
         recalcTracker();
