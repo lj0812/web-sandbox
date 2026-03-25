@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>srcScript 堆栈演示</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      background: #09090b;
+      color: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 32px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #e4e4e7;
+      letter-spacing: -0.02em;
+    }
+
+    p.desc {
+      font-size: 0.85rem;
+      color: #71717a;
+      text-align: center;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid #27272a;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    button .badge {
+      margin-left: auto;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    /* 主按钮：触发 srcScript */
+    .btn-primary {
+      background: #3f3f46;
+      color: #fafafa;
+    }
+    .btn-primary:hover { background: #52525b; }
+    .btn-primary .badge { background: #22c55e22; color: #22c55e; }
+
+    /* 对比按钮 */
+    .btn-secondary {
+      background: #18181b;
+      color: #d4d4d8;
+    }
+    .btn-secondary:hover { background: #27272a; }
+    .btn-secondary .badge { background: #f59e0b22; color: #f59e0b; }
+
+    /* 输出区 */
+    #output {
+      background: #09090b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: ui-monospace, 'Cascadia Code', monospace;
+      font-size: 0.78rem;
+      color: #71717a;
+      min-height: 60px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.7;
+    }
+
+    #output.has-error { color: #f87171; }
+    #output.has-stack { color: #a78bfa; }
+
+    .highlight { color: #fbbf24; font-weight: 700; }
+
+    .tip {
+      font-size: 0.75rem;
+      color: #3f3f46;
+      text-align: center;
+    }
+    .tip span { color: #52525b; }
+  </style>
+</head>
+<body>
+
+  <h1>🦊 Firefox <code>srcScript</code> 堆栈演示</h1>
+  <p class="desc">
+    点击按钮后，打开 Firefox 控制台（F12）查看堆栈，
+    观察 <code>line N &gt; srcScript</code> 标记的出现。
+  </p>
+
+  <div class="card">
+    <span class="card-title">触发方式</span>
+    <div class="btn-group">
+
+      <!-- 核心演示 -->
+      <button class="btn-primary" onclick="triggerSrcScript()">
+        ① 动态注入 &lt;script&gt; 标签并报错
+        <span class="badge">srcScript ✓</span>
+      </button>
+
+      <!-- 对比组 -->
+      <button class="btn-secondary" onclick="triggerEval()">
+        ② eval() 执行并报错
+        <span class="badge">eval</span>
+      </button>
+
+      <button class="btn-secondary" onclick="triggerNewFunction()">
+        ③ new Function() 执行并报错
+        <span class="badge">Function</span>
+      </button>
+
+      <button class="btn-secondary" onclick="triggerDomTimer()">
+        ④ setTimeout(string) 执行并报错
+        <span class="badge">domTimer</span>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="card-title">捕获到的堆栈</span>
+    <div id="output">等待触发...</div>
+  </div>
+
+  <p class="tip">
+    ⚠️ 请在 <span>Firefox 36+</span> 中打开此页面以复现完整标记
+  </p>
+
+<script>
+  const output = document.getElementById('output')
+
+  function show(label, stack) {
+    const lines = (stack || '无堆栈').split('\n')
+    // 高亮关键词
+    const formatted = lines.map(line => {
+      return line
+        .replace(/(srcScript)/g, '【$1】')  // 用方括号标注
+        .replace(/(eval)/g, '【$1】')
+        .replace(/(domTimer)/g, '【$1】')
+    }).join('\n')
+
+    output.className = 'has-stack'
+    output.textContent = `[${label}]\n\n${formatted}`
+  }
+
+  // ① 核心：动态注入 <script> textContent → 产生 srcScript
+  // 关键点：
+  //   - 第1行是空行（故意留白，让错误落在第2行，便于观察）
+  //   - 第2行定义 handleCloseWisdomStone（模拟真实场景函数名）
+  //   - 第3行定义 onCancel，调用它
+  //   - 第4行立即执行，抛出错误
+  function triggerSrcScript() {
+    try {
+      const script = document.createElement('script')
+      // 注意：这里是从父文件（本 HTML）的某一行注入的
+      // Firefox 会记录是从哪一行调用 appendChild 的
+      script.textContent = `
+function handleCloseWisdomStone() {
+  // 模拟访问未定义属性，触发 TypeError
+  var stoneRef = null
+  stoneRef.destroy()   // TypeError: null is not an object
+}
+function onCancel() {
+  handleCloseWisdomStone()
+}
+onCancel()
+`
+      // 用 window.onerror 捕获动态脚本内的错误
+      const prev = window.onerror
+      window.onerror = function(msg, src, line, col, err) {
+        show('① srcScript（动态 script 标签）', err && err.stack)
+        window.onerror = prev
+        return true // 阻止默认输出（可选，去掉可在控制台同时看到原始报错）
+      }
+      document.head.appendChild(script)
+      // 注入后立即移除，保持页面干净
+      document.head.removeChild(script)
+    } catch(e) {
+      show('① srcScript（try-catch 捕获）', e.stack)
+    }
+  }
+
+  // ② eval：产生 line N > eval 标记
+  function triggerEval() {
+    try {
+      eval(`
+        function evalFunc() {
+          var x = undefined
+          x.toString()  // TypeError
+        }
+        evalFunc()
+      `)
+    } catch(e) {
+      show('② eval()', e.stack)
+    }
+  }
+
+  // ③ new Function：产生 line N > Function 标记
+  function triggerNewFunction() {
+    try {
+      const fn = new Function(`
+        var arr = null
+        arr.push(1)  // TypeError
+      `)
+      fn()
+    } catch(e) {
+      show('③ new Function()', e.stack)
+    }
+  }
+
+  // ④ setTimeout(string)：产生 domTimer 标记
+  // 注意：无法被 try-catch 捕获，只能通过 window.onerror 获取
+  function triggerDomTimer() {
+    output.className = ''
+    output.textContent = '等待 setTimeout 触发（约100ms）...'
+    const prev = window.onerror
+    window.onerror = function(msg, src, line, col, err) {
+      show('④ setTimeout(string) → domTimer', err && err.stack)
+      window.onerror = prev
+      return true
+    }
+    setTimeout(`
+      var x = null
+      x.toString()  // TypeError: domTimer 场景
+    `, 100)
+  }
+</script>
+</body>
+</html>
