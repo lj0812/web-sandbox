@@ -31,6 +31,25 @@
   --radius-sm: 6px;
 }
 
+[data-theme="light"] {
+  --bg: #f5f3ef;
+  --bg2: #ffffff;
+  --bg3: #ebe8e2;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --text: #1a1816;
+  --text2: #6b6660;
+  --text3: #9e9890;
+  --gold: #a8872a;
+  --gold2: #8a6f1e;
+  --gold-dim: rgba(168,135,42,0.12);
+  --ur: #7b6fd0;  --ur-bg: rgba(123,111,208,0.10);
+  --usr: #3aaa7e; --usr-bg: rgba(58,170,126,0.10);
+  --sp: #3a8ace;  --sp-bg: rgba(58,138,206,0.10);
+  --ssp: #c8942a; --ssp-bg: rgba(200,148,42,0.10);
+  --sl: #d04040;  --sl-bg: rgba(208,64,64,0.10);
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -251,8 +270,9 @@ tbody tr:hover td { background: var(--bg3); }
 
 .card-info {
   font-size: 11px;
-  color: var(--text3);
+  color: var(--text2);
   margin-top: 3px;
+  font-weight: 500;
 }
 
 /* 倍数 pill */
@@ -313,9 +333,35 @@ footer {
   font-family: var(--mono);
   letter-spacing: 0.05em;
 }
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 99;
+  width: 40px;
+  height: 40px;
+  border: 0.5px solid var(--border2);
+  border-radius: 50%;
+  background: var(--bg2);
+  color: var(--gold);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, border-color .2s, transform .2s;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  border-color: var(--gold);
+  transform: scale(1.1);
+}
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-toggle" title="切换浅色/深色模式">☀</button>
 <div class="container">
   <header>
     <div class="kicker">闪魂 · 迪士尼米奇和朋友们 · 波普艺术典藏卡</div>
@@ -351,12 +397,12 @@ footer {
     <div class="ctrl-title">· 参数调整</div>
     <div class="ctrl-row">
       <span class="ctrl-label">基础收购比例</span>
-      <input type="range" id="ratio" min="0" max="100" step="1" value="40">
+      <input type="range" id="ratio" min="0" max="100" step="1">
       <span class="ctrl-val" id="ratio-out">40%</span>
     </div>
     <div class="ctrl-row">
       <span class="ctrl-label">流通量溢价强度</span>
-      <input type="range" id="scarc" min="0" max="100" step="1" value="25">
+      <input type="range" id="scarc" min="0" max="100" step="1">
       <span class="ctrl-val" id="scarc-out">25%</span>
     </div>
   </div>
@@ -467,9 +513,43 @@ function render() {
     + '实际二级市场成交价通常更高，请以闲鱼 / 得物等平台实时挂价为最终参考。';
 }
 
-document.getElementById('ratio').addEventListener('input', render);
-document.getElementById('scarc').addEventListener('input', render);
+var ratioEl = document.getElementById('ratio');
+var scarcEl = document.getElementById('scarc');
+
+ratioEl.value = localStorage.getItem('ctrl_ratio') || '40';
+scarcEl.value = localStorage.getItem('ctrl_scarc') || '25';
+
+ratioEl.addEventListener('input', function() {
+  localStorage.setItem('ctrl_ratio', ratioEl.value);
+  render();
+});
+scarcEl.addEventListener('input', function() {
+  localStorage.setItem('ctrl_scarc', scarcEl.value);
+  render();
+});
 render();
+
+(function() {
+  var btn = document.getElementById('theme-toggle');
+  var html = document.documentElement;
+  var saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    html.setAttribute('data-theme', 'light');
+    btn.textContent = '☾';
+  }
+  btn.addEventListener('click', function() {
+    var isLight = html.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      html.removeAttribute('data-theme');
+      btn.textContent = '☀';
+      localStorage.setItem('theme', 'dark');
+    } else {
+      html.setAttribute('data-theme', 'light');
+      btn.textContent = '☾';
+      localStorage.setItem('theme', 'light');
+    }
+  });
+})();
 </script>
 </body>
 </html>
