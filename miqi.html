@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>限编卡收购价格参考 · 迪士尼波普典藏</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0f11;
+  --bg2: #16181c;
+  --bg3: #1e2026;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0ede8;
+  --text2: #8a8782;
+  --text3: #555350;
+  --gold: #c9a84c;
+  --gold2: #e8cc80;
+  --gold-dim: rgba(201,168,76,0.15);
+  --ur: #a89fe0;  --ur-bg: rgba(168,159,224,0.12);
+  --usr: #6bcfaa; --usr-bg: rgba(107,207,170,0.12);
+  --sp: #6aaee8;  --sp-bg: rgba(106,174,232,0.12);
+  --ssp: #e8b46a; --ssp-bg: rgba(232,180,106,0.12);
+  --sl: #e87070;  --sl-bg: rgba(232,112,112,0.12);
+  --serif: 'Noto Serif SC', serif;
+  --sans: 'Noto Sans SC', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 300;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* 背景装饰 */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* 头部 */
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  opacity: 0.85;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  letter-spacing: 0.02em;
+}
+
+/* 分隔线 */
+.divider {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 1.5rem auto;
+  opacity: 0.5;
+}
+
+/* 顶部指标 */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+@media(max-width:600px){ .metrics{ grid-template-columns: repeat(2,1fr); } }
+
+.mc {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  transition: border-color .2s;
+}
+.mc:hover { border-color: var(--border2); }
+.mc-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.03em; }
+.mc-val { font-family: var(--mono); font-size: 19px; font-weight: 500; color: var(--gold2); }
+.mc-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* 控制面板 */
+.ctrl-panel {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.ctrl-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text2);
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 1rem;
+}
+.ctrl-row:last-child { margin-bottom: 0; }
+
+.ctrl-label {
+  font-size: 13px;
+  color: var(--text2);
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+/* 自定义滑块 */
+input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+  transition: transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+}
+
+.ctrl-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gold2);
+  min-width: 48px;
+  text-align: right;
+}
+
+/* 表格区域 */
+.tbl-wrap {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 680px;
+}
+
+thead tr {
+  background: var(--bg3);
+  border-bottom: 0.5px solid var(--border2);
+}
+
+th {
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text2);
+  font-weight: 400;
+  white-space: nowrap;
+}
+th:not(:first-child) { text-align: right; }
+
+td {
+  padding: 13px 14px;
+  border-bottom: 0.5px solid var(--border);
+  vertical-align: middle;
+  transition: background .15s;
+}
+td:not(:first-child) { text-align: right; }
+tr:last-child td { border-bottom: none; }
+tbody tr { background: var(--bg2); }
+tbody tr:hover td { background: var(--bg3); }
+
+/* 卡牌 badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.card-info {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 3px;
+}
+
+/* 倍数 pill */
+.mult-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+  background: var(--bg3);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* 成本列 */
+.cost-main { font-family: var(--mono); font-weight: 500; color: var(--text); }
+.cost-sub { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+
+/* 流通量 */
+.tc-val { font-family: var(--mono); font-weight: 400; }
+.tc-bar-wrap { display: flex; align-items: center; gap: 7px; justify-content: flex-end; }
+.tc-bar-bg { width: 60px; height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.tc-bar-fg { height: 100%; border-radius: 2px; transition: width .4s ease; }
+
+/* 比例 badge */
+.ratio-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* 收购价 */
+.price-main { font-family: var(--mono); font-size: 16px; font-weight: 500; }
+.price-range { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* 说明 */
+.note {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+.note strong { color: var(--text); font-weight: 500; }
+.note .sep { border-top: 0.5px solid var(--border); margin: .6rem 0; }
+
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="kicker">闪魂 · 迪士尼米奇和朋友们 · 波普艺术典藏卡</div>
+    <h1>限编卡收购价格参考</h1>
+    <p class="subtitle">基于开箱成本模型，以 UR 为基准等比估算各稀有度合理收购价</p>
+    <div class="divider"></div>
+  </header>
+
+  <div class="metrics">
+    <div class="mc">
+      <div class="mc-label">每盒价格</div>
+      <div class="mc-val">¥300</div>
+      <div class="mc-sub">保底 1 张限编</div>
+    </div>
+    <div class="mc">
+      <div class="mc-label">UR 基准成本</div>
+      <div class="mc-val">¥300</div>
+      <div class="mc-sub">最常见，约 2.4 盒得一张</div>
+    </div>
+    <div class="mc">
+      <div class="mc-label">SL 相对倍数</div>
+      <div class="mc-val">40×</div>
+      <div class="mc-sub">4% ÷ 0.1%</div>
+    </div>
+    <div class="mc">
+      <div class="mc-label">SL 总流通量</div>
+      <div class="mc-val">924 张</div>
+      <div class="mc-sub">14 款 × 66 限编</div>
+    </div>
+  </div>
+
+  <div class="ctrl-panel">
+    <div class="ctrl-title">· 参数调整</div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">基础收购比例</span>
+      <input type="range" id="ratio" min="0" max="100" step="1" value="40">
+      <span class="ctrl-val" id="ratio-out">40%</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">流通量溢价强度</span>
+      <input type="range" id="scarc" min="0" max="100" step="1" value="25">
+      <span class="ctrl-val" id="scarc-out">25%</span>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>类型</th>
+          <th>相对 UR 倍数</th>
+          <th>期望成本</th>
+          <th>总流通量</th>
+          <th>收购比例</th>
+          <th>建议收购价</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="note" id="note-box"></div>
+
+  <footer>以上数据仅供参考 · 实际成交价请结合二级市场行情判断</footer>
+</div>
+
+<script>
+var CARDS = [
+  { name:'UR',  rate:0.04,  designs:100, limit:399, color:'var(--ur)',  bg:'var(--ur-bg)',  bar:'#a89fe0' },
+  { name:'USR', rate:0.03,  designs:100, limit:299, color:'var(--usr)', bg:'var(--usr-bg)', bar:'#6bcfaa' },
+  { name:'SP',  rate:0.02,  designs:100, limit:199, color:'var(--sp)',  bg:'var(--sp-bg)',  bar:'#6aaee8' },
+  { name:'SSP', rate:0.005, designs:49,  limit:99,  color:'var(--ssp)', bg:'var(--ssp-bg)', bar:'#e8b46a' },
+  { name:'SL',  rate:0.001, designs:14,  limit:66,  color:'var(--sl)',  bg:'var(--sl-bg)',  bar:'#e87070' }
+];
+
+var UR_RATE = 0.04, BOX = 300;
+var maxTC = CARDS[0].designs * CARDS[0].limit; // 39900
+var minTC = CARDS[4].designs * CARDS[4].limit; // 924
+
+function calcCost(c) { return BOX * (UR_RATE / c.rate); }
+function calcTC(c)   { return c.designs * c.limit; }
+function calcSF(c) {
+  var t = calcTC(c);
+  return (Math.log(maxTC) - Math.log(t)) / (Math.log(maxTC) - Math.log(minTC));
+}
+
+function fmt(n) { return '¥' + Math.round(n).toLocaleString('zh-CN'); }
+
+function render() {
+  var ratio = parseInt(document.getElementById('ratio').value) / 100;
+  var scarc  = parseInt(document.getElementById('scarc').value) / 100;
+  document.getElementById('ratio-out').textContent = Math.round(ratio * 100) + '%';
+  document.getElementById('scarc-out').textContent = Math.round(scarc * 100) + '%';
+
+  var tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  CARDS.forEach(function(c) {
+    var ec   = calcCost(c);
+    var mult = UR_RATE / c.rate;
+    var t    = calcTC(c);
+    var sf   = calcSF(c);
+    /* 收购比例 = 基础 + 溢价强度 × 稀缺因子 × 0.6（溢价上限 60%×强度） */
+    var adj  = Math.min(ratio + scarc * sf * 0.6, 1.0);
+    var buy  = Math.round(ec * adj / 10) * 10;
+    var low  = Math.max(0, Math.round(ec * Math.max(adj - 0.05, 0) / 10) * 10);
+    var high = Math.round(ec * (adj + 0.05) / 10) * 10;
+    var pct  = Math.round(adj * 100);
+
+    /* 流通量 bar 宽度（对数压缩） */
+    var barW = Math.round((1 - calcSF(c)) * 100);
+    var multStr = mult === 1 ? '× 1&nbsp;<span style="color:var(--text3);font-size:11px">基准</span>'
+                             : '× ' + (Number.isInteger(mult) ? mult : mult.toFixed(1));
+
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>'
+        + '<span class="badge" style="background:' + c.bg + ';color:' + c.color + '">' + c.name + '</span>'
+        + '<div class="card-info">' + c.designs + ' 款 · 限编 ' + c.limit + '</div>'
+      + '</td>'
+      + '<td><span class="mult-pill">' + multStr + '</span></td>'
+      + '<td>'
+        + '<div class="cost-main">' + fmt(ec) + '</div>'
+        + '<div class="cost-sub">≈ ' + mult.toFixed(1) + ' 盒</div>'
+      + '</td>'
+      + '<td>'
+        + '<div class="tc-bar-wrap">'
+          + '<div class="tc-bar-bg"><div class="tc-bar-fg" style="width:' + barW + '%;background:' + c.bar + '"></div></div>'
+          + '<span class="tc-val">' + t.toLocaleString('zh-CN') + '</span>'
+        + '</div>'
+      + '</td>'
+      + '<td><span class="ratio-badge" style="background:' + c.bg + ';color:' + c.color + '">' + pct + '%</span></td>'
+      + '<td>'
+        + '<div class="price-main" style="color:' + c.color + '">' + (buy === 0 ? '—' : fmt(buy)) + '</div>'
+        + '<div class="price-range">' + fmt(low) + ' – ' + fmt(high) + '</div>'
+      + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  var slAdj = Math.min(ratio + scarc * 1 * 0.6, 1.0);
+  var slBuy = Math.round(calcCost(CARDS[4]) * slAdj / 10) * 10;
+  document.getElementById('note-box').innerHTML =
+    '<strong>定价逻辑：</strong>UR 是最常见限编，每盒期望必得，基准成本 = ¥300。'
+    + '其他类型按 <em>UR出率 ÷ 该卡出率</em> 等比放大：USR 1.3×、SP 2×、SSP 8×、SL 40×。'
+    + '<div class="sep"></div>'
+    + '<strong>流通量溢价</strong>基于总印量（卡面 × 限编）取对数压缩，避免线性放大失控。'
+    + 'SL 全系列仅 <strong>924 张</strong>，是 UR（39,900 张）的 1/43，稀缺度极高。'
+    + '当前参数下 SL 建议收购价为 <strong>' + (slBuy === 0 ? '—' : fmt(slBuy)) + '</strong>，仅为成本下限，'
+    + '实际二级市场成交价通常更高，请以闲鱼 / 得物等平台实时挂价为最终参考。';
+}
+
+document.getElementById('ratio').addEventListener('input', render);
+document.getElementById('scarc').addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
