@@ -378,7 +378,7 @@ footer {
     </div>
     <div class="mc">
       <div class="mc-label">UR 基准成本</div>
-      <div class="mc-val">¥300</div>
+      <div class="mc-val" id="ur-cost-val">¥300</div>
       <div class="mc-sub">最常见，约 2.4 盒得一张</div>
     </div>
     <div class="mc">
@@ -395,6 +395,11 @@ footer {
 
   <div class="ctrl-panel">
     <div class="ctrl-title">· 参数调整</div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">UR 基准成本</span>
+      <input type="range" id="ur-cost" min="100" max="800" step="10">
+      <span class="ctrl-val" id="ur-cost-out">¥300</span>
+    </div>
     <div class="ctrl-row">
       <span class="ctrl-label">基础收购比例</span>
       <input type="range" id="ratio" min="0" max="100" step="1">
@@ -437,11 +442,11 @@ var CARDS = [
   { name:'SL',  rate:0.001, designs:14,  limit:66,  color:'var(--sl)',  bg:'var(--sl-bg)',  bar:'#e87070' }
 ];
 
-var UR_RATE = 0.04, BOX = 300;
+var UR_RATE = 0.04;
 var maxTC = CARDS[0].designs * CARDS[0].limit; // 39900
 var minTC = CARDS[4].designs * CARDS[4].limit; // 924
 
-function calcCost(c) { return BOX * (UR_RATE / c.rate); }
+function calcCost(c) { return parseInt(document.getElementById('ur-cost').value) * (UR_RATE / c.rate); }
 function calcTC(c)   { return c.designs * c.limit; }
 function calcSF(c) {
   var t = calcTC(c);
@@ -451,6 +456,10 @@ function calcSF(c) {
 function fmt(n) { return '¥' + Math.round(n).toLocaleString('zh-CN'); }
 
 function render() {
+  var box = parseInt(document.getElementById('ur-cost').value);
+  document.getElementById('ur-cost-out').textContent = '¥' + box;
+  document.getElementById('ur-cost-val').textContent = '¥' + box;
+
   var ratio = parseInt(document.getElementById('ratio').value) / 100;
   var scarc  = parseInt(document.getElementById('scarc').value) / 100;
   document.getElementById('ratio-out').textContent = Math.round(ratio * 100) + '%';
@@ -504,7 +513,7 @@ function render() {
   var slAdj = Math.min(ratio + scarc * 1 * 0.6, 1.0);
   var slBuy = Math.round(calcCost(CARDS[4]) * slAdj / 10) * 10;
   document.getElementById('note-box').innerHTML =
-    '<strong>定价逻辑：</strong>UR 是最常见限编，每盒期望必得，基准成本 = ¥300。'
+    '<strong>定价逻辑：</strong>UR 是最常见限编，每盒期望必得，基准成本 = ¥' + box + '。'
     + '其他类型按 <em>UR出率 ÷ 该卡出率</em> 等比放大：USR 1.3×、SP 2×、SSP 8×、SL 40×。'
     + '<div class="sep"></div>'
     + '<strong>流通量溢价</strong>基于总印量（卡面 × 限编）取对数压缩，避免线性放大失控。'
@@ -513,12 +522,18 @@ function render() {
     + '实际二级市场成交价通常更高，请以闲鱼 / 得物等平台实时挂价为最终参考。';
 }
 
+var urCostEl = document.getElementById('ur-cost');
 var ratioEl = document.getElementById('ratio');
 var scarcEl = document.getElementById('scarc');
 
+urCostEl.value = localStorage.getItem('ctrl_ur_cost') || '300';
 ratioEl.value = localStorage.getItem('ctrl_ratio') || '40';
 scarcEl.value = localStorage.getItem('ctrl_scarc') || '25';
 
+urCostEl.addEventListener('input', function() {
+  localStorage.setItem('ctrl_ur_cost', urCostEl.value);
+  render();
+});
 ratioEl.addEventListener('input', function() {
   localStorage.setItem('ctrl_ratio', ratioEl.value);
   render();
