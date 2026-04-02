@@ -61,7 +61,6 @@ body {
   line-height: 1.6;
 }
 
-/* 背景装饰 */
 body::before {
   content: '';
   position: fixed;
@@ -74,18 +73,14 @@ body::before {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
+  padding: 2.5rem 1.5rem 3rem;
   position: relative;
   z-index: 1;
 }
 
-/* 头部 */
-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
+header { text-align: center; margin-bottom: 2rem; }
 
 .kicker {
   font-family: var(--mono);
@@ -106,135 +101,37 @@ h1 {
   margin-bottom: 0.5rem;
 }
 
-.subtitle {
-  font-size: 13px;
-  color: var(--text2);
-  letter-spacing: 0.02em;
-}
+.subtitle { font-size: 13px; color: var(--text2); letter-spacing: 0.02em; }
 
-/* 分隔线 */
 .divider {
   width: 40px; height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  margin: 1.5rem auto;
+  margin: 1.25rem auto;
   opacity: 0.5;
 }
 
-/* 顶部指标 */
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 2rem;
-}
-
-@media(max-width:600px){ .metrics{ grid-template-columns: repeat(2,1fr); } }
-
-.mc {
-  background: var(--bg2);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem;
-  transition: border-color .2s;
-}
-.mc:hover { border-color: var(--border2); }
-.mc-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.03em; }
-.mc-val { font-family: var(--mono); font-size: 19px; font-weight: 500; color: var(--gold2); }
-.mc-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
-
-/* 控制面板 */
-.ctrl-panel {
-  background: var(--bg2);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.ctrl-title {
+.section-label {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.15em;
   color: var(--text2);
   text-transform: uppercase;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
-.ctrl-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 1rem;
-}
-.ctrl-row:last-child { margin-bottom: 0; }
-
-.ctrl-label {
-  font-size: 13px;
-  color: var(--text2);
-  min-width: 110px;
-  flex-shrink: 0;
-}
-
-/* 自定义滑块 */
-input[type=range] {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 3px;
-  background: var(--bg3);
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: 2px solid var(--bg);
-  cursor: pointer;
-  transition: transform .15s;
-}
-input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-input[type=range]::-moz-range-thumb {
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: 2px solid var(--bg);
-  cursor: pointer;
-}
-
-.ctrl-val {
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--gold2);
-  min-width: 48px;
-  text-align: right;
-}
-
-/* 表格区域 */
-.tbl-wrap {
+/* Reference table */
+.ref-wrap {
   border: 0.5px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
   overflow-x: auto;
+  margin-bottom: 2rem;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  min-width: 680px;
-}
-
-thead tr {
-  background: var(--bg3);
-  border-bottom: 0.5px solid var(--border2);
-}
-
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { background: var(--bg3); border-bottom: 0.5px solid var(--border2); }
 th {
-  padding: 10px 14px;
+  padding: 9px 14px;
   text-align: left;
   font-family: var(--mono);
   font-size: 11px;
@@ -244,19 +141,16 @@ th {
   white-space: nowrap;
 }
 th:not(:first-child) { text-align: right; }
-
 td {
-  padding: 13px 14px;
+  padding: 10px 14px;
   border-bottom: 0.5px solid var(--border);
   vertical-align: middle;
-  transition: background .15s;
 }
 td:not(:first-child) { text-align: right; }
 tr:last-child td { border-bottom: none; }
 tbody tr { background: var(--bg2); }
-tbody tr:hover td { background: var(--bg3); }
+tbody tr:hover td { background: var(--bg3); transition: background .15s; }
 
-/* 卡牌 badge */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -268,14 +162,8 @@ tbody tr:hover td { background: var(--bg3); }
   letter-spacing: 0.05em;
 }
 
-.card-info {
-  font-size: 11px;
-  color: var(--text2);
-  margin-top: 3px;
-  font-weight: 500;
-}
+.card-info { font-size: 11px; color: var(--text2); margin-top: 3px; font-weight: 500; }
 
-/* 倍数 pill */
 .mult-pill {
   display: inline-block;
   font-family: var(--mono);
@@ -286,33 +174,112 @@ tbody tr:hover td { background: var(--bg3); }
   border-radius: 4px;
 }
 
-/* 成本列 */
-.cost-main { font-family: var(--mono); font-weight: 500; color: var(--text); }
-.cost-sub { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
-
-/* 流通量 */
 .tc-val { font-family: var(--mono); font-weight: 400; }
 .tc-bar-wrap { display: flex; align-items: center; gap: 7px; justify-content: flex-end; }
 .tc-bar-bg { width: 60px; height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
-.tc-bar-fg { height: 100%; border-radius: 2px; transition: width .4s ease; }
+.tc-bar-fg { height: 100%; border-radius: 2px; }
 
-/* 比例 badge */
-.ratio-badge {
-  display: inline-block;
+/* Strategy panels */
+.strategies {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 2rem;
+}
+@media(max-width: 960px) { .strategies { grid-template-columns: 1fr; } }
+
+.strategy {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: border-color .2s;
+}
+.strategy:hover { border-color: var(--border2); }
+
+.s-title {
   font-family: var(--mono);
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
 }
 
-/* 收购价 */
-.price-main { font-family: var(--mono); font-size: 16px; font-weight: 500; }
-.price-range { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 3px; }
+.s-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.6rem;
+}
 
-/* 说明 */
+.s-ctrl-label {
+  font-size: 12px;
+  color: var(--text2);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  min-width: 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+  transition: transform .15s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+input[type=range]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+}
+
+.s-ctrl-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gold2);
+  min-width: 40px;
+  text-align: right;
+}
+
+.s-results {
+  margin-top: 1rem;
+  border-top: 0.5px solid var(--border);
+  padding-top: 0.6rem;
+}
+
+.s-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+.s-row:last-child { border-bottom: none; }
+
+.s-row-left { display: flex; align-items: center; gap: 8px; }
+.s-row-cost { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+.s-row-right { text-align: right; }
+.s-price { font-family: var(--mono); font-size: 15px; font-weight: 500; }
+.s-range { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 1px; }
+
 .note {
-  margin-top: 1.5rem;
   padding: 1rem 1.25rem;
   background: var(--bg2);
   border: 0.5px solid var(--border);
@@ -321,27 +288,24 @@ tbody tr:hover td { background: var(--bg3); }
   font-size: 12px;
   color: var(--text2);
   line-height: 1.8;
+  margin-bottom: 2rem;
 }
 .note strong { color: var(--text); font-weight: 500; }
-.note .sep { border-top: 0.5px solid var(--border); margin: .6rem 0; }
 
 footer {
   text-align: center;
-  margin-top: 3rem;
   font-size: 11px;
   color: var(--text3);
   font-family: var(--mono);
   letter-spacing: 0.05em;
 }
 
-/* 主题切换按钮 */
 .theme-toggle {
   position: fixed;
   top: 1.25rem;
   right: 1.25rem;
   z-index: 99;
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border: 0.5px solid var(--border2);
   border-radius: 50%;
   background: var(--bg2);
@@ -354,10 +318,7 @@ footer {
   transition: background .2s, border-color .2s, transform .2s;
   line-height: 1;
 }
-.theme-toggle:hover {
-  border-color: var(--gold);
-  transform: scale(1.1);
-}
+.theme-toggle:hover { border-color: var(--gold); transform: scale(1.1); }
 </style>
 </head>
 <body>
@@ -370,65 +331,20 @@ footer {
     <div class="divider"></div>
   </header>
 
-  <div class="metrics">
-    <div class="mc">
-      <div class="mc-label">每盒价格</div>
-      <div class="mc-val">¥300</div>
-      <div class="mc-sub">保底 1 张限编</div>
-    </div>
-    <div class="mc">
-      <div class="mc-label">UR 基准成本</div>
-      <div class="mc-val" id="ur-cost-val">¥300</div>
-      <div class="mc-sub">最常见，约 2.4 盒得一张</div>
-    </div>
-    <div class="mc">
-      <div class="mc-label">SL 相对倍数</div>
-      <div class="mc-val">40×</div>
-      <div class="mc-sub">4% ÷ 0.1%</div>
-    </div>
-    <div class="mc">
-      <div class="mc-label">SL 总流通量</div>
-      <div class="mc-val">924 张</div>
-      <div class="mc-sub">14 款 × 66 限编</div>
-    </div>
-  </div>
-
-  <div class="ctrl-panel">
-    <div class="ctrl-title">· 参数调整</div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">UR 基准成本</span>
-      <input type="range" id="ur-cost" min="100" max="800" step="10">
-      <span class="ctrl-val" id="ur-cost-out">¥300</span>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">基础收购比例</span>
-      <input type="range" id="ratio" min="0" max="100" step="1">
-      <span class="ctrl-val" id="ratio-out">40%</span>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">流通量溢价强度</span>
-      <input type="range" id="scarc" min="0" max="100" step="1">
-      <span class="ctrl-val" id="scarc-out">25%</span>
-    </div>
-  </div>
-
-  <div class="tbl-wrap">
+  <div class="section-label">· 卡牌基础数据</div>
+  <div class="ref-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>类型</th>
-          <th>相对 UR 倍数</th>
-          <th>期望成本</th>
-          <th>总流通量</th>
-          <th>收购比例</th>
-          <th>建议收购价</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
+      <thead><tr><th>类型</th><th>相对 UR 倍数</th><th>总流通量</th></tr></thead>
+      <tbody id="ref-tbody"></tbody>
     </table>
   </div>
 
-  <div class="note" id="note-box"></div>
+  <div class="section-label">· 收购策略对比</div>
+  <div class="strategies" id="strategies"></div>
+
+  <div class="note">
+    <strong>定价逻辑：</strong>UR 是最常见限编，基准成本可自行设定。其他类型按 <em>UR 出率 ÷ 该卡出率</em> 等比放大：USR 1.3×、SP 2×、SSP 8×、SL 40×。流通量溢价基于总印量取对数压缩；SL 全系列仅 <strong>924 张</strong>，是 UR（39,900 张）的 1/43。
+  </div>
 
   <footer>以上数据仅供参考 · 实际成交价请结合二级市场行情判断</footer>
 </div>
@@ -443,48 +359,24 @@ var CARDS = [
 ];
 
 var UR_RATE = 0.04;
-var maxTC = CARDS[0].designs * CARDS[0].limit; // 39900
-var minTC = CARDS[4].designs * CARDS[4].limit; // 924
+var maxTC = CARDS[0].designs * CARDS[0].limit;
+var minTC = CARDS[4].designs * CARDS[4].limit;
 
-function calcCost(c) { return parseInt(document.getElementById('ur-cost').value) * (UR_RATE / c.rate); }
-function calcTC(c)   { return c.designs * c.limit; }
+function calcTC(c)  { return c.designs * c.limit; }
 function calcSF(c) {
   var t = calcTC(c);
   return (Math.log(maxTC) - Math.log(t)) / (Math.log(maxTC) - Math.log(minTC));
 }
-
 function fmt(n) { return '¥' + Math.round(n).toLocaleString('zh-CN'); }
 
-function render() {
-  var box = parseInt(document.getElementById('ur-cost').value);
-  document.getElementById('ur-cost-out').textContent = '¥' + box;
-  document.getElementById('ur-cost-val').textContent = '¥' + box;
-
-  var ratio = parseInt(document.getElementById('ratio').value) / 100;
-  var scarc  = parseInt(document.getElementById('scarc').value) / 100;
-  document.getElementById('ratio-out').textContent = Math.round(ratio * 100) + '%';
-  document.getElementById('scarc-out').textContent = Math.round(scarc * 100) + '%';
-
-  var tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
-
+(function() {
+  var tbody = document.getElementById('ref-tbody');
   CARDS.forEach(function(c) {
-    var ec   = calcCost(c);
     var mult = UR_RATE / c.rate;
-    var t    = calcTC(c);
-    var sf   = calcSF(c);
-    /* 收购比例 = 基础 + 溢价强度 × 稀缺因子 × 0.6（溢价上限 60%×强度） */
-    var adj  = Math.min(ratio + scarc * sf * 0.6, 1.0);
-    var buy  = Math.round(ec * adj / 10) * 10;
-    var low  = Math.max(0, Math.round(ec * Math.max(adj - 0.05, 0) / 10) * 10);
-    var high = Math.round(ec * (adj + 0.05) / 10) * 10;
-    var pct  = Math.round(adj * 100);
-
-    /* 流通量 bar 宽度（对数压缩） */
+    var t = calcTC(c);
     var barW = Math.round((1 - calcSF(c)) * 100);
-    var multStr = mult === 1 ? '× 1&nbsp;<span style="color:var(--text3);font-size:11px">基准</span>'
+    var multStr = mult === 1 ? '× 1 <span style="color:var(--text3);font-size:11px">基准</span>'
                              : '× ' + (Number.isInteger(mult) ? mult : mult.toFixed(1));
-
     var tr = document.createElement('tr');
     tr.innerHTML =
       '<td>'
@@ -493,56 +385,102 @@ function render() {
       + '</td>'
       + '<td><span class="mult-pill">' + multStr + '</span></td>'
       + '<td>'
-        + '<div class="cost-main">' + fmt(ec) + '</div>'
-        + '<div class="cost-sub">≈ ' + mult.toFixed(1) + ' 盒</div>'
-      + '</td>'
-      + '<td>'
         + '<div class="tc-bar-wrap">'
           + '<div class="tc-bar-bg"><div class="tc-bar-fg" style="width:' + barW + '%;background:' + c.bar + '"></div></div>'
           + '<span class="tc-val">' + t.toLocaleString('zh-CN') + '</span>'
         + '</div>'
-      + '</td>'
-      + '<td><span class="ratio-badge" style="background:' + c.bg + ';color:' + c.color + '">' + pct + '%</span></td>'
-      + '<td>'
-        + '<div class="price-main" style="color:' + c.color + '">' + (buy === 0 ? '—' : fmt(buy)) + '</div>'
-        + '<div class="price-range">' + fmt(low) + ' – ' + fmt(high) + '</div>'
       + '</td>';
     tbody.appendChild(tr);
   });
+})();
 
-  var slAdj = Math.min(ratio + scarc * 1 * 0.6, 1.0);
-  var slBuy = Math.round(calcCost(CARDS[4]) * slAdj / 10) * 10;
-  document.getElementById('note-box').innerHTML =
-    '<strong>定价逻辑：</strong>UR 是最常见限编，每盒期望必得，基准成本 = ¥' + box + '。'
-    + '其他类型按 <em>UR出率 ÷ 该卡出率</em> 等比放大：USR 1.3×、SP 2×、SSP 8×、SL 40×。'
-    + '<div class="sep"></div>'
-    + '<strong>流通量溢价</strong>基于总印量（卡面 × 限编）取对数压缩，避免线性放大失控。'
-    + 'SL 全系列仅 <strong>924 张</strong>，是 UR（39,900 张）的 1/43，稀缺度极高。'
-    + '当前参数下 SL 建议收购价为 <strong>' + (slBuy === 0 ? '—' : fmt(slBuy)) + '</strong>，仅为成本下限，'
-    + '实际二级市场成交价通常更高，请以闲鱼 / 得物等平台实时挂价为最终参考。';
+(function() {
+  var wrap = document.getElementById('strategies');
+  for (var i = 1; i <= 3; i++) {
+    var id = 's' + i;
+    var panel = document.createElement('div');
+    panel.className = 'strategy';
+    panel.innerHTML =
+      '<div class="s-title">策略 ' + i + '</div>'
+      + '<div class="s-ctrl">'
+        + '<span class="s-ctrl-label">UR 基准成本</span>'
+        + '<input type="range" id="' + id + '-cost" min="100" max="800" step="10">'
+        + '<span class="s-ctrl-val" id="' + id + '-cost-out"></span>'
+      + '</div>'
+      + '<div class="s-ctrl">'
+        + '<span class="s-ctrl-label">基础收购比例</span>'
+        + '<input type="range" id="' + id + '-ratio" min="0" max="100" step="1">'
+        + '<span class="s-ctrl-val" id="' + id + '-ratio-out"></span>'
+      + '</div>'
+      + '<div class="s-ctrl">'
+        + '<span class="s-ctrl-label">流通量溢价</span>'
+        + '<input type="range" id="' + id + '-scarc" min="0" max="100" step="1">'
+        + '<span class="s-ctrl-val" id="' + id + '-scarc-out"></span>'
+      + '</div>'
+      + '<div class="s-results" id="' + id + '-results"></div>';
+    wrap.appendChild(panel);
+  }
+})();
+
+function renderStrategy(idx) {
+  var id = 's' + idx;
+  var box   = parseInt(document.getElementById(id + '-cost').value);
+  var ratio = parseInt(document.getElementById(id + '-ratio').value) / 100;
+  var scarc = parseInt(document.getElementById(id + '-scarc').value) / 100;
+
+  document.getElementById(id + '-cost-out').textContent  = '¥' + box;
+  document.getElementById(id + '-ratio-out').textContent = Math.round(ratio * 100) + '%';
+  document.getElementById(id + '-scarc-out').textContent = Math.round(scarc * 100) + '%';
+
+  var el = document.getElementById(id + '-results');
+  el.innerHTML = '';
+
+  CARDS.forEach(function(c) {
+    var ec   = box * (UR_RATE / c.rate);
+    var sf   = calcSF(c);
+    var adj  = Math.min(ratio + scarc * sf * 0.6, 1.0);
+    var buy  = Math.round(ec * adj / 10) * 10;
+    var low  = Math.max(0, Math.round(ec * Math.max(adj - 0.05, 0) / 10) * 10);
+    var high = Math.round(ec * (adj + 0.05) / 10) * 10;
+
+    var row = document.createElement('div');
+    row.className = 's-row';
+    row.innerHTML =
+      '<div class="s-row-left">'
+        + '<span class="badge" style="background:' + c.bg + ';color:' + c.color + '">' + c.name + '</span>'
+        + '<span class="s-row-cost">成本 ' + fmt(ec) + '</span>'
+      + '</div>'
+      + '<div class="s-row-right">'
+        + '<div class="s-price" style="color:' + c.color + '">' + (buy === 0 ? '—' : fmt(buy)) + '</div>'
+        + '<div class="s-range">' + fmt(low) + ' – ' + fmt(high) + '</div>'
+      + '</div>';
+    el.appendChild(row);
+  });
 }
 
-var urCostEl = document.getElementById('ur-cost');
-var ratioEl = document.getElementById('ratio');
-var scarcEl = document.getElementById('scarc');
+for (var i = 1; i <= 3; i++) {
+  (function(idx) {
+    var id = 's' + idx;
+    var costEl  = document.getElementById(id + '-cost');
+    var ratioEl = document.getElementById(id + '-ratio');
+    var scarcEl = document.getElementById(id + '-scarc');
 
-urCostEl.value = localStorage.getItem('ctrl_ur_cost') || '300';
-ratioEl.value = localStorage.getItem('ctrl_ratio') || '40';
-scarcEl.value = localStorage.getItem('ctrl_scarc') || '25';
+    costEl.value  = localStorage.getItem(id + '_cost')  || '300';
+    ratioEl.value = localStorage.getItem(id + '_ratio') || '40';
+    scarcEl.value = localStorage.getItem(id + '_scarc') || '25';
 
-urCostEl.addEventListener('input', function() {
-  localStorage.setItem('ctrl_ur_cost', urCostEl.value);
-  render();
-});
-ratioEl.addEventListener('input', function() {
-  localStorage.setItem('ctrl_ratio', ratioEl.value);
-  render();
-});
-scarcEl.addEventListener('input', function() {
-  localStorage.setItem('ctrl_scarc', scarcEl.value);
-  render();
-});
-render();
+    function save() {
+      localStorage.setItem(id + '_cost',  costEl.value);
+      localStorage.setItem(id + '_ratio', ratioEl.value);
+      localStorage.setItem(id + '_scarc', scarcEl.value);
+      renderStrategy(idx);
+    }
+    costEl.addEventListener('input', save);
+    ratioEl.addEventListener('input', save);
+    scarcEl.addEventListener('input', save);
+    renderStrategy(idx);
+  })(i);
+}
 
 (function() {
   var btn = document.getElementById('theme-toggle');
