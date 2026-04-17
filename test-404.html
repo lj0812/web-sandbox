@@ -6,32 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        window.onerror = (message, source, line, column, error) => {
-            console.log('window onerror', message, source, line, column, error)
+        function getResourceSrc(element) {
+            const getSrc = (el) => el.src || el.href || el.currentSrc || ''
+            return getSrc(element)
         }
         window.addEventListener('error', (event) => {
-            console.log('window error', event)
+            console.log('window error', event, event.target)
+            console.log('resource src', getResourceSrc(event.target))
         }, true)
     </script>
 
-    <script src="xxx"></script>
-
     <script src="https://pre-www.zhipin.com/web/common/tools/browser-check.js" crossorigin="anonymous"></script>
-
-    <script src="https://pre-www.zhipin.com/web/common/tools/browser-check.js" crossorigin="anonymous"
-        onerror="console.log('script error')"></script>
 </head>
 
 <body>
-    <script>
-        window.addEventListener('error', (event) => {
-            console.log('window error', event)
-        })
-    </script>
-
-<script src="yyy.js"></script>
-
-
     <script>
         const url = 'https://pre-www.zhipin.com/web/common/tools/browser-check.js'
         setTimeout(() => {
