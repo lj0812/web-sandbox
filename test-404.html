@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+
+    <script src="https://pre-www.zhipin.com/web/common/tools/browser-check.js" crossorigin="anonymous"></script>
+
     <script>
         function getResourceSrc(element) {
             const getSrc = (el) => el.src || el.href || el.currentSrc || ''
@@ -15,8 +19,6 @@
             console.log('resource src', getResourceSrc(event.target))
         }, true)
     </script>
-
-    <script src="https://pre-www.zhipin.com/web/common/tools/browser-check.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
