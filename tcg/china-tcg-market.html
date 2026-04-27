@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国 TCG 市场研究报告 | 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:       #09090b;
+  --bg-card:  #18181b;
+  --bg-muted: #27272a;
+  --border:   #3f3f46;
+  --text:     #fafafa;
+  --muted:    #a1a1aa;
+  --dim:      #71717a;
+  --amber:    #f59e0b;
+  --green:    #10b981;
+  --indigo:   #6366f1;
+  --red:      #ef4444;
+  --cyan:     #06b6d4;
+  --r:        12px;
+  --nav-h:    60px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", sans-serif;
+  line-height: 1.75; font-size: 16px;
+}
+
+/* ── 导航 ──────────────────────────────────────────────── */
+nav {
+  position: fixed; inset: 0 0 auto; z-index: 100; height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+  background: rgba(9,9,11,.9); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-back {
+  display: flex; align-items: center; gap: .5rem;
+  color: var(--muted); text-decoration: none; font-size: .85rem; transition: color .2s;
+}
+.nav-back:hover { color: var(--text); }
+.nav-links { display: flex; gap: 1.25rem; }
+.nav-links a {
+  color: var(--muted); text-decoration: none; font-size: .82rem; transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-tag {
+  background: rgba(16,185,129,.15); color: var(--green);
+  font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+  padding: 2px 10px; border-radius: 999px; border: 1px solid rgba(16,185,129,.3);
+}
+@media(max-width:640px){ .nav-links { display: none; } }
+
+/* ── 布局 ──────────────────────────────────────────────── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+section { padding: 80px 0; border-bottom: 1px solid var(--border); }
+
+/* ── Hero ──────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding-top: var(--nav-h);
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 50%, rgba(16,185,129,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 30%, rgba(99,102,241,.07) 0%, transparent 60%);
+  border-bottom: 1px solid var(--border);
+}
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-size: .72rem; color: var(--green); font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; margin-bottom: 1rem;
+}
+.hero-kicker::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+.hero-h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; line-height: 1.15;
+  margin-bottom: 1rem;
+}
+.hero-h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-desc { font-size: 1rem; color: var(--muted); max-width: 520px; margin-bottom: 2rem; }
+.hero-kpis {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem; max-width: 620px;
+}
+.kpi {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1rem 1.1rem; position: relative; overflow: hidden;
+}
+.kpi::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--green);
+}
+.kpi.i::before { background: var(--indigo); }
+.kpi.a::before { background: var(--amber); }
+.kpi.c::before { background: var(--cyan); }
+.kpi .n {
+  font-size: 1.6rem; font-weight: 900; line-height: 1;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: .2rem;
+}
+.kpi.i .n { background: linear-gradient(135deg, var(--indigo), #8b5cf6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi.a .n { background: linear-gradient(135deg, var(--amber), #f97316);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi.c .n { background: linear-gradient(135deg, var(--cyan), #6366f1);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.kpi .l { font-size: .75rem; color: var(--dim); }
+
+/* ── 文字 ──────────────────────────────────────────────── */
+.section-label {
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .12em; color: var(--green); margin-bottom: .6rem;
+}
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; line-height: 1.2; margin-bottom: .75rem; }
+h3 { font-size: 1.05rem; font-weight: 700; margin: 2rem 0 .6rem; color: var(--text); }
+p { color: var(--muted); font-size: .93rem; margin-bottom: .85rem; }
+p strong { color: var(--text); }
+
+/* ── 图表盒 ─────────────────────────────────────────────── */
+.chart-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1.5rem; margin: 1.5rem 0;
+}
+.chart-label {
+  font-size: .75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted); margin-bottom: 1rem;
+}
+.chart-note {
+  font-size: .72rem; color: var(--dim); margin-top: .75rem;
+  padding-top: .75rem; border-top: 1px solid var(--border);
+}
+
+/* ── 两列图表 ────────────────────────────────────────────── */
+.charts-2col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;
+}
+@media(max-width:640px){ .charts-2col { grid-template-columns: 1fr; } }
+
+/* ── 数据表 ─────────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: .87rem; margin: 1.25rem 0; }
+.data-table th {
+  background: var(--bg-muted); color: var(--dim);
+  font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  padding: .6rem 1rem; text-align: left;
+}
+.data-table td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.data-table td:first-child { color: var(--muted); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg-muted); }
+.data-table td strong { color: var(--text); }
+
+/* ── 指标行 ─────────────────────────────────────────────── */
+.stat-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem; margin: 1.25rem 0;
+}
+.stat-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1.1rem 1.2rem; position: relative; overflow: hidden;
+}
+.stat-box::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--green);
+}
+.stat-box.i::before { background: var(--indigo); }
+.stat-box.a::before { background: var(--amber); }
+.stat-box.r::before { background: var(--red); }
+.stat-box .n {
+  font-size: 1.5rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: .2rem; line-height: 1.1;
+}
+.stat-box.i .n { background: linear-gradient(135deg, var(--indigo), #8b5cf6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-box.a .n { background: linear-gradient(135deg, var(--amber), #f97316);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-box .l { font-size: .76rem; color: var(--dim); }
+
+/* ── 驱动因素卡 ─────────────────────────────────────────── */
+.driver-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem; margin: 1.25rem 0;
+}
+.driver-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1.1rem;
+}
+.driver-card .icon { font-size: 1.5rem; margin-bottom: .5rem; }
+.driver-card .title { font-size: .9rem; font-weight: 700; margin-bottom: .3rem; }
+.driver-card .desc { font-size: .82rem; color: var(--muted); }
+.driver-card .tag {
+  display: inline-block; margin-top: .5rem;
+  font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+  background: rgba(16,185,129,.12); color: var(--green);
+}
+
+/* ── 选手卡片 ────────────────────────────────────────────── */
+.player-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem; margin: 1.25rem 0;
+}
+.player-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 1.1rem; display: flex; flex-direction: column; gap: .35rem;
+}
+.player-card .pname { font-weight: 700; font-size: .95rem; }
+.player-card .ptag {
+  font-size: .7rem; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+  background: rgba(99,102,241,.12); color: var(--indigo); align-self: flex-start;
+}
+.player-card .ptag.g { background: rgba(16,185,129,.12); color: var(--green); }
+.player-card .ptag.a { background: rgba(245,158,11,.12); color: var(--amber); }
+.player-card .pstat { font-size: .82rem; color: var(--muted); margin-top: .1rem; }
+.player-card .phighlight { font-size: .82rem; color: var(--text); font-weight: 600; }
+
+/* ── 符文战场时间线 ─────────────────────────────────────── */
+.rf-timeline { position: relative; padding-left: 2.5rem; margin: 1.5rem 0; }
+.rf-timeline::before {
+  content: ''; position: absolute; left: 10px; top: 4px; bottom: 0;
+  width: 2px; background: linear-gradient(to bottom, var(--indigo), rgba(99,102,241,.1));
+}
+.rf-item { position: relative; margin-bottom: 2.25rem; }
+.rf-dot {
+  position: absolute; left: -2.5rem; top: .45rem;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--bg-muted); border: 2px solid var(--border);
+}
+.rf-item.key .rf-dot {
+  background: var(--indigo); border-color: var(--indigo);
+  box-shadow: 0 0 0 4px rgba(99,102,241,.2);
+}
+.rf-date { font-size: .78rem; font-weight: 700; color: var(--indigo); margin-bottom: .15rem; }
+.rf-title { font-weight: 700; font-size: .97rem; color: var(--text); margin-bottom: .25rem; }
+.rf-body { font-size: .84rem; color: var(--muted); }
+.rf-body ul { padding-left: 1.1rem; margin-top: .3rem; display: flex; flex-direction: column; gap: .2rem; }
+.rf-badge {
+  display: inline-block; margin-top: .4rem;
+  font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 999px;
+  background: rgba(99,102,241,.12); color: var(--indigo); border: 1px solid rgba(99,102,241,.2);
+}
+
+/* ── 优劣势双列 ─────────────────────────────────────────── */
+.pros-cons {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0;
+}
+@media(max-width:580px){ .pros-cons { grid-template-columns: 1fr; } }
+.pros-box, .cons-box {
+  border-radius: var(--r); padding: 1.25rem;
+  display: flex; flex-direction: column; gap: .6rem;
+}
+.pros-box {
+  background: rgba(16,185,129,.05); border: 1px solid rgba(16,185,129,.2);
+}
+.cons-box {
+  background: rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.2);
+}
+.pros-box h4 { color: var(--green); font-size: .85rem; margin-bottom: .2rem; }
+.cons-box h4 { color: var(--red);   font-size: .85rem; margin-bottom: .2rem; }
+.pros-cons-item { font-size: .83rem; color: var(--muted); padding-left: .75rem; position: relative; }
+.pros-cons-item::before {
+  content: ''; position: absolute; left: 0; top: .6rem;
+  width: 5px; height: 5px; border-radius: 50%;
+}
+.pros-box .pros-cons-item::before { background: var(--green); }
+.cons-box .pros-cons-item::before { background: var(--red); }
+.pros-cons-item strong { color: var(--text); }
+
+/* ── 引用 ──────────────────────────────────────────────── */
+blockquote {
+  border-left: 3px solid var(--green);
+  padding: .75rem 1.2rem; margin: 1.25rem 0;
+  background: rgba(16,185,129,.05);
+  border-radius: 0 var(--r) var(--r) 0;
+  font-size: .88rem; color: var(--muted);
+}
+blockquote strong { color: var(--text); }
+
+/* ── 来源列表 ────────────────────────────────────────────── */
+.source-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: .75rem; margin-top: 1.25rem;
+}
+.source-item {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: .75rem 1rem;
+  font-size: .8rem; color: var(--muted);
+}
+.source-item .src-type {
+  font-size: .68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--dim); margin-bottom: .2rem;
+}
+.source-item .src-title { color: var(--text); font-weight: 600; }
+.source-item .src-date { color: var(--dim); font-size: .72rem; }
+
+/* ── 数据说明条 ─────────────────────────────────────────── */
+.data-note {
+  background: rgba(245,158,11,.05); border: 1px solid rgba(245,158,11,.2);
+  border-radius: 8px; padding: .75rem 1rem; font-size: .8rem; color: var(--muted);
+  margin: 1rem 0;
+}
+.data-note strong { color: var(--amber); }
+
+/* ── 图片占位 ───────────────────────────────────────────── */
+.img-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 2px dashed var(--indigo); border-radius: var(--r);
+  background: rgba(99,102,241,.04); color: var(--indigo);
+  font-size: .8rem; font-weight: 600; text-align: center;
+  padding: 1.5rem; gap: .5rem;
+}
+.img-placeholder .img-id { font-size: 1.05rem; font-weight: 900; }
+.img-placeholder .img-hint { font-size: .75rem; color: var(--muted); font-weight: 400; max-width: 260px; }
+.event-img { width: 100%; border-radius: var(--r); display: block; border: 1px solid var(--border); object-fit: cover; }
+.event-img-caption { font-size: .74rem; color: var(--dim); text-align: center; margin-top: .4rem; }
+
+/* ── 渐入 ──────────────────────────────────────────────── */
+.fade { opacity: 0; transform: translateY(20px); transition: opacity .55s, transform .55s; }
+.fade.in { opacity: 1; transform: none; }
+
+/* ── 页脚 ──────────────────────────────────────────────── */
+footer {
+  text-align: center; padding: 3rem 1rem;
+  font-size: .8rem; color: var(--dim);
+}
+footer a { color: var(--indigo); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- 导航 -->
+<nav>
+  <a class="nav-back" href="tcg-sharing.html">← 返回 TCG 分享</a>
+  <div class="nav-links">
+    <a href="#scale">市场规模</a>
+    <a href="#structure">市场结构</a>
+    <a href="#drivers">驱动因素</a>
+    <a href="#players">竞争主体</a>
+    <a href="#riftbound">符文战场</a>
+    <a href="#outlook">前景展望</a>
+  </div>
+  <span class="nav-tag">2026 研究报告</span>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-kicker">中国 TCG 市场研究报告 · 2026年4月整理</div>
+    <h1 class="hero-h1">
+      中国已成为<br><em>全球最大</em> TCG 市场
+    </h1>
+    <p class="hero-desc">
+      2024 年市场规模突破 263 亿元，超越美国、日本跃居全球第一；
+      2019–2024 年 CAGR 达 57%，是国内 IP 潮玩中增速最快的细分品类。
+      符文战场（Riftbound）的入场，正将这一市场推向新的爆发节点。
+    </p>
+    <div class="hero-kpis">
+      <div class="kpi">
+        <div class="n">263亿</div>
+        <div class="l">2024年市场规模（元）· 全球第一</div>
+      </div>
+      <div class="kpi i">
+        <div class="n">57%</div>
+        <div class="l">2019–2024 年均复合增长率</div>
+      </div>
+      <div class="kpi a">
+        <div class="n">44.5亿</div>
+        <div class="l">2024年卡牌产量（张）</div>
+      </div>
+      <div class="kpi c">
+        <div class="n">18.7元</div>
+        <div class="l">中国人均消费 vs 日本 119 元</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 市场规模 ═══ -->
+<section id="scale">
+  <div class="container fade">
+    <div class="section-label">第一部分</div>
+    <h2>市场规模与增长趋势</h2>
+    <p>
+      中国 TCG 市场自 2018 年起进入加速扩张通道，六年间市场规模增长超 <strong>50 倍</strong>，
+      并于 2024 年以 263 亿元的体量首次超越美国和日本，成为全球最大单一 TCG 市场。
+    </p>
+
+    <div class="chart-box">
+      <div class="chart-label">中国 TCG 市场规模（亿元人民币）</div>
+      <canvas id="marketChart" height="220"></canvas>
+      <div class="chart-note">
+        ⚠️ <strong style="color:var(--amber)">数据说明：</strong>
+        2022年（122亿）来源：开源证券；2024年（263亿）来源：灼识咨询 / 卡游招股书；
+        2025E（178亿）来源：智研咨询（为早期预测，与2024实际值口径存在差异，仅供参考）；
+        其余年份为多方估算区间值。
+      </div>
+    </div>
+
+    <h3>核心增速指标</h3>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="n">57%</div>
+        <div class="l">2019–2024 年均复合增长率（灼识咨询）</div>
+      </div>
+      <div class="stat-box i">
+        <div class="n">78.4%</div>
+        <div class="l">2017–2022 年均复合增长率（36氪）</div>
+      </div>
+      <div class="stat-box a">
+        <div class="n">+277%</div>
+        <div class="l">龙头卡游 2024 年营收同比增幅</div>
+      </div>
+    </div>
+
+    <h3>销量数据</h3>
+    <div class="charts-2col">
+      <div class="chart-box" style="margin:0">
+        <div class="chart-label">竞技对战型市场规模（亿元）</div>
+        <canvas id="tcgScaleChart" height="200"></canvas>
+      </div>
+      <div class="chart-box" style="margin:0">
+        <div class="chart-label">卡牌产量趋势（亿套 / 亿张）</div>
+        <canvas id="volumeChart" height="200"></canvas>
+      </div>
+    </div>
+    <div class="data-note">
+      <strong>口径说明：</strong>2019/2023 以"套"计，2024/2025E 以"张"计（智研咨询），
+      两种口径不可直接对比，图表仅呈现各年份来源数据。
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 市场结构 ═══ -->
+<section id="structure">
+  <div class="container fade">
+    <div class="section-label">第二部分</div>
+    <h2>市场结构</h2>
+
+    <h3>2.1 品类构成</h3>
+    <div class="data-table" style="width:100%;border-collapse:collapse;font-size:.87rem;margin:1rem 0">
+      <table class="data-table" style="width:100%">
+        <thead><tr><th>类型</th><th>代表产品</th><th>特点</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>竞技对战型（TCG）</strong></td>
+            <td>万智牌、游戏王、宝可梦、符文战场</td>
+            <td>有完整规则，玩家构组对战；2019–2023 从 12.71亿增至 60.21亿</td>
+          </tr>
+          <tr>
+            <td><strong>收藏型（非竞技）</strong></td>
+            <td>NBA球星卡、小马宝莉卡、奥特曼卡</td>
+            <td>核心价值为收藏与赏玩；卡游主要阵地</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.2 2024年线下市场竞争格局（估算）</h3>
+    <div class="data-note">
+      <strong>重要说明：</strong>下图为估算拆分值，非精确官方统计数据。
+      原始数据来源：腾讯新闻《2024年中国线下TCG卡牌市场：老IP与新势力的博弈》（2025-02-22）
+    </div>
+
+    <div class="charts-2col">
+      <div class="chart-box" style="margin:0">
+        <div class="chart-label">线下成交额占比（估算）</div>
+        <canvas id="shareChart" height="240"></canvas>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.75rem;justify-content:center">
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#facc15;flex-shrink:0"></div>
+          <div>
+            <div style="font-weight:700;font-size:.9rem">宝可梦 PTCG</div>
+            <div style="font-size:.78rem;color:var(--muted)">~35% · 稳居第一；2022年简中版入华是关键拐点</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#6366f1;flex-shrink:0"></div>
+          <div>
+            <div style="font-weight:700;font-size:.9rem">游戏王 OCG</div>
+            <div style="font-size:.78rem;color:var(--muted)">~28% · 仍强势；老玩家基本盘稳固</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#10b981;flex-shrink:0"></div>
+          <div>
+            <div style="font-weight:700;font-size:.9rem">海贼王 OPCG</div>
+            <div style="font-size:.78rem;color:var(--muted)">~15% · 稳健；日本发行模式带动热度</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#06b6d4;flex-shrink:0"></div>
+          <div>
+            <div style="font-weight:700;font-size:.9rem">洛卡纳等新 IP</div>
+            <div style="font-size:.78rem;color:var(--muted)">~12% · 快速上升；符文战场尚未计入</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px">
+          <div style="width:12px;height:12px;border-radius:3px;background:#52525b;flex-shrink:0"></div>
+          <div>
+            <div style="font-weight:700;font-size:.9rem">其他</div>
+            <div style="font-size:.78rem;color:var(--muted)">~10% · 分散多元；国产 IP 正在加速入场</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>2.3 消费者画像</h3>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="n">35岁-</div>
+        <div class="l">核心受众年龄段</div>
+      </div>
+      <div class="stat-box i">
+        <div class="n">71.3%</div>
+        <div class="l">用户愿意为 IP 情感认同溢价付费</div>
+      </div>
+      <div class="stat-box a">
+        <div class="n">3.15元</div>
+        <div class="l">2024年均单价（2017年为 2.75元）</div>
+      </div>
+    </div>
+    <p style="font-size:.84rem">购买渠道：<strong>线下牌店</strong> + <strong>电商平台</strong> + <strong>直播拆卡</strong>（抖音"拆卡"搜索指数同比增长 390.68%）</p>
+  </div>
+</section>
+
+<!-- ═══ 驱动因素 ═══ -->
+<section id="drivers">
+  <div class="container fade">
+    <div class="section-label">第三部分</div>
+    <h2>市场驱动因素</h2>
+    <p>六大结构性驱动力共振，推动中国 TCG 市场进入超速增长轨道。</p>
+
+    <div class="driver-grid">
+      <div class="driver-card">
+        <div class="icon">🎭</div>
+        <div class="title">IP 生态爆发</div>
+        <div class="desc">哪吒2、原神、英雄联盟等强 IP 带动破圈；《哪吒2》联名卡首批 450 万张迅速售罄</div>
+        <span class="tag">最强驱动</span>
+      </div>
+      <div class="driver-card">
+        <div class="icon">📱</div>
+        <div class="title">直播拆卡</div>
+        <div class="desc">抖音"拆卡"搜索指数同比增长 390.68%；头部主播月销超百万；随机性内容天然适配短视频</div>
+        <span class="tag">流量催化剂</span>
+      </div>
+      <div class="driver-card">
+        <div class="icon">🤝</div>
+        <div class="title">社交属性</div>
+        <div class="desc">线下对战、卡牌交换形成社区粘性；牌店成为年轻人的"第三空间"</div>
+        <span class="tag">留存核心</span>
+      </div>
+      <div class="driver-card">
+        <div class="icon">🌏</div>
+        <div class="title">海外正版引入</div>
+        <div class="desc">2022年起游戏王、数码宝贝、航海王、宝可梦简中版陆续发行；结束多年"灰色进口"局面</div>
+        <span class="tag">正规化拐点</span>
+      </div>
+      <div class="driver-card">
+        <div class="icon">📊</div>
+        <div class="title">人均消费低基数</div>
+        <div class="desc">中国人均 <strong>18.7元</strong> vs 日本 119.3元，渗透率提升空间大；追平日本则市场扩容 6 倍</div>
+        <span class="tag">长期天花板</span>
+      </div>
+      <div class="driver-card">
+        <div class="icon">🇨🇳</div>
+        <div class="title">国产 IP 崛起</div>
+        <div class="desc">卡游"一决·三国"、奥飞娱乐、泡泡玛特等国产 IP 入局；闪魂以游戏 IP 卡牌获高瓴投资</div>
+        <span class="tag">本土化机遇</span>
+      </div>
+    </div>
+
+    <blockquote>
+      若中国人均卡牌消费追平日本，市场规模有望达到 <strong>360–600亿元</strong>，
+      较当前 263亿仍有 <strong>1.4–2.3倍</strong> 的成长空间。
+      <span style="display:block;margin-top:.3rem;font-size:.76rem;color:var(--dim)">— 来源：36氪（2025年3月）</span>
+    </blockquote>
+  </div>
+</section>
+
+<!-- ═══ 竞争主体 ═══ -->
+<section id="players">
+  <div class="container fade">
+    <div class="section-label">第四部分</div>
+    <h2>主要竞争主体</h2>
+    <p>国内龙头、游戏大厂、潮玩品牌与海外 IP 持有者同场竞技，格局快速重塑。</p>
+
+    <div class="player-grid">
+      <div class="player-card">
+        <div class="pname">卡游 Kayou</div>
+        <span class="ptag g">国内龙头</span>
+        <div class="phighlight">2024 营收 100.6亿，同比 +277.8%</div>
+        <div class="pstat">主营奥特曼、哪吒 IP；已递表港交所 IPO</div>
+      </div>
+      <div class="player-card">
+        <div class="pname">闪魂</div>
+        <span class="ptag">游戏 IP</span>
+        <div class="phighlight">获高瓴资本投资</div>
+        <div class="pstat">代理第五人格、原神、英雄联盟卡牌；2024–2025 指数级增长</div>
+      </div>
+      <div class="player-card">
+        <div class="pname">姚记科技</div>
+        <span class="ptag a">代理销售</span>
+        <div class="pstat">代理宝可梦等海外 IP；卡牌成核心新增长点</div>
+      </div>
+      <div class="player-card">
+        <div class="pname">华立科技</div>
+        <span class="ptag a">代理销售</span>
+        <div class="pstat">代理多款海外 TCG；受益于正版引入趋势</div>
+      </div>
+      <div class="player-card">
+        <div class="pname">泡泡玛特</div>
+        <span class="ptag">潮玩 + 卡牌</span>
+        <div class="pstat">2024年5月推出自有 IP 收藏卡；市场反馈良好</div>
+      </div>
+      <div class="player-card">
+        <div class="pname">奥飞娱乐</div>
+        <span class="ptag">自有 IP</span>
+        <div class="pstat">自有动漫 IP 卡牌；粉丝基础庞大</div>
+      </div>
+      <div class="player-card" style="border-color:rgba(99,102,241,.4)">
+        <div class="pname" style="color:var(--indigo)">拳头游戏 Riot</div>
+        <span class="ptag">大 IP 入局</span>
+        <div class="phighlight">符文战场 2025年8月全球首发于中国</div>
+        <div class="pstat">首月成交额即排行业第三；与闪魂联合发行</div>
+      </div>
+    </div>
+
+    <!-- IMG-CH1 占位：符文战场产品实物图 -->
+    <!-- 替换方法：将下方 img-placeholder 整体替换为：
+         <img id="IMG-CH1" class="event-img" src="images/imgCH1-riftbound-products.jpg"
+              alt="符文战场首发产品实物图" style="max-height:320px;object-fit:cover">
+         <p class="event-img-caption">符文战场（Riftbound）首发系列三档产品：英雄预组、标准补充包、进阶补充包</p>
+    -->
+    <div class="img-placeholder" style="min-height:200px;margin:1.5rem 0" id="IMG-CH1-placeholder">
+      <div class="img-id">📷 IMG-CH1</div>
+      <div style="font-size:.88rem">符文战场首发产品实物图</div>
+      <div class="img-hint">三档产品（英雄预组 / 标准补充包 / 进阶补充包）官方或现场实物照<br>
+        推荐来源：游民星空 2025-08-01 报道 / ChinaJoy 现场图</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 符文战场 ═══ -->
+<section id="riftbound">
+  <div class="container fade">
+    <div class="section-label">第五部分 · 专项追踪</div>
+    <h2>符文战场 Riftbound</h2>
+    <p>
+      拳头游戏携英雄联盟 IP 入局实体 TCG，选择<strong>中国作为全球首发市场</strong>——
+      这一决策本身就是对中国 TCG 市场地位的最强背书。
+    </p>
+
+    <h3>5.1 为什么 Riot 做实体卡牌？</h3>
+    <div class="stat-row" style="margin-bottom:1.5rem">
+      <div class="stat-box i">
+        <div class="n">1.35亿</div>
+        <div class="l">英雄联盟月活跃玩家</div>
+      </div>
+      <div class="stat-box">
+        <div class="n">4年</div>
+        <div class="l">LoR 电子卡牌积累的设计资产</div>
+      </div>
+      <div class="stat-box a">
+        <div class="n">530人</div>
+        <div class="l">2024年1月拳头裁员规模（LoR 缩减至 PVE）</div>
+      </div>
+    </div>
+    <blockquote>
+      实体 TCG 开发成本可控（复用 LoR 设计资产），参照《万智牌》《宝可梦》案例，
+      预期收益远高于平庸的电子卡牌——这是战略收缩后的主动转向。
+    </blockquote>
+
+    <h3>5.2 发展时间线</h3>
+    <div class="rf-timeline">
+      <div class="rf-item">
+        <div class="rf-dot"></div>
+        <div class="rf-date">2020–2023</div>
+        <div class="rf-title">前期铺垫</div>
+        <div class="rf-body">积累电子卡牌设计经验（符文之地传说），建立 LoL 宇宙美术资产库；实体 TCG 项目内部启动（代号 Project K）</div>
+      </div>
+      <div class="rf-item">
+        <div class="rf-dot"></div>
+        <div class="rf-date">2024年8月</div>
+        <div class="rf-title">LoL 13周年官方首次公布</div>
+        <div class="rf-body">确认2025年全球发行；国服可能同步；拳头游戏官微认证主体为俐奥特上海网络科技有限公司</div>
+      </div>
+      <div class="rf-item">
+        <div class="rf-dot"></div>
+        <div class="rf-date">2024年12月</div>
+        <div class="rf-title">《云顶之弈》澳门公开赛首次可试玩</div>
+        <div class="rf-body">
+          游民星空独家专访制作人 Chengran Chai，披露核心信息：
+          <ul>
+            <li>拳头上海独立制作</li>
+            <li>积分制胜利（率先8分获胜），非传统扣血</li>
+            <li>线下牌店 + 线上官方双渠道发行</li>
+          </ul>
+        </div>
+      </div>
+      <div class="rf-item">
+        <div class="rf-dot"></div>
+        <div class="rf-date">2025年5月</div>
+        <div class="rf-title">前瞻峰会（上海）</div>
+        <div class="rf-body">
+          首发系列"起源" 300+ 张卡牌正式亮相；确认中国由 <strong>拳头游戏 × 闪魂</strong>联合发行；
+          三档产品（试炼之地套装 / 英雄预组 / 补充包）；赛事体系规划至 2028年
+          <div class="rf-badge">赛事规划完整，体现长期主义</div>
+        </div>
+      </div>
+      <div class="rf-item">
+        <div class="rf-dot"></div>
+        <div class="rf-date">2025年6月10日</div>
+        <div class="rf-title">正式定名：《符文战场：英雄联盟对战卡牌》</div>
+        <div class="rf-body">英文名 Riftbound: League of Legends Trading Card Game；
+          发行计划：中国 2025年夏 → 英语国家 2025年10月 → 2026年更多地区</div>
+      </div>
+      <div class="rf-item key">
+        <div class="rf-dot"></div>
+        <div class="rf-date">2025年8月1日</div>
+        <div class="rf-title">ChinaJoy 全球首发 🎉</div>
+        <div class="rf-body">
+          三档产品全面上市；首日多地牌店<strong>库存迅速售罄</strong>；官方实施<strong>限购</strong>（每店每人每日最多2盒）；
+          同日确认英文版：2025年10月31日（万圣节）上市
+          <div class="rf-badge">全球首发选择中国，市场地位的最强背书</div>
+        </div>
+      </div>
+
+      <!-- IMG-CH2 占位：ChinaJoy 2025 符文战场发售现场 -->
+      <!-- 替换方法：将下方 img-placeholder 整体替换为：
+           <img id="IMG-CH2" class="event-img" src="images/imgCH2-cj2025-riftbound.jpg"
+                alt="ChinaJoy 2025 符文战场全球首发现场" style="max-height:400px;object-fit:cover;margin:1rem 0">
+           <p class="event-img-caption">2025年8月1日，ChinaJoy 2025，符文战场全球首发现场</p>
+      -->
+      <div class="img-placeholder" style="min-height:200px;margin:1rem 0 2rem" id="IMG-CH2-placeholder">
+        <div class="img-id">📷 IMG-CH2</div>
+        <div style="font-size:.88rem">ChinaJoy 2025 符文战场全球首发现场</div>
+        <div class="img-hint">2025年8月1日 ChinaJoy 首日发售人群 / 展台现场<br>
+          推荐来源：游民星空 / 腾讯新闻 2025-08-01 报道图</div>
+      </div>
+
+      <div class="rf-item key">
+        <div class="rf-dot"></div>
+        <div class="rf-date">2025年9月</div>
+        <div class="rf-title">首月成绩单</div>
+        <div class="rf-body">
+          集换社8月成交盘点：符文战场排名<strong>第三</strong>，仅次于宝可梦和游戏王
+          （对比：迪士尼洛卡纳首月仅排第四）；已举办广州、北京、重庆三场区域公开赛
+          <div class="rf-badge">首月即进入 TOP 3，超越预期</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>5.3 核心玩法机制</h3>
+    <table class="data-table" style="width:100%">
+      <thead><tr><th>维度</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>胜利条件</td><td><strong>占领战场积分</strong>，率先达到 8 分获胜（非传统扣血）</td></tr>
+        <tr><td>卡组构成</td><td>约 40 张 + 1张<strong>核心传奇英雄卡</strong>（决定卡组风格）</td></tr>
+        <tr><td>资源系统</td><td>每回合获得 2 点符文资源（上限12），消耗召唤单位 / 法术</td></tr>
+        <tr><td>游玩模式</td><td>1v1 / 2v2 / 4人自由混战</td></tr>
+        <tr><td>核心特色</td><td><strong>"战场位置"机制</strong>，其他 TCG 无此设计；"基地"休眠1回合后方可移动</td></tr>
+        <tr><td>首发英雄</td><td>金克丝、亚索、维克托、沃利贝尔、李青、卡莎等</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.4 优势与挑战</h3>
+    <div class="pros-cons">
+      <div class="pros-box">
+        <h4>✅ 核心优势</h4>
+        <div class="pros-cons-item"><strong>顶级 IP 势能</strong>：LoL 月活 1.35亿，《双城之战》进一步扩圈</div>
+        <div class="pros-cons-item"><strong>中国首发策略</strong>：对标全球最大 TCG 市场，享受优先发行红利</div>
+        <div class="pros-cons-item"><strong>拳头电竞运营经验</strong>：观赛体验被评为"当前所有TCG中最好"</div>
+        <div class="pros-cons-item"><strong>IP 情感迁移</strong>：闪魂实践证明游戏玩家"为爱付费"意愿强烈</div>
+        <div class="pros-cons-item"><strong>长期主义生态</strong>：赛事体系、退标机制规划至 2028年</div>
+      </div>
+      <div class="cons-box">
+        <h4>⚠️ 主要风险</h4>
+        <div class="pros-cons-item"><strong>平衡性问题</strong>：卡莎 / 剑圣垄断竞技环境（重庆赛507人仅1人用盖伦）</div>
+        <div class="pros-cons-item"><strong>更新节奏慢</strong>：首弹→次弹约5个月间隔（8月→12月）</div>
+        <div class="pros-cons-item"><strong>规则文本质量</strong>：简中卡面歧义多，须查英文版理解；已追加 FAQ</div>
+        <div class="pros-cons-item"><strong>转化留存</strong>：IP 玩家→TCG 玩家转化后，留存的仍以原 TCG 玩家为主</div>
+        <div class="pros-cons-item"><strong>关税压力</strong>：美国对华桌游产品加征最高 54% 关税，出海成本上升</div>
+      </div>
+    </div>
+
+    <h3>赛事体系规划（确认"长期主义"）</h3>
+    <table class="data-table" style="width:100%">
+      <thead><tr><th>赛事级别</th><th>频率</th><th>奖励 / 备注</th></tr></thead>
+      <tbody>
+        <tr><td>区域公开赛（东/南/西/北）</td><td>每赛季 1 次</td><td>纪念卡 + 周边</td></tr>
+        <tr><td>全国公开赛</td><td>每赛季末 1 次</td><td>奖金 + 纪念卡</td></tr>
+        <tr><td>全国冠军赛</td><td>每年 1 次</td><td>年度最高荣誉</td></tr>
+        <tr><td>全球赛事</td><td>规划于 <strong>2027年</strong>启动</td><td>—</td></tr>
+        <tr><td>卡牌退标（轮替）</td><td>从 <strong>2028年</strong>起首次</td><td>参考万智牌"标准赛制"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 前景展望 ═══ -->
+<section id="outlook">
+  <div class="container fade">
+    <div class="section-label">第六部分</div>
+    <h2>行业前景展望</h2>
+
+    <div class="chart-box">
+      <div class="chart-label">市场规模情景预测（亿元）</div>
+      <canvas id="forecastChart" height="200"></canvas>
+      <div class="chart-note">
+        保守情景：年均 11% 增速（灼识咨询预测）；
+        乐观情景：年均 20% 增速（参考 2019–2024 趋势降速后估算）；
+        天花板情景：中国人均消费追平日本后的市场规模区间（36氪）
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="n">11%+</div>
+        <div class="l">未来5年预测年均增速（灼识咨询）</div>
+      </div>
+      <div class="stat-box i">
+        <div class="n">360–600亿</div>
+        <div class="l">若追平日本人均消费的市场天花板</div>
+      </div>
+      <div class="stat-box a">
+        <div class="n">1018亿</div>
+        <div class="l">2024年泛娱乐玩具赛道规模（长城证券）</div>
+      </div>
+    </div>
+
+    <h3>关键驱动变量</h3>
+    <div class="driver-grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+      <div class="driver-card">
+        <div class="icon">👶</div>
+        <div class="title">Z世代收入提升</div>
+        <div class="desc">最大受众群体进入消费力旺盛期</div>
+      </div>
+      <div class="driver-card">
+        <div class="icon">🔏</div>
+        <div class="title">正版意识普及</div>
+        <div class="desc">灰色进口向官方授权切换，单价与品质双升</div>
+      </div>
+      <div class="driver-card">
+        <div class="icon">🐉</div>
+        <div class="title">国漫 IP 崛起</div>
+        <div class="desc">哪吒、斗罗大陆等本土 IP 持续输出热度</div>
+      </div>
+      <div class="driver-card">
+        <div class="icon">🌐</div>
+        <div class="title">海外 IP 持续引入</div>
+        <div class="desc">符文战场、更多日系 IP 简中版入华</div>
+      </div>
+    </div>
+
+    <blockquote>
+      <strong>综合判断：</strong>中国 TCG 市场仍处于"渗透率提升"的早期-中期阶段，
+      结构性增长逻辑明确。现有玩家正在经历海外 2000 年代走过的"从小众到主流"之路——
+      <strong>当前入场仍属早期用户</strong>。
+    </blockquote>
+  </div>
+</section>
+
+<!-- ═══ 信息来源 ═══ -->
+<section id="sources" style="border-bottom:none">
+  <div class="container fade">
+    <div class="section-label">参考来源</div>
+    <h2>数据出处</h2>
+    <div class="data-note">
+      <strong>免责说明：</strong>部分市场规模数据来自不同机构（灼识咨询、智研咨询、共研院等），
+      口径差异导致同年数据可能存在出入，建议以各原始报告为准。竞争格局占比为估算值，非精确官方统计。
+    </div>
+    <div class="source-grid">
+      <div class="source-item">
+        <div class="src-type">证券研报 / 行业数据</div>
+        <div class="src-title">新浪财经·卡游行业点评（国信证券 / 灼识咨询数据）</div>
+        <div class="src-date">2025-04-16</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">证券研报</div>
+        <div class="src-title">开源证券《集换式卡牌深度报告》</div>
+        <div class="src-date">2024</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">证券研报</div>
+        <div class="src-title">国信证券 TCG 行业深度（via 中国能源网）</div>
+        <div class="src-date">2024-08-18</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">行业报告</div>
+        <div class="src-title">观研报告网《中国集换式卡牌行业现状深度研究》</div>
+        <div class="src-date">2025-02</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">行业报告</div>
+        <div class="src-title">智研咨询《集换式卡牌行业发展形势分析》</div>
+        <div class="src-date">2025</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">媒体分析</div>
+        <div class="src-title">腾讯新闻《2024年中国线下TCG卡牌市场：老IP与新势力的博弈》</div>
+        <div class="src-date">2025-02-22</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">媒体报道</div>
+        <div class="src-title">36氪《TCG回潮，国创IP雄起，卡游米哈游鹰角已入局》</div>
+        <div class="src-date">2025-03</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">媒体报道</div>
+        <div class="src-title">证券时报《高瓴入局！一张小卡片撬动数亿元融资》</div>
+        <div class="src-date">2025-08</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">一手专访</div>
+        <div class="src-title">游民星空《符文战场制作人专访》（Chengran Chai）</div>
+        <div class="src-date">2024-12-14</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">前瞻报道</div>
+        <div class="src-title">知乎·游戏新知《首发系列超300张卡牌……规划做到2028年了？》</div>
+        <div class="src-date">2025-06-05</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">媒体报道</div>
+        <div class="src-title">游民星空《符文战场 ChinaJoy 全球首发》</div>
+        <div class="src-date">2025-08-01</div>
+      </div>
+      <div class="source-item">
+        <div class="src-type">市场分析</div>
+        <div class="src-title">知乎《拳头游戏新作上线一个多月，空降赛道第三》</div>
+        <div class="src-date">2025-09-09</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  本页为 <a href="tcg-sharing.html">TCG 内部分享</a> 的附属深度页面 ·
+  数据整理时间：2026年4月 · 部分数据为估算值，以原始报告为准
+</footer>
+
+<!-- ═══ 图表脚本 ═══ -->
+<script>
+Chart.defaults.color = '#a1a1aa';
+Chart.defaults.borderColor = '#3f3f46';
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif";
+
+/* ── 市场规模主图（折线） ── */
+const marketData = {
+  labels: ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025E'],
+  // 实线数据（2018-2024 有据可查）
+  actual:  [5,   14,   30,   60,  122,  128,  263, null],
+  // 虚线数据（2025E 为预测值，口径不同）
+  forecast:[null,null, null, null,null, null, 263,  178],
+};
+new Chart(document.getElementById('marketChart'), {
+  type: 'line',
+  data: {
+    labels: marketData.labels,
+    datasets: [
+      {
+        label: '实际 / 估算规模（亿元）',
+        data: marketData.actual,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16,185,129,0.08)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#10b981',
+        pointRadius: [3,3,3,3,5,3,7,0],
+        tension: 0.35,
+        fill: true,
+        spanGaps: false,
+      },
+      {
+        label: '2025E（智研咨询，口径差异，仅供参考）',
+        data: marketData.forecast,
+        borderColor: 'rgba(245,158,11,0.7)',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [6, 4],
+        pointBackgroundColor: '#f59e0b',
+        pointRadius: [0,0,0,0,0,0,0,6],
+        tension: 0.1,
+        spanGaps: true,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.y ? ` ${ctx.parsed.y} 亿元` : ' —' } }
+    },
+    scales: {
+      y: { ticks: { callback: v => `${v}亿` }, grid: { color: 'rgba(63,63,70,0.5)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+/* ── 竞技型规模（条形） ── */
+new Chart(document.getElementById('tcgScaleChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2019', '2020', '2021', '2022', '2023'],
+    datasets: [{
+      data: [12.71, null, null, null, 60.21],
+      backgroundColor: ['rgba(99,102,241,0.7)', 'rgba(99,102,241,0.3)', 'rgba(99,102,241,0.3)', 'rgba(99,102,241,0.3)', 'rgba(99,102,241,0.8)'],
+      borderRadius: 6, borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.y ? ` ${ctx.parsed.y} 亿元` : ' 暂缺' } }
+    },
+    scales: {
+      y: { ticks: { callback: v => `${v}亿` }, grid: { color: 'rgba(63,63,70,0.5)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+/* ── 销量趋势 ── */
+new Chart(document.getElementById('volumeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2019\n(亿套)', '2023\n(亿套)', '2024\n(亿张)', '2025E\n(亿张)'],
+    datasets: [{
+      data: [1.25, 5.43, 44.53, 56.09],
+      backgroundColor: ['rgba(16,185,129,0.5)','rgba(16,185,129,0.65)','rgba(6,182,212,0.7)','rgba(6,182,212,0.5)'],
+      borderRadius: 6, borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} ${ctx.label.includes('张') ? '亿张' : '亿套'}` } }
+    },
+    scales: {
+      y: { grid: { color: 'rgba(63,63,70,0.5)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+/* ── 竞争格局饼图 ── */
+new Chart(document.getElementById('shareChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['宝可梦 PTCG', '游戏王 OCG', '海贼王 OPCG', '洛卡纳等新IP', '其他'],
+    datasets: [{
+      data: [35, 28, 15, 12, 10],
+      backgroundColor: ['#facc15','#6366f1','#10b981','#06b6d4','#52525b'],
+      borderColor: '#18181b',
+      borderWidth: 2,
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    cutout: '62%',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ~${ctx.parsed}%（估算）` } }
+    }
+  }
+});
+
+/* ── 前景预测图 ── */
+new Chart(document.getElementById('forecastChart'), {
+  type: 'line',
+  data: {
+    labels: ['2024\n实际', '2025E', '2026E', '2027E', '2028E', '2029E'],
+    datasets: [
+      {
+        label: '保守（年均11%）',
+        data: [263, 292, 324, 360, 400, 443],
+        borderColor: 'rgba(99,102,241,0.8)',
+        backgroundColor: 'rgba(99,102,241,0.06)',
+        borderWidth: 2, pointRadius: 3, tension: 0.3, fill: true,
+      },
+      {
+        label: '乐观（年均20%）',
+        data: [263, 316, 379, 455, 545, 655],
+        borderColor: 'rgba(16,185,129,0.8)',
+        backgroundColor: 'rgba(16,185,129,0.06)',
+        borderWidth: 2, pointRadius: 3, tension: 0.3, fill: true,
+      },
+      {
+        label: '天花板参考线（360–600亿）',
+        data: [null, null, null, null, 360, 600],
+        borderColor: 'rgba(245,158,11,0.5)',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5, borderDash: [5,4], pointRadius: 0,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.y ? ` ${ctx.parsed.y} 亿元` : ' —' } }
+    },
+    scales: {
+      y: { ticks: { callback: v => `${v}亿` }, grid: { color: 'rgba(63,63,70,0.5)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+/* ── 滚动渐入 ── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

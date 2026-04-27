@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$1649万的皮卡丘 | Logan Paul × Pikachu Illustrator 全记录</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    /* ── 变量 ──────────────────────────────────────────────── */
+    :root {
+      --bg: #09090b;
+      --bg-card: #18181b;
+      --bg-muted: #27272a;
+      --border: #3f3f46;
+      --text: #fafafa;
+      --muted: #a1a1aa;
+      --dim: #71717a;
+      --yellow: #facc15;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --green: #10b981;
+      --indigo: #6366f1;
+      --r: 12px;
+      --nav-h: 60px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", sans-serif;
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    /* ── 导航 ──────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(9, 9, 11, .9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .85rem;
+      transition: color .2s;
+    }
+
+    .nav-back:hover {
+      color: var(--text);
+    }
+
+    .nav-title {
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    .nav-tag {
+      background: rgba(250, 204, 21, .15);
+      color: var(--yellow);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(250, 204, 21, .3);
+    }
+
+    /* ── 布局 ──────────────────────────────────────────────── */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse 60% 50% at 30% 50%, rgba(250, 204, 21, .1) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 75% 40%, rgba(239, 68, 68, .06) 0%, transparent 60%);
+      border-bottom: 1px solid var(--border);
+      padding-top: var(--nav-h);
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 4rem;
+      align-items: center;
+      padding: 4rem 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    @media(max-width:800px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .75rem;
+      color: var(--yellow);
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-title .price {
+      background: linear-gradient(135deg, var(--yellow), var(--amber));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 460px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .h-stat .label {
+      font-size: .72rem;
+      color: var(--dim);
+    }
+
+    .h-stat .val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--yellow);
+    }
+
+    /* ── 卡牌 CSS 艺术 ─────────────────────────────────────── */
+    .card-scene {
+      perspective: 800px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card-3d {
+      width: 240px;
+      height: 336px;
+      border-radius: 14px;
+      position: relative;
+      transform: rotateY(-8deg) rotateX(4deg);
+      transition: transform .4s ease;
+      cursor: pointer;
+      box-shadow: 20px 20px 60px rgba(0, 0, 0, .6), -4px -4px 20px rgba(250, 204, 21, .1);
+    }
+
+    .card-3d:hover {
+      transform: rotateY(0) rotateX(0) scale(1.03);
+    }
+
+    /* 卡牌外框 */
+    .card-body {
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      background: linear-gradient(160deg, #1a1a0a 0%, #0d0d0d 100%);
+      border: 2px solid rgba(250, 204, 21, .6);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 全息光泽 */
+    .card-body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: linear-gradient(135deg,
+          rgba(255, 255, 255, .08) 0%,
+          transparent 40%,
+          rgba(250, 204, 21, .06) 60%,
+          transparent 100%);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    /* 卡牌顶部色带 */
+    .card-top {
+      height: 32px;
+      background: linear-gradient(90deg, #8b6914, #d4a017, #f0c040, #d4a017, #8b6914);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .card-top::after {
+      content: 'TRAINER';
+      font-size: .55rem;
+      font-weight: 900;
+      color: rgba(0, 0, 0, .5);
+      letter-spacing: .15em;
+    }
+
+    /* 卡牌名 */
+    .card-name-bar {
+      padding: 5px 10px 3px;
+      background: linear-gradient(90deg, #1a1400, #2a2000, #1a1400);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .card-name {
+      font-size: .85rem;
+      font-weight: 900;
+      color: var(--yellow);
+      letter-spacing: .02em;
+    }
+
+    .card-hp {
+      font-size: .65rem;
+      color: var(--muted);
+    }
+
+    /* 卡面图像区 */
+    .card-art {
+      flex: 1;
+      background: linear-gradient(160deg, #f5e868 0%, #fbbf24 30%, #fde047 60%, #fef08a 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* 背景纹理 */
+    .card-art::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 80%, rgba(251, 191, 36, .5) 0%, transparent 70%),
+        repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(255, 255, 255, .06) 8px, rgba(255, 255, 255, .06) 9px);
+    }
+
+    /* 皮卡丘 SVG */
+    .pikachu-svg {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 描述区 */
+    .card-desc {
+      padding: 6px 8px;
+      background: rgba(20, 16, 0, .95);
+      font-size: .55rem;
+      color: #d4a017;
+      line-height: 1.5;
+      border-top: 1px solid rgba(212, 160, 23, .3);
+      flex-shrink: 0;
+    }
+
+    /* PSA 标签 */
+    .card-psa {
+      height: 26px;
+      background: linear-gradient(90deg, #001f5b, #003087, #001f5b);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    .psa-text {
+      font-size: .5rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: .1em;
+    }
+
+    .psa-grade {
+      font-size: .75rem;
+      font-weight: 900;
+      color: #FFD700;
+    }
+
+    /* ── 文字段落 ─────────────────────────────────────────── */
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: .75rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 1.75rem 0 .6rem;
+    }
+
+    p {
+      color: var(--muted);
+      margin-bottom: .9rem;
+      font-size: .95rem;
+    }
+
+    p strong {
+      color: var(--text);
+    }
+
+    .section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--yellow);
+      margin-bottom: .6rem;
+    }
+
+    /* ── 统计卡片 ─────────────────────────────────────────── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.1rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--yellow);
+    }
+
+    .stat-box.g::before {
+      background: var(--green);
+    }
+
+    .stat-box.r::before {
+      background: var(--red);
+    }
+
+    .stat-box.i::before {
+      background: var(--indigo);
+    }
+
+    .stat-box .n {
+      font-size: 1.7rem;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--yellow), var(--amber));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: .2rem;
+    }
+
+    .stat-box.g .n {
+      background: linear-gradient(135deg, var(--green), #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-box.i .n {
+      background: linear-gradient(135deg, var(--indigo), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-box .l {
+      font-size: .78rem;
+      color: var(--dim);
+    }
+
+    /* ── 属性表 ──────────────────────────────────────────── */
+    .attr-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: .88rem;
+    }
+
+    .attr-table th {
+      background: var(--bg-muted);
+      color: var(--dim);
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .6rem 1rem;
+      text-align: left;
+    }
+
+    .attr-table td {
+      padding: .65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .attr-table td:first-child {
+      color: var(--dim);
+      font-size: .82rem;
+      width: 40%;
+    }
+
+    .attr-table td:last-child {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .attr-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .attr-table tr:hover td {
+      background: var(--bg-muted);
+    }
+
+    /* ── 引用 ─────────────────────────────────────────────── */
+    blockquote {
+      border-left: 3px solid var(--yellow);
+      padding: .8rem 1.25rem;
+      margin: 1.25rem 0;
+      background: rgba(250, 204, 21, .05);
+      border-radius: 0 var(--r) var(--r) 0;
+      font-size: .92rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    blockquote strong {
+      color: var(--text);
+      font-style: normal;
+    }
+
+    .quote-source {
+      display: block;
+      margin-top: .4rem;
+      font-size: .75rem;
+      color: var(--dim);
+      font-style: normal;
+    }
+
+    /* ── 场景图 (CSS 插画) ────────────────────────────────── */
+    .scene-wrestlemania {
+      background: linear-gradient(160deg, #1a0000 0%, #2d0808 50%, #1a0000 100%);
+      border: 1px solid rgba(239, 68, 68, .3);
+      border-radius: var(--r);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .scene-wrestlemania::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(-45deg, transparent, transparent 20px,
+          rgba(239, 68, 68, .03) 20px, rgba(239, 68, 68, .03) 21px);
+    }
+
+    .wm-badge {
+      flex-shrink: 0;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b0000, #dc2626, #8b0000);
+      border: 2px solid rgba(239, 68, 68, .5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: .55rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #fff;
+      text-align: center;
+      line-height: 1.3;
+      box-shadow: 0 0 30px rgba(239, 68, 68, .3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .wm-badge .wm-big {
+      font-size: 1rem;
+      color: var(--yellow);
+    }
+
+    .wm-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    .wm-text h4 {
+      color: var(--red);
+      font-size: 1rem;
+      margin-bottom: .4rem;
+    }
+
+    .wm-text p {
+      color: var(--muted);
+      font-size: .85rem;
+      margin: 0;
+    }
+
+    /* ── 出价历程可视化 ───────────────────────────────────── */
+    .chart-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .chart-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    /* ── 时间线 ──────────────────────────────────────────── */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+      margin: 1.5rem 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 4px;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .tl-item {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .tl-dot {
+      position: absolute;
+      left: -2rem;
+      top: .45rem;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bg-muted);
+      border: 2px solid var(--border);
+    }
+
+    .tl-item.key .tl-dot {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 4px rgba(250, 204, 21, .15);
+    }
+
+    .tl-year {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--yellow);
+      margin-bottom: .15rem;
+    }
+
+    .tl-title {
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--text);
+    }
+
+    .tl-body {
+      font-size: .84rem;
+      color: var(--muted);
+      margin-top: .2rem;
+    }
+
+    .tl-price {
+      display: inline-block;
+      margin-top: .4rem;
+      background: rgba(250, 204, 21, .1);
+      border: 1px solid rgba(250, 204, 21, .2);
+      color: var(--yellow);
+      font-size: .78rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 999px;
+    }
+
+    /* ── 人物卡 ──────────────────────────────────────────── */
+    .person-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .person-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--bg-muted), #3f3f46);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+    }
+
+    .person-info .name {
+      font-weight: 800;
+      font-size: 1.05rem;
+      margin-bottom: .2rem;
+    }
+
+    .person-info .role {
+      font-size: .8rem;
+      color: var(--yellow);
+      margin-bottom: .6rem;
+      font-weight: 600;
+    }
+
+    .person-info p {
+      margin: 0;
+      font-size: .87rem;
+    }
+
+    @media(max-width:500px) {
+      .person-wrap {
+        flex-direction: column;
+      }
+    }
+
+    /* ── 投资对比 ─────────────────────────────────────────── */
+    .compare-highlight {
+      background: rgba(250, 204, 21, .05);
+      border: 1px solid rgba(250, 204, 21, .2);
+      border-radius: var(--r);
+      padding: 1.25rem 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .compare-highlight .title {
+      font-weight: 700;
+      color: var(--yellow);
+      margin-bottom: .5rem;
+      font-size: .9rem;
+    }
+
+    /* ── 信息源 ───────────────────────────────────────────── */
+    .sources {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .sources h4 {
+      font-size: .8rem;
+      color: var(--dim);
+      margin-bottom: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .sources a {
+      display: block;
+      color: var(--indigo);
+      text-decoration: none;
+      font-size: .82rem;
+      padding: .2rem 0;
+      transition: color .2s;
+    }
+
+    .sources a:hover {
+      color: #818cf8;
+      text-decoration: underline;
+    }
+
+    .source-media {
+      font-size: .75rem;
+      color: var(--dim);
+    }
+
+    /* ── 图片占位框 ────────────────────────────────────────── */
+    /* 【用于开发阶段识别插图位置，替换真实图片后可删除此段 CSS】 */
+    .img-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed var(--yellow);
+      border-radius: var(--r);
+      background: rgba(250, 204, 21, .04);
+      color: var(--yellow);
+      font-size: .8rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 1.5rem;
+      gap: .5rem;
+      min-height: 200px;
+    }
+
+    .img-placeholder .img-id {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: .05em;
+    }
+
+    .img-placeholder .img-hint {
+      font-size: .75rem;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 260px;
+    }
+
+    /* 真实图片插入后的通用样式 */
+    .event-img {
+      width: 100%;
+      border-radius: var(--r);
+      display: block;
+      border: 1px solid var(--border);
+      object-fit: cover;
+    }
+
+    .event-img-caption {
+      font-size: .76rem;
+      color: var(--dim);
+      text-align: center;
+      margin-top: .4rem;
+    }
+
+    /* ── 渐入 ─────────────────────────────────────────────── */
+    .fade {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .55s, transform .55s;
+    }
+
+    .fade.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── 页脚 ─────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 3rem 1rem;
+      font-size: .8rem;
+      color: var(--dim);
+    }
+
+    footer a {
+      color: var(--indigo);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 导航 -->
+  <nav>
+    <a class="nav-back" href="tcg-sharing.html">← 返回 TCG 分享</a>
+    <span class="nav-title">Pikachu Illustrator 事件全记录</span>
+    <span class="nav-tag">$16,492,000</span>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section id="hero">
+    <div class="hero-inner">
+      <!-- 左侧文字 -->
+      <div>
+        <div class="hero-eyebrow">🃏 史上最贵集换式卡牌 · 2026</div>
+        <h1 class="hero-title">
+          一张 1998 年的卡<br>卖出了<span class="price"> $1649 万</span>
+        </h1>
+        <p class="hero-desc">
+          Logan Paul 从迪拜藏家手中购得全球唯一 PSA 10 满分的皮卡丘插画卡，
+          戴上擂台、持有五年，最终在华尔街基金经理的竞价中刷新了人类历史上
+          任何集换式卡牌的公开拍卖纪录。
+        </p>
+        <div class="hero-stats">
+          <div class="h-stat">
+            <div class="label">购入价格</div>
+            <div class="val">$527.5 万</div>
+          </div>
+          <div class="h-stat">
+            <div class="label">成交价格</div>
+            <div class="val">$1649.2 万</div>
+          </div>
+          <div class="h-stat">
+            <div class="label">年化回报</div>
+            <div class="val">~25%</div>
+          </div>
+          <div class="h-stat">
+            <div class="label">持有年限</div>
+            <div class="val">4–5 年</div>
+          </div>
+        </div>
+      </div>
+
+      <img id="IMG-1" class="event-img" src="images/img1-pikachu-illustrator-psa10.jpeg"
+        alt="Pikachu Illustrator PSA 10" style="max-width:300px;border-radius:14px;">
+    </div>
+  </section>
+
+  <!-- ═══ 关于这张卡 ═══ -->
+  <section id="about">
+    <div class="container fade">
+      <div class="section-label">关于这张卡</div>
+      <h2>收藏界的"圣杯"</h2>
+      <p>
+        在宝可梦 TCG 浩如烟海的卡牌世界里，有一张卡被所有玩家和藏家称为<strong>终极圣杯</strong>——
+        不是因为它的游戏属性多强，而是因为它从一开始就不是为对战设计的。
+        它是 1998 年一场插画比赛的奖品，从未在任何商店出现过，全球仅约 39 张官方正版。
+      </p>
+
+      <table class="attr-table">
+        <thead>
+          <tr>
+            <th>属性</th>
+            <th>详情</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>卡牌名称</td>
+            <td><strong>皮卡丘插画卡（Pikachu Illustrator）</strong></td>
+          </tr>
+          <tr>
+            <td>发行年份</td>
+            <td>1998 年</td>
+          </tr>
+          <tr>
+            <td>发行背景</td>
+            <td>日本 CoroCoro Comic 杂志插画比赛奖品，<strong>从未公开发售</strong></td>
+          </tr>
+          <tr>
+            <td>全球存量</td>
+            <td>约 <strong>39 张</strong> 官方正版（含各评级版本）</td>
+          </tr>
+          <tr>
+            <td>插画作者</td>
+            <td><strong>Atsuko Nishida</strong>——皮卡丘原始角色设计师本人</td>
+          </tr>
+          <tr>
+            <td>Logan Paul 版本</td>
+            <td>PSA 鉴定 <strong>GEM MT 10 满分</strong>，全球唯一（Pop 1）</td>
+          </tr>
+          <tr>
+            <td>卡面内容</td>
+            <td>皮卡丘手握巨型毛笔，背景含 CoroCoro 比赛颁奖语</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <blockquote>
+        "Pop 1" 意为这一级别评分在全球仅有 1 张——不是最贵，是字面意义上的<strong>世界唯一</strong>。
+      </blockquote>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="n">39</div>
+          <div class="l">全球官方正版总量（张）</div>
+        </div>
+        <div class="stat-box g">
+          <div class="n">1</div>
+          <div class="l">PSA 10 满分版本全球数量</div>
+        </div>
+        <div class="stat-box i">
+          <div class="n">28年</div>
+          <div class="l">距发行年份（1998 → 2026）</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 购入经过 ═══ -->
+  <section id="buy">
+    <div class="container fade">
+      <div class="section-label">2021 年 · 购入经过</div>
+      <h2>从迪拜藏家手中接过圣杯</h2>
+      <p>
+        2021 年，Logan Paul 通过私下交易从一位<strong>迪拜藏家</strong>手中拿下了这张全球唯一的 PSA 10 皮卡丘插画卡。
+        交易并非简单的现金买卖——Paul 用自己持有的 PSA 9 版本插画卡（估值约 125 万美元）作为部分抵换，
+        再补上 400 万美元现金，合计<strong>约 527.5 万美元</strong>。
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="n">$125万</div>
+          <div class="l">Paul 持有的 PSA 9 版本估值（以物换物）</div>
+        </div>
+        <div class="stat-box">
+          <div class="n">$400万</div>
+          <div class="l">额外现金补款</div>
+        </div>
+        <div class="stat-box i">
+          <div class="n">$527.5万</div>
+          <div class="l">总购入成本（吉尼斯世界纪录认定）</div>
+        </div>
+      </div>
+
+      <blockquote>
+        此交易被<strong>吉尼斯世界纪录</strong>认定为史上最贵宝可梦卡牌<strong>私下成交</strong>记录。
+      </blockquote>
+
+      <p>
+        收购后，Paul 委托工匠制作了一款<strong>价值 7.5 万美元的钻石镶嵌精灵球吊坠</strong>与定制卡牌展示盒。
+        这不是普通的卡盒——而是一件每次亮相都能引爆全场的珠宝级展示装置。
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ WrestleMania ═══ -->
+  <section id="wrestlemania">
+    <div class="container fade">
+      <div class="section-label">2022年4月2日 · WrestleMania 38</div>
+      <h2>走进擂台的圣杯</h2>
+      <p>
+        拥有这张卡牌不到一年后，Logan Paul 做了一件前所未有的事——
+        他把这张价值超过 500 万美元的卡牌戴在脖子上，走进了<strong>德克萨斯州达拉斯 AT&T 体育场</strong>的 WWE 摔角擂台。
+      </p>
+
+      <div class="scene-wrestlemania">
+        <div class="wm-badge">
+          <div class="wm-big">WWE</div>
+          WRESTLE<br>MANIA<br>38
+        </div>
+        <div class="wm-text">
+          <h4>擂台入场，钻石项链挂着 $500万 的卡</h4>
+          <p>
+            钻石精灵球吊坠将 Pikachu Illustrator 固定在胸前。全球数百万观众同时看到了这张卡——
+            这是宝可梦 TCG 收藏历史上最大规模的"展示时刻"，没有之一。
+          </p>
+          <p style="margin-top:.5rem;font-size:.8rem;color:var(--dim)">
+            同场，吉尼斯世界纪录裁判现场颁发证书，确认其为最贵宝可梦卡牌私下交易纪录。
+          </p>
+        </div>
+      </div>
+
+      <!-- ↓↓↓ IMG-2 ↓↓↓ -->
+      <img id="IMG-2" class="event-img" src="images/img2-wrestlemania38-entrance.jpeg"
+        alt="Logan Paul 佩戴 Pikachu Illustrator 项链入场 WrestleMania 38">
+      <p class="event-img-caption">2022年4月2日，WrestleMania 38，达拉斯 AT&T 体育场 · 图片来源：Goldin / WWE</p>
+
+      <blockquote>
+        此举引发全球媒体广泛报道，将一张小众收藏品变为 Paul 个人品牌的标志性符号，
+        也极大提升了该卡牌的<strong>公众知名度与市场热度</strong>。
+        <span class="quote-source">— Fortune, ABC7, Kotaku 等多家媒体</span>
+      </blockquote>
+
+      <p>
+        从投资角度看，这次"擂台秀"并非冲动：公众曝光度直接影响了后续拍卖的竞价热情。
+        这张卡的<strong>叙事价值</strong>——"曾被戴上 WrestleMania 擂台的卡"——在 2026 年拍卖时成为真实溢价。
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ 拍卖过程 ═══ -->
+  <section id="auction">
+    <div class="container fade">
+      <div class="section-label">2026年1月–2月 · 拍卖过程</div>
+      <h2>42 天，97 次出价</h2>
+      <p>
+        2026 年初，Paul 在 <strong>Goldin Auctions</strong> 上架了这张卡牌，
+        起拍价 50 万美元。接下来的 42 天里，全球买家展开了一场史诗级的竞价角逐。
+      </p>
+
+      <table class="attr-table">
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>详情</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>拍卖平台</td>
+            <td><strong>Goldin Auctions</strong></td>
+          </tr>
+          <tr>
+            <td>专场名称</td>
+            <td>2026 Pokémon &amp; TCG Auction</td>
+          </tr>
+          <tr>
+            <td>起拍价</td>
+            <td>$500,000（50 万美元）</td>
+          </tr>
+          <tr>
+            <td>拍卖周期</td>
+            <td>约 <strong>42 天</strong>（2026年1月初 → 2月16日）</td>
+          </tr>
+          <tr>
+            <td>总出价次数</td>
+            <td><strong>97 次</strong></td>
+          </tr>
+          <tr>
+            <td>落槌价</td>
+            <td><strong>$16,492,000</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="chart-box">
+        <div class="chart-label">拍卖关键竞价节点（百万美元，含买家佣金）</div>
+        <canvas id="bidChart" height="200"></canvas>
+      </div>
+
+      <h3>竞价白热化阶段</h3>
+      <p>
+        最终阶段，价格在 <strong>688.2 万美元</strong>处长时间僵持，随后进入<strong>数小时延伸竞价</strong>，
+        多轮激烈争夺后才最终落槌。Logan Paul 事后在 YouTube 直播中描述：
+      </p>
+
+      <blockquote>
+        "我们可能是把对方给熬垮了。"
+        <span class="quote-source">— Logan Paul，YouTube 直播，2026年2月16日</span>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ═══ 最终成交 ═══ -->
+  <section id="result">
+    <div class="container fade">
+      <div class="section-label">2026年2月16日 · 最终成交</div>
+      <h2>$16,492,000——纪录诞生</h2>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="n">$1649万</div>
+          <div class="l">最终成交价（约1.65亿人民币）</div>
+        </div>
+        <div class="stat-box r">
+          <div class="n"
+            style="background:linear-gradient(135deg,var(--red),#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+            史上第1</div>
+          <div class="l">TCG 品类公开拍卖最高价</div>
+        </div>
+        <div class="stat-box g">
+          <div class="n">吉尼斯</div>
+          <div class="l">世界纪录裁判 Sarah Casson 现场颁证</div>
+        </div>
+      </div>
+
+      <p>
+        2026 年 2 月 16 日（周一）晚，Goldin Auctions 通过 <strong>YouTube 全程直播</strong>，
+        吉尼斯世界纪录裁判 Sarah Casson 现场确认并颁发证书。
+        拍卖结束后，Logan Paul 亲手将这张卡牌挂在了中标者的脖子上，并说：
+      </p>
+
+      <blockquote>
+        "Oh my gosh, this is crazy."（天啊，这太疯了。）
+        <span class="quote-source">— Logan Paul，Goldin Auctions 直播现场</span>
+      </blockquote>
+
+      <!-- ↓↓↓ IMG-3 ↓↓↓ -->
+      <img id="IMG-3" class="event-img" src="images/img3-logan-handover-to-aj.webp"
+        alt="Logan Paul 将卡牌亲手挂在 AJ Scaramucci 脖子上" style="max-height:480px;object-fit:cover">
+      <p class="event-img-caption">2026年2月16日，Goldin Auctions 直播现场 · Logan Paul 亲手将卡牌交给买家 A.J. Scaramucci</p>
+
+      <p>
+        此次成交刷新了整个集换式卡牌品类的公开拍卖历史纪录，超越了此前由
+        <strong>一张乔丹–科比双 Logoman 球星卡（1300 万美元）</strong>保持的纪录。
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ 买家揭秘 ═══ -->
+  <section id="buyer">
+    <div class="container fade">
+      <div class="section-label">买家 · 彩蛋所在</div>
+      <h2>出手 $1649万 的人是谁</h2>
+      <p>
+        故事最精彩的地方不是卖方，而是买家。这不是某个"上头的"宝可梦粉丝，
+        而是一位<strong>职业基金经理</strong>。
+      </p>
+
+      <div class="person-wrap">
+        <!-- ↓↓↓ IMG-4 ↓↓↓ -->
+        <img id="IMG-4" src="images/img4-aj-scaramucci.png" alt="A.J. Scaramucci"
+          style="width:80px;height:80px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border)">
+        <div class="person-info">
+          <div class="name">A.J. Scaramucci</div>
+          <div class="role">Solari Capital 创始人兼管理合伙人</div>
+          <p>
+            其父 <strong>Anthony Scaramucci</strong> 是 SkyBridge Capital 创始人、
+            前白宫通讯主任。A.J. 本人经营专注 AI / 生物科技 / 数字基础设施的风险投资基金 Solari Capital，
+            疫情期间开始涉足集换式卡牌收藏。
+          </p>
+        </div>
+      </div>
+
+      <h3>他为什么花 1649 万买一张卡？</h3>
+      <blockquote>
+        "这些卡的复合年化增长率高得离谱。它们就应该被当成投资品对待，
+        因为它们本来就是投资品——这是显而易见的。"
+        <span class="quote-source">— A.J. Scaramucci，CNBC 采访，2026年2月</span>
+      </blockquote>
+
+      <blockquote>
+        "宝可梦对人们的意义，远超任何一幅毕加索画作。"
+        <span class="quote-source">— A.J. Scaramucci</span>
+      </blockquote>
+
+      <p>
+        Scaramucci 将这笔交易定性为 <strong>"debasement trade（货币贬值对冲交易）"</strong>——
+        当投资者担心法币贬值时，资金流向硬资产。在他眼里，
+        宝可梦卡和<strong>黄金、BTC 是同一类东西</strong>。
+      </p>
+
+      <h3>买完之后，他还想要什么</h3>
+      <p>
+        Scaramucci 宣布，这只是他与弟弟共同发起的<strong>"全球珍宝猎寻（Planetary Treasure Hunt）"</strong>的第一步。
+        通过旗下新公司 <strong>Treasure Trove</strong>，他正系统性地收集各类别极稀缺的现实资产，包括：
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">🦕</div>
+          <div class="l" style="color:var(--text)">霸王龙化石</div>
+          <div class="l">计划收入下一个藏品</div>
+        </div>
+        <div class="stat-box i">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">📜</div>
+          <div class="l" style="color:var(--text)">《独立宣言》原件</div>
+          <div class="l">终极目标（长期计划）</div>
+        </div>
+        <div class="stat-box g">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">⚡</div>
+          <div class="l" style="color:var(--text)">Pikachu Illustrator PSA 10</div>
+          <div class="l">已完成 ✓ $16.49M</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 投资回报 ═══ -->
+  <section id="returns">
+    <div class="container fade">
+      <div class="section-label">投资视角</div>
+      <h2>用数字说话</h2>
+
+      <div class="chart-box">
+        <div class="chart-label">Logan Paul 持有期间各资产回报对比</div>
+        <canvas id="returnChart" height="200"></canvas>
+      </div>
+
+      <table class="attr-table">
+        <thead>
+          <tr>
+            <th>指标</th>
+            <th>数值</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>购入成本（2021年）</td>
+            <td><strong>$5,275,000</strong></td>
+          </tr>
+          <tr>
+            <td>最终成交（2026年）</td>
+            <td><strong>$16,492,000</strong></td>
+          </tr>
+          <tr>
+            <td>毛利润</td>
+            <td>约 $11,217,000</td>
+          </tr>
+          <tr>
+            <td>扣除拍卖费用后净利润</td>
+            <td>逾 <strong>$8,000,000</strong></td>
+          </tr>
+          <tr>
+            <td>投资回报率（ROI）</td>
+            <td><strong>约 +212%</strong>（持有 4–5 年）</td>
+          </tr>
+          <tr>
+            <td>同期 S&P 500</td>
+            <td>约 +15.2%（年化，同期）</td>
+          </tr>
+          <tr>
+            <td>同期宝可梦卡指数</td>
+            <td>过去一年涨幅约 +145%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="compare-highlight">
+        <div class="title">⚡ 关键对比</div>
+        <p style="margin:0;font-size:.88rem;color:var(--muted)">
+          同期 S&P 500 年化约 15%，持有 5 年约 +100%。
+          Logan Paul 的这张卡实现了 <strong style="color:var(--yellow)">+212%</strong>，
+          年化约 <strong style="color:var(--yellow)">25%</strong>，
+          超越标普指数约 <strong style="color:var(--yellow)">2.1 倍</strong>。
+          当然，这是极端案例，99% 的卡牌不具备这样的回报。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 完整时间线 ═══ -->
+  <section id="timeline">
+    <div class="container fade">
+      <div class="section-label">完整时间线</div>
+      <h2>从 1998 到 2026</h2>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">1998 年</div>
+          <div class="tl-title">皮卡丘插画卡诞生</div>
+          <div class="tl-body">作为 CoroCoro Comic 插画比赛奖品发放，全球约 39 张，从未公开销售</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2021 年</div>
+          <div class="tl-title">Logan Paul 购得 PSA 10 版本</div>
+          <div class="tl-body">从迪拜藏家处通过以物换物 + 现金，总成本 $527.5 万</div>
+          <div class="tl-price">$527.5 万 · 吉尼斯世界纪录认定最贵私下交易</div>
+        </div>
+
+        <div class="tl-item key">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2022 年 4 月 2 日</div>
+          <div class="tl-title">佩戴出战 WrestleMania 38</div>
+          <div class="tl-body">钻石精灵球吊坠 + 定制卡盒，戴上 AT&T 体育场摔角擂台，引发全球关注</div>
+          <div class="tl-price">公众曝光度 → 拍卖叙事溢价基础</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2026 年 1 月初</div>
+          <div class="tl-title">上架 Goldin Auctions</div>
+          <div class="tl-body">起拍价 $50 万，42 天竞价开始</div>
+          <div class="tl-price">起拍 $500,000</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2026 年 1 月中旬</div>
+          <div class="tl-title">竞价突破 $595.2 万</div>
+          <div class="tl-body">含买家佣金，已超越购入价，打破宝可梦卡牌公开拍卖记录</div>
+          <div class="tl-price">含佣金 $595.2 万</div>
+        </div>
+
+        <div class="tl-item key">
+          <div class="tl-dot"></div>
+          <div class="tl-year">2026 年 2 月 16 日</div>
+          <div class="tl-title">落槌：$16,492,000</div>
+          <div class="tl-body">
+            经 97 次出价、数小时延伸竞价后落槌。吉尼斯裁判 Sarah Casson 现场颁证。
+            买家 A.J. Scaramucci 当场将卡挂在脖子上。
+          </div>
+          <div class="tl-price">$16,492,000 · 史上最贵集换式卡牌公开拍卖</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 信息来源 ═══ -->
+  <section id="sources" style="border-bottom:none">
+    <div class="container fade">
+      <div class="section-label">信息来源</div>
+      <h2>本页数据出处</h2>
+      <p>以下所有数据均来自公开报道，点击可访问原文。</p>
+
+      <div class="sources">
+        <h4>主要来源</h4>
+        <a href="https://abc7.com/post/logan-pauls-pikachu-illustrator-pokmon-card-sells-record-165m-auction/18609638/"
+          target="_blank">
+          <span class="source-media">ABC7 Los Angeles</span><br>
+          Logan Paul's Pikachu Card Sells for $16.5M – 成交结果与现场报道
+        </a>
+        <a href="https://www.cnn.com/2026/02/16/americas/pokemon-card-logan-paul-record-auction-intl-hnk"
+          target="_blank">
+          <span class="source-media">CNN</span><br>
+          Pokémon Card Sells for Record – 成交过程与买家信息
+        </a>
+        <a href="https://fortune.com/2026/02/17/logan-paul-world-record-setting-pikachu-pokemon-card-auction-millionaire-youtuber-entrepreneur-gen-z-advice/"
+          target="_blank">
+          <span class="source-media">Fortune</span><br>
+          Logan Paul Cashes In $16.5 Million – 投资回报与 Paul 心路历程
+        </a>
+        <a href="https://www.cnbc.com/2026/02/25/pokmon-card-winner-scaramucci-says-collectibles-are-asset-class.html"
+          target="_blank">
+          <span class="source-media">CNBC</span><br>
+          Are Collectibles a Viable Asset Class? – 买家 Scaramucci 专访
+        </a>
+        <a href="https://en.thevalue.com/articles/logan-paul-world-record-pokemon-card-auction-goldin-2026"
+          target="_blank">
+          <span class="source-media">The Value</span><br>
+          Pikachu Illustrator Auction 2026 – 卡牌历史与购入经过
+        </a>
+        <a href="https://sports.yahoo.com/articles/bidding-logan-pauls-pikachu-illustrator-170000453.html"
+          target="_blank">
+          <span class="source-media">Yahoo Sports</span><br>
+          Bidding Hits $5.9 Million – 拍卖进程详情
+        </a>
+        <a href="https://www.foxbusiness.com/sports/logan-paul-sells-pikachu-illustrator-trading-card-more-than-16-4m"
+          target="_blank">
+          <span class="source-media">Fox Business</span><br>
+          Logan Paul Sells Pikachu Illustrator – 成交细节与卡牌分级
+        </a>
+        <a href="https://blog.veve.me/post/logan-paul-auctions-pikachu-illustrator-psa-10-pokemon-card" target="_blank">
+          <span class="source-media">VeVe Blog</span><br>
+          Logan Paul Auctions Pikachu Illustrator PSA 10 – 卡牌背景与拍卖信息
+        </a>
+        <a href="https://www.gate.com/news/detail/19033853" target="_blank">
+          <span class="source-media">Gate News</span><br>
+          Pokémon Card Sells for $16.5M – 市场分析与投资视角
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    本页为 <a href="tcg-sharing.html">TCG 内部分享</a> 的附属深度页面 ·
+    所有数据基于公开报道整理 · 数字均为美元
+  </footer>
+
+  <!-- ═══ 图表脚本 ═══ -->
+  <script>
+    Chart.defaults.color = '#a1a1aa';
+    Chart.defaults.borderColor = '#3f3f46';
+    Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif";
+
+    /* ── 出价历程 ── */
+    new Chart(document.getElementById('bidChart'), {
+      type: 'line',
+      data: {
+        labels: ['拍卖开启', '第10天', '1月中旬', '1月下旬', '2月初', '2月10日', '最终落槌\n2月16日'],
+        datasets: [{
+          label: '最高出价（含佣金，百万美元）',
+          data: [0.5, 6.3, 7.3, 8.8, 10.5, 13.2, 16.49],
+          borderColor: '#facc15',
+          backgroundColor: 'rgba(250,204,21,0.08)',
+          borderWidth: 2.5,
+          pointBackgroundColor: '#facc15',
+          pointRadius: [3, 4, 5, 3, 3, 3, 8],
+          pointHoverRadius: 7,
+          tension: 0.35,
+          fill: true,
+        }, {
+          label: '购入成本参考线',
+          data: [5.275, 5.275, 5.275, 5.275, 5.275, 5.275, 5.275],
+          borderColor: 'rgba(239,68,68,0.5)',
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true, labels: { font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => ` $${ctx.parsed.y} 百万美元` } }
+        },
+        scales: {
+          y: {
+            ticks: { callback: v => `$${v}M` },
+            grid: { color: 'rgba(63,63,70,0.5)' }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    /* ── 回报对比 ── */
+    new Chart(document.getElementById('returnChart'), {
+      type: 'bar',
+      data: {
+        labels: ['黄金\n(2021–2026)', 'S&P 500\n(2021–2026)', 'BTC\n(2021–2026)', 'Pikachu\nIllustrator'],
+        datasets: [{
+          data: [55, 85, 120, 212],
+          backgroundColor: [
+            'rgba(161,161,170,0.7)',
+            'rgba(99,102,241,0.7)',
+            'rgba(234,179,8,0.7)',
+            'rgba(250,204,21,0.9)',
+          ],
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` +${ctx.parsed.y}%` } }
+        },
+        scales: {
+          y: {
+            ticks: { callback: v => `+${v}%` },
+            grid: { color: 'rgba(63,63,70,0.5)' }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    /* ── 滚动渐入 ── */
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+
+    /* ── 卡牌3D悬停 ── */
+    document.querySelector('.card-3d').addEventListener('mouseleave', () => {
+      document.querySelector('.card-3d').style.transform = 'rotateY(-8deg) rotateX(4deg)';
+    });
+  </script>
+</body>
+
+</html>
