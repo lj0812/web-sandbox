@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>端午乌兰察布 · 两家七口自驾攻略</title>
+    <style>
+        /* ============ 设计令牌：参考 shadcn ============ */
+        :root {
+            --background: #ffffff;
+            --foreground: #0a0a0a;
+            --card: #ffffff;
+            --card-foreground: #0a0a0a;
+            --muted: #f4f4f5;
+            --muted-foreground: #71717a;
+            --border: #e4e4e7;
+            --input: #e4e4e7;
+            --primary: #18181b;
+            --primary-foreground: #fafafa;
+            --secondary: #f4f4f5;
+            --secondary-foreground: #18181b;
+            --accent: #f4f4f5;
+            --ring: #18181b;
+            --radius: 0.75rem;
+            --green: #16a34a;
+            --amber: #d97706;
+            --red: #dc2626;
+            --blue: #2563eb;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0a0a0a;
+                --foreground: #fafafa;
+                --card: #0a0a0a;
+                --card-foreground: #fafafa;
+                --muted: #27272a;
+                --muted-foreground: #a1a1aa;
+                --border: #27272a;
+                --input: #27272a;
+                --primary: #fafafa;
+                --primary-foreground: #18181b;
+                --secondary: #27272a;
+                --secondary-foreground: #fafafa;
+                --accent: #27272a;
+                --ring: #d4d4d8;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+        }
+
+        /* ============ Header ============ */
+        .header {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            border: 1px solid var(--border);
+        }
+
+        .badge.green {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .badge.amber {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .badge.blue {
+            background: #eff6ff;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+        .badge.red {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--muted-foreground);
+            font-size: 15px;
+        }
+
+        .countdown {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-top: 14px;
+            padding: 8px 14px;
+            background: var(--muted);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .countdown strong {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* ============ Card ============ */
+        .card {
+            background: var(--card);
+            color: var(--card-foreground);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            letter-spacing: -0.01em;
+        }
+
+        .card-title .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 9999px;
+            background: var(--primary);
+        }
+
+        .card-desc {
+            color: var(--muted-foreground);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        /* ============ Grid ============ */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 720px) {
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+        }
+
+        /* ============ Family card ============ */
+        .family {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            background: var(--muted);
+        }
+
+        .family h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .family .members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .chip {
+            font-size: 12px;
+            padding: 3px 9px;
+            border-radius: 9999px;
+            background: var(--background);
+            border: 1px solid var(--border);
+        }
+
+        .car-type {
+            font-size: 13px;
+            color: var(--muted-foreground);
+            margin-top: 8px;
+        }
+
+        /* ============ Tabs ============ */
+        .tabs {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--muted);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: calc(var(--radius) - 4px);
+            color: var(--muted-foreground);
+            transition: all 0.15s ease;
+        }
+
+        .tab:hover {
+            color: var(--foreground);
+        }
+
+        .tab.active {
+            background: var(--card);
+            color: var(--foreground);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ============ Timeline ============ */
+        .timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 22px;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -23px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 9999px;
+            background: var(--card);
+            border: 2px solid var(--primary);
+        }
+
+        .timeline-item .time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item .event {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item .detail {
+            font-size: 14px;
+            color: var(--muted-foreground);
+        }
+
+        .timeline-item .tags {
+            margin-top: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        /* ============ Checklist ============ */
+        .checklist {
+            display: grid;
+            gap: 8px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) - 2px);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            user-select: none;
+        }
+
+        .check-item:hover {
+            background: var(--muted);
+        }
+
+        .check-item input {
+            margin-top: 3px;
+            cursor: pointer;
+        }
+
+        .check-item.done .label {
+            text-decoration: line-through;
+            color: var(--muted-foreground);
+        }
+
+        .check-item .label {
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .check-item .meta {
+            font-size: 12px;
+            color: var(--muted-foreground);
+            margin-top: 2px;
+        }
+
+        .checklist-group {
+            margin-bottom: 18px;
+        }
+
+        .checklist-group h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        /* ============ Note editor ============ */
+        .editable {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px 14px;
+            border: 1px dashed var(--border);
+            border-radius: calc(var(--radius) - 2px);
+            background: var(--muted);
+            color: var(--foreground);
+            font: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .editable:focus {
+            outline: 2px solid var(--ring);
+            outline-offset: 1px;
+            border-style: solid;
+        }
+
+        /* ============ Info row ============ */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .key {
+            color: var(--muted-foreground);
+        }
+
+        .info-row .val {
+            font-weight: 500;
+        }
+
+        .info-row .val.editable-inline {
+            padding: 2px 8px;
+            border-radius: 4px;
+            cursor: text;
+            border: 1px dashed transparent;
+        }
+
+        .info-row .val.editable-inline:hover {
+            border-color: var(--border);
+        }
+
+        .info-row .val.editable-inline:focus {
+            outline: 2px solid var(--ring);
+            border-style: solid;
+        }
+
+        /* ============ Buttons ============ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: calc(var(--radius) - 2px);
+            cursor: pointer;
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border: 1px solid var(--primary);
+        }
+
+        .btn.outline {
+            background: transparent;
+            color: var(--foreground);
+            border-color: var(--border);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        /* ============ Alert ============ */
+        .alert {
+            padding: 12px 16px;
+            border-radius: calc(var(--radius) - 2px);
+            border-left: 3px solid var(--amber);
+            background: #fffbeb;
+            color: #78350f;
+            font-size: 13px;
+            margin: 12px 0;
+        }
+
+        .alert.blue {
+            border-left-color: var(--blue);
+            background: #eff6ff;
+            color: #1e3a8a;
+        }
+
+        .alert.red {
+            border-left-color: var(--red);
+            background: #fef2f2;
+            color: #7f1d1d;
+        }
+
+        .alert.green {
+            border-left-color: var(--green);
+            background: #f0fdf4;
+            color: #14532d;
+        }
+
+        .alert strong {
+            font-weight: 600;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .alert {
+                background: rgba(217, 119, 6, 0.08);
+                color: #fde68a;
+            }
+
+            .alert.blue {
+                background: rgba(37, 99, 235, 0.08);
+                color: #bfdbfe;
+            }
+
+            .alert.red {
+                background: rgba(220, 38, 38, 0.08);
+                color: #fecaca;
+            }
+
+            .alert.green {
+                background: rgba(22, 163, 74, 0.08);
+                color: #bbf7d0;
+            }
+
+            .badge.green {
+                background: rgba(22, 163, 74, 0.12);
+                color: #86efac;
+                border-color: rgba(22, 163, 74, 0.3);
+            }
+
+            .badge.amber {
+                background: rgba(217, 119, 6, 0.12);
+                color: #fcd34d;
+                border-color: rgba(217, 119, 6, 0.3);
+            }
+
+            .badge.blue {
+                background: rgba(37, 99, 235, 0.12);
+                color: #93c5fd;
+                border-color: rgba(37, 99, 235, 0.3);
+            }
+
+            .badge.red {
+                background: rgba(220, 38, 38, 0.12);
+                color: #fca5a5;
+                border-color: rgba(220, 38, 38, 0.3);
+            }
+
+            .family {
+                background: var(--muted);
+            }
+        }
+
+        /* ============ Section nav ============ */
+        .section-nav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            margin: -24px -20px 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .section-nav a {
+            flex-shrink: 0;
+            padding: 6px 12px;
+            font-size: 13px;
+            text-decoration: none;
+            color: var(--muted-foreground);
+            border-radius: calc(var(--radius) - 4px);
+        }
+
+        .section-nav a:hover {
+            background: var(--muted);
+            color: var(--foreground);
+        }
+
+        /* ============ Progress ============ */
+        .progress {
+            height: 6px;
+            width: 100%;
+            background: var(--muted);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--muted-foreground);
+            margin-top: 6px;
+        }
+
+        /* ============ Map link ============ */
+        .map-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .map-row a {
+            font-size: 12px;
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            color: var(--foreground);
+            text-decoration: none;
+            background: var(--card);
+        }
+
+        .map-row a:hover {
+            background: var(--muted);
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ============ 顶部导航 ============ -->
+        <nav class="section-nav">
+            <div class="section-nav-inner">
+                <a href="#overview">概览</a>
+                <a href="#families">同行人员</a>
+                <a href="#itinerary">行程</a>
+                <a href="#driving">自驾 & 充电</a>
+                <a href="#checklist">物品清单</a>
+                <a href="#notes">备忘录</a>
+                <a href="#emergency">应急信息</a>
+            </div>
+        </nav>
+
+        <!-- ============ Header ============ -->
+        <header class="header" id="overview">
+            <div class="badge-row">
+                <span class="badge green">端午假期</span>
+                <span class="badge blue">两家 7 人</span>
+                <span class="badge amber">含 2 个 2 岁宝宝</span>
+                <span class="badge">EV + 油车</span>
+            </div>
+            <h1 class="title">端午乌兰察布 · 火山自驾游</h1>
+            <p class="subtitle">2026.06.19 周五 — 2026.06.21 周日 · 北京 ↔ 乌兰察布 ↔ 乌兰哈达火山</p>
+            <div class="countdown" id="countdown">距离出发还有 <strong id="days">—</strong> 天</div>
+        </header>
+
+        <!-- ============ 同行人员 ============ -->
+        <section class="card" id="families">
+            <div class="card-title"><span class="dot"></span>同行人员</div>
+            <div class="grid-2">
+                <div class="family">
+                    <h4>我家 <span class="badge green" style="margin-left:auto">电车 🔌</span></h4>
+                    <p class="card-desc" style="margin-bottom:6px">3 人</p>
+                    <div class="members">
+                        <span class="chip">爸爸</span>
+                        <span class="chip">妈妈</span>
+                        <span class="chip">女儿 · 2 岁</span>
+                    </div>
+                    <p class="car-type">⚠️ 需关注续航与充电桩位置</p>
+                </div>
+                <div class="family">
+                    <h4>同学家 <span class="badge amber" style="margin-left:auto">油车 ⛽</span></h4>
+                    <p class="card-desc" style="margin-bottom:6px">4 人（含老人）</p>
+                    <div class="members">
+                        <span class="chip">爸爸</span>
+                        <span class="chip">妈妈</span>
+                        <span class="chip">女儿 · 2 岁</span>
+                        <span class="chip">奶奶 · 50+</span>
+                    </div>
+                    <p class="car-type">⚠️ 老人长途需注意休息与高原反应</p>
+                </div>
+            </div>
+            <div class="alert blue" style="margin-top:14px">
+                <strong>关键考虑：</strong>两车需保持联络（建议建微信群定位共享），EV 提前规划充电节点；老人 & 宝宝行程节奏不能太赶；准备宝宝零食、湿巾、便携餐椅等。
+            </div>
+        </section>
+
+        <!-- ============ 行程 ============ -->
+        <section class="card" id="itinerary">
+            <div class="card-title"><span class="dot"></span>三日行程</div>
+            <p class="card-desc">点击切换不同日期，灰色文字可直接点击编辑（保存到本地）</p>
+
+            <div class="tabs" role="tablist">
+                <button class="tab active" data-tab="day1">周五 · Day 1</button>
+                <button class="tab" data-tab="day2">周六 · Day 2</button>
+                <button class="tab" data-tab="day3">周日 · Day 3</button>
+            </div>
+
+            <!-- Day 1 -->
+            <div class="tab-panel active" id="day1">
+                <div class="info-row">
+                    <span class="key">日期</span>
+                    <span class="val">6/19 · 周五（端午）</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">主题</span>
+                    <span class="val">北京 → 乌兰察布市区 → 乌兰察布之夜</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">行车里程</span>
+                    <span class="val">约 400 km · 5–6 小时（含休息）</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">住宿</span>
+                    <span class="val editable-inline" contenteditable="true" data-save="day1-stay">待定 ·
+                        三室一厅民宿（点击编辑）</span>
+                </div>
+
+                <div style="height:18px"></div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="time">07:00 - 07:30</div>
+                        <div class="event">两家集合出发</div>
+                        <div class="detail">建议两车在 <span contenteditable="true" data-save="meet-point"
+                                style="border-bottom:1px dashed var(--border);padding:0 4px">某加油站/服务区</span>
+                            集合，统一出发节奏。宝宝出发前先吃早餐、换尿不湿。</div>
+                        <div class="tags"><span class="badge">早高峰前出城</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">12:00 - 13:30</div>
+                        <div class="event">中途休息 + 午餐</div>
+                        <div class="detail">推荐张家口段服务区或下高速找当地小馆。EV 在此节点查看电量，必要时补电。</div>
+                        <div class="tags"><span class="badge blue">EV 第一次补能点</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">14:30 - 15:30</div>
+                        <div class="event">抵达乌兰察布市区 · 入住民宿</div>
+                        <div class="detail">放行李、宝宝午睡，老人休整。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">17:30 - 21:30</div>
+                        <div class="event">乌兰察布之夜</div>
+                        <div class="detail">夜市文化街区，有演艺、烧烤、文创商铺。傍晚去比较舒服，宝宝怕吵的话备耳塞/降噪。晚餐可直接在街区解决。</div>
+                        <div class="map-row">
+                            <a href="https://uri.amap.com/marker?position=&name=乌兰察布之夜&src=mypage"
+                                target="_blank">高德地图</a>
+                            <a href="https://map.baidu.com/search/乌兰察布之夜" target="_blank">百度地图</a>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">22:00</div>
+                        <div class="event">回民宿休息</div>
+                        <div class="detail">明天要早起去火山，今晚早点睡。EV 趁夜里在民宿/附近充电桩补满。</div>
+                    </div>
+                </div>
+
+                <div class="alert">
+                    <strong>民宿筛选建议：</strong>三室一厅、能停 2 车、有厨房（可给宝宝煮粥/热奶）、电梯（老人友好）。如果有充电桩或附近 1 公里内有桩则更佳。可在美团 / 爱彼迎 /
+                    木鸟搜索"乌兰察布 集宁 三室"。
+                </div>
+            </div>
+
+            <!-- Day 2 -->
+            <div class="tab-panel" id="day2">
+                <div class="info-row">
+                    <span class="key">日期</span>
+                    <span class="val">6/20 · 周六</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">主题</span>
+                    <span class="val">乌兰察布 → 乌兰哈达达延汗火山景区</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">行车里程</span>
+                    <span class="val">约 110 km · 2 小时</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">住宿</span>
+                    <span class="val">✅ 景区房子（已定）</span>
+                </div>
+
+                <div style="height:18px"></div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="time">08:30 - 09:30</div>
+                        <div class="event">起床 + 早餐 + 退房</div>
+                        <div class="detail">让老人和宝宝睡饱，不赶时间。早餐可在民宿附近找早点铺（焖面、烧麦推荐）。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">09:30 - 11:30</div>
+                        <div class="event">自驾前往火山景区</div>
+                        <div class="detail">路线穿越草原+乡道，景色很好。途中可以停下来拍照。注意：景区附近充电桩极少，<strong>EV 一定要在出发前把电充满</strong>。</div>
+                        <div class="tags"><span class="badge red">EV 充满电再出发</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">12:00 - 13:30</div>
+                        <div class="event">抵达景区 · 入住 + 午餐</div>
+                        <div class="detail">放行李，景区餐厅或自带餐解决。下午阳光最强，先休息 1–2 小时。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">15:30 - 19:30</div>
+                        <div class="event">游览火山群（黄金时段）</div>
+                        <div class="detail">乌兰哈达共有多座火山，最适合游玩的是 <strong>3 号火山（炼丹炉）</strong>和 <strong>6
+                                号火山</strong>，前者可登顶、后者有观景台。傍晚光线柔和最适合拍照。带防风外套（草原日夜温差大）。</div>
+                        <div class="tags">
+                            <span class="badge">海拔 1500m</span>
+                            <span class="badge">日落约 19:50</span>
+                            <span class="badge amber">防晒+防风</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">20:00 - 21:30</div>
+                        <div class="event">晚餐</div>
+                        <div class="detail">景区/附近吃烤全羊、手把肉、奶茶。提前打电话预订（节假日人多）。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">22:30+</div>
+                        <div class="event">⭐ 看星空 / 银河（可选）</div>
+                        <div class="detail">乌兰哈达是国内最容易拍银河的地点之一。宝宝睡觉后大人轮流出来看。注意保暖、带手电（红光更佳）。</div>
+                        <div class="tags"><span class="badge blue">天气晴朗才有</span></div>
+                    </div>
+                </div>
+
+                <div class="alert green">
+                    <strong>火山小贴士：</strong>2 岁宝宝可以让爸爸轮流抱着登顶，台阶不算长；老人若不爬山可以在车里或观景台休息。景区有摆拍道具（白马、复古车）需另付费。
+                </div>
+            </div>
+
+            <!-- Day 3 -->
+            <div class="tab-panel" id="day3">
+                <div class="info-row">
+                    <span class="key">日期</span>
+                    <span class="val">6/21 · 周日</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">主题</span>
+                    <span class="val">火山景区 → 北京（含轻量游玩）</span>
+                </div>
+                <div class="info-row">
+                    <span class="key">行车里程</span>
+                    <span class="val">约 480 km · 6–7 小时</span>
+                </div>
+
+                <div style="height:18px"></div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="time">06:30 - 08:00</div>
+                        <div class="event">日出 / 早餐（可选）</div>
+                        <div class="detail">大人若想看日出可以早起，宝宝和老人继续睡。日出约 04:55，光线漂亮可到 7 点前。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">09:00 - 09:30</div>
+                        <div class="event">退房出发</div>
+                        <div class="detail">EV 出发前再次确认电量。如景区无桩需先开到察哈尔右翼后旗或集宁补能。</div>
+                        <div class="tags"><span class="badge red">EV 起步必满电</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">11:30 - 13:30</div>
+                        <div class="event">中途停留：辉腾锡勒草原 / 黄花沟（可选）</div>
+                        <div class="detail">如果体力允许，可顺路看一段草原。带宝宝走 30–60 分钟即可。不想停就直接返京。</div>
+                        <div class="tags"><span class="badge">轻量可选</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">13:30 - 14:30</div>
+                        <div class="event">午餐</div>
+                        <div class="detail">建议下高速找当地餐馆，比服务区好吃。</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">14:30 - 19:00</div>
+                        <div class="event">返京</div>
+                        <div class="detail">京藏 / 京新高速回。注意周日下午晚高峰，进京可能拥堵。EV 中途至少补能 1 次。</div>
+                        <div class="tags"><span class="badge amber">避开晚高峰</span></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">19:30+</div>
+                        <div class="event">到家 · 圆满收官 🎉</div>
+                        <div class="detail">分别送各家到家门口，宝宝今晚估计直接秒睡。</div>
+                    </div>
+                </div>
+
+                <div class="alert blue">
+                    <strong>返程节奏建议：</strong>带老人+宝宝长途，建议每 1.5–2 小时停车休息 10 分钟，让大家活动+换尿不湿。
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 自驾 & 充电 ============ -->
+        <section class="card" id="driving">
+            <div class="card-title"><span class="dot"></span>自驾路线 & EV 充电规划</div>
+
+            <div class="grid-2">
+                <div>
+                    <h4 style="font-size:14px;margin-bottom:10px;color:var(--muted-foreground)">推荐路线</h4>
+                    <div class="info-row">
+                        <span class="key">去程</span>
+                        <span class="val">京藏 G6 → 京新 G7</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="key">总里程</span>
+                        <span class="val">≈ 400 km（单程）</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="key">建议时速</span>
+                        <span class="val">110 km/h（EV 续航更稳）</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="font-size:14px;margin-bottom:10px;color:var(--muted-foreground)">EV 充电节点</h4>
+                    <div class="info-row">
+                        <span class="key">出发前</span>
+                        <span class="val">充至 100%</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="key">中途</span>
+                        <span class="val">张家口附近服务区</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="key">到达后</span>
+                        <span class="val">市区夜间补满</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert">
+                <strong>EV 关键提醒：</strong>乌兰哈达火山景区附近充电桩稀少（基本要回集宁市区），所以"出发→市区→火山→市区→返京"这条路线，每次离开市区前都要充满电。
+                <br />2026 年北京高速服务区已实现超充全覆盖（最快 15 分钟补能），京藏沿线无需担心；但内蒙古段桩相对少，建议安装高德 / 蔚来 / 特来电 等多个 App 提前查桩。
+            </div>
+
+            <h4 style="font-size:14px;margin:18px 0 10px;color:var(--muted-foreground)">两车协同</h4>
+            <ul style="font-size:14px;padding-left:20px;color:var(--foreground)">
+                <li style="margin-bottom:6px">建群 + 实时位置共享（微信"共享实时位置"）</li>
+                <li style="margin-bottom:6px">前车 EV 按续航定节奏，油车跟队，避免走散</li>
+                <li style="margin-bottom:6px">每次休息互相点到，宝宝换尿不湿/喂奶时一起停</li>
+                <li>如失联以"下个服务区集合"为默认</li>
+            </ul>
+        </section>
+
+        <!-- ============ 物品清单 ============ -->
+        <section class="card" id="checklist">
+            <div class="card-title"><span class="dot"></span>物品清单 <span
+                    style="margin-left:auto;font-size:12px;color:var(--muted-foreground)" id="progress-text">0 /
+                    0</span></div>
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+            </div>
+            <p class="progress-label">勾选物品自动保存到本地，再次打开会保留状态。</p>
+
+            <div style="height:14px"></div>
+
+            <div class="grid-2">
+                <div>
+                    <div class="checklist-group">
+                        <h4>宝宝（×2）</h4>
+                        <div class="checklist" data-group="baby"></div>
+                    </div>
+                    <div class="checklist-group">
+                        <h4>老人</h4>
+                        <div class="checklist" data-group="elder"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="checklist-group">
+                        <h4>大人 / 通用</h4>
+                        <div class="checklist" data-group="adult"></div>
+                    </div>
+                    <div class="checklist-group">
+                        <h4>车上必备</h4>
+                        <div class="checklist" data-group="car"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn outline" onclick="resetChecklist()">重置勾选</button>
+                <button class="btn outline" onclick="addCustomItem()">+ 自定义物品</button>
+            </div>
+        </section>
+
+        <!-- ============ 备忘 ============ -->
+        <section class="card" id="notes">
+            <div class="card-title"><span class="dot"></span>备忘录 / 待办</div>
+            <p class="card-desc">随手记，自动本地保存。</p>
+            <textarea class="editable" id="notes-area" placeholder="例：
+- 民宿候选 1：xxx，电话 xxx，价格 xxx
+- 民宿候选 2：xxx
+- 火山附近餐馆推荐：xxx
+- 同学家奶奶有降压药需准备
+- 周五早上记得退烧贴常备"></textarea>
+            <div class="btn-row">
+                <button class="btn" onclick="exportData()">导出全部数据 (JSON)</button>
+                <button class="btn outline" onclick="window.print()">打印 / 保存 PDF</button>
+            </div>
+        </section>
+
+        <!-- ============ 应急 ============ -->
+        <section class="card" id="emergency">
+            <div class="card-title"><span class="dot"></span>应急信息</div>
+            <div class="grid-3">
+                <div class="info-row"
+                    style="border:1px solid var(--border);padding:12px;border-radius:8px;flex-direction:column;align-items:flex-start;gap:4px">
+                    <span class="key">急救</span>
+                    <span class="val" style="font-size:18px">120</span>
+                </div>
+                <div class="info-row"
+                    style="border:1px solid var(--border);padding:12px;border-radius:8px;flex-direction:column;align-items:flex-start;gap:4px">
+                    <span class="key">交警</span>
+                    <span class="val" style="font-size:18px">122</span>
+                </div>
+                <div class="info-row"
+                    style="border:1px solid var(--border);padding:12px;border-radius:8px;flex-direction:column;align-items:flex-start;gap:4px">
+                    <span class="key">报警</span>
+                    <span class="val" style="font-size:18px">110</span>
+                </div>
+                <div class="info-row"
+                    style="border:1px solid var(--border);padding:12px;border-radius:8px;flex-direction:column;align-items:flex-start;gap:4px">
+                    <span class="key">乌兰察布人民医院</span>
+                    <span class="val editable-inline" contenteditable="true" data-save="hospital">0474-8333120</span>
+                </div>
+                <div class="info-row"
+                    style="border:1px solid var(--border);padding:12px;border-radius:8px;flex-direction:column;align-items:flex-start;gap:4px">
+                    <span class="key">民宿电话</span>
+                    <span class="val editable-inline" contenteditable="true" data-save="bnb-phone">待填写</span>
+                </div>
+                <div class="info-row"
+                    style="border:1px solid var(--border);padding:12px;border-radius:8px;flex-direction:column;align-items:flex-start;gap:4px">
+                    <span class="key">火山景区电话</span>
+                    <span class="val editable-inline" contenteditable="true" data-save="volcano-phone">待填写</span>
+                </div>
+            </div>
+
+            <div class="alert red" style="margin-top:14px">
+                <strong>注意：</strong>火山景区海拔 1500m+，老人和宝宝若出现头晕、恶心需立即下海拔。准备葡萄糖、儿童退烧药、晕车药。
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // ============ 倒计时 ============
+        function updateCountdown() {
+            const target = new Date('2026-06-19T07:00:00');
+            const now = new Date();
+            const diff = target - now;
+            const days = Math.ceil(diff / 86400000);
+            const el = document.getElementById('days');
+            if (days > 0) el.textContent = days;
+            else if (days === 0) el.textContent = '就是今天';
+            else document.getElementById('countdown').textContent = '已出发 / 已完成 🎉';
+        }
+        updateCountdown();
+
+        // ============ Tabs ============
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // ============ 物品清单数据 ============
+        const checklistData = {
+            baby: [
+                { id: 'b1', label: '尿不湿（按 6 片/天 × 3 天 × 2 娃）', meta: '至少 36 片' },
+                { id: 'b2', label: '湿巾 × 多包' },
+                { id: 'b3', label: '宝宝零食、辅食、奶粉' },
+                { id: 'b4', label: '保温杯、奶瓶' },
+                { id: 'b5', label: '换洗衣物 4–5 套（含薄外套）', meta: '草原温差大' },
+                { id: 'b6', label: '便携餐椅 / 推车' },
+                { id: 'b7', label: '安全座椅（必装！）', meta: '高速强制要求' },
+                { id: 'b8', label: '退烧贴、儿童退烧药、温度计' },
+                { id: 'b9', label: '宝宝防晒霜 + 太阳帽' },
+                { id: 'b10', label: '小玩具 / iPad / 安抚物', meta: '长途必备' }
+            ],
+            elder: [
+                { id: 'e1', label: '常用药（降压、降糖等）', meta: '一定要带够' },
+                { id: 'e2', label: '保暖外套 / 围巾', meta: '草原早晚冷' },
+                { id: 'e3', label: '舒适运动鞋' },
+                { id: 'e4', label: '老花镜 / 备用眼镜' },
+                { id: 'e5', label: '速效救心丸（保险起见）' }
+            ],
+            adult: [
+                { id: 'a1', label: '身份证 × 7', meta: '宝宝带户口本' },
+                { id: 'a2', label: '防晒霜（SPF50）+ 墨镜 + 帽子' },
+                { id: 'a3', label: '防风外套（草原大风）' },
+                { id: 'a4', label: '充电宝、各种充电线' },
+                { id: 'a5', label: '相机 / 手机三脚架（拍火山+银河）' },
+                { id: 'a6', label: '现金 ¥500（部分小店不支持扫码）' },
+                { id: 'a7', label: '行李箱 / 户外背包' }
+            ],
+            car: [
+                { id: 'c1', label: 'EV 充电枪 / 转换头' },
+                { id: 'c2', label: '车载冰箱 / 保温箱（奶粉/零食）' },
+                { id: 'c3', label: '一次性雨衣 × 几件' },
+                { id: 'c4', label: '车载垃圾袋' },
+                { id: 'c5', label: '晕车药、晕车贴' },
+                { id: 'c6', label: '简易医药包', meta: '碘伏、创可贴、感冒药' },
+                { id: 'c7', label: '两车对讲机（可选）' },
+                { id: 'c8', label: '导航预先离线下载（信号弱区域）' }
+            ]
+        };
+
+        function renderChecklist() {
+            Object.keys(checklistData).forEach(group => {
+                const container = document.querySelector(`[data-group="${group}"]`);
+                container.innerHTML = '';
+                checklistData[group].forEach(item => {
+                    const div = document.createElement('label');
+                    div.className = 'check-item';
+                    div.dataset.id = item.id;
+                    const saved = localStorage.getItem('check-' + item.id) === '1';
+                    if (saved) div.classList.add('done');
+                    div.innerHTML = `
+          <input type="checkbox" ${saved ? 'checked' : ''} />
+          <div style="flex:1">
+            <div class="label">${item.label}</div>
+            ${item.meta ? `<div class="meta">${item.meta}</div>` : ''}
+          </div>
+        `;
+                    div.querySelector('input').addEventListener('change', e => {
+                        if (e.target.checked) {
+                            div.classList.add('done');
+                            localStorage.setItem('check-' + item.id, '1');
+                        } else {
+                            div.classList.remove('done');
+                            localStorage.removeItem('check-' + item.id);
+                        }
+                        updateProgress();
+                    });
+                    container.appendChild(div);
+                });
+            });
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const all = document.querySelectorAll('.check-item');
+            const done = document.querySelectorAll('.check-item.done');
+            const pct = all.length ? (done.length / all.length * 100) : 0;
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('progress-text').textContent = `${done.length} / ${all.length}`;
+        }
+
+        function resetChecklist() {
+            if (!confirm('确认重置所有勾选？')) return;
+            Object.keys(checklistData).forEach(group => {
+                checklistData[group].forEach(item => {
+                    localStorage.removeItem('check-' + item.id);
+                });
+            });
+            renderChecklist();
+        }
+
+        function addCustomItem() {
+            const text = prompt('添加一个自定义物品：');
+            if (!text) return;
+            const id = 'custom-' + Date.now();
+            checklistData.adult.push({ id, label: text });
+            // 保存到 localStorage
+            const customList = JSON.parse(localStorage.getItem('custom-items') || '[]');
+            customList.push({ id, label: text });
+            localStorage.setItem('custom-items', JSON.stringify(customList));
+            renderChecklist();
+        }
+
+        // 加载自定义条目
+        const customSaved = JSON.parse(localStorage.getItem('custom-items') || '[]');
+        customSaved.forEach(item => checklistData.adult.push(item));
+
+        renderChecklist();
+
+        // ============ 可编辑字段保存 ============
+        document.querySelectorAll('[data-save]').forEach(el => {
+            const key = 'edit-' + el.dataset.save;
+            const saved = localStorage.getItem(key);
+            if (saved) el.textContent = saved;
+            el.addEventListener('blur', () => {
+                localStorage.setItem(key, el.textContent);
+            });
+        });
+
+        // ============ 备忘录 ============
+        const notesArea = document.getElementById('notes-area');
+        notesArea.value = localStorage.getItem('notes') || '';
+        notesArea.addEventListener('input', () => {
+            localStorage.setItem('notes', notesArea.value);
+        });
+
+        // ============ 导出数据 ============
+        function exportData() {
+            const data = {};
+            Object.keys(localStorage).forEach(k => {
+                data[k] = localStorage.getItem(k);
+            });
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `乌兰察布攻略-数据-${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+
+</html>
