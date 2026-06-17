@@ -1017,10 +1017,10 @@
 
         .weather-cell {
             display: grid;
-            grid-template-columns: 48px 1fr auto;
+            grid-template-columns: 44px 1fr auto;
             align-items: center;
-            gap: 8px;
-            padding: 6px 0;
+            gap: 10px;
+            padding: 8px 0;
             border-bottom: 1px dashed var(--border);
             font-size: 13px;
         }
@@ -1030,8 +1030,21 @@
         }
 
         .weather-cell-date {
+            line-height: 1.15;
+        }
+
+        .weather-cell-day {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .weather-cell-week {
             color: var(--muted-foreground);
-            font-size: 12px;
+            font-size: 11px;
+        }
+
+        .weather-cell-main {
+            min-width: 0;
         }
 
         .weather-cell-text {
@@ -1041,15 +1054,43 @@
             white-space: nowrap;
         }
 
+        .weather-cell-wind {
+            color: var(--muted-foreground);
+            font-size: 11px;
+            margin-top: 1px;
+        }
+
         .weather-cell-temp {
             font-weight: 600;
             white-space: nowrap;
+            text-align: right;
         }
 
         .weather-cell-temp .lo {
             color: var(--muted-foreground);
             font-weight: 400;
             margin-right: 4px;
+        }
+
+        .weather-cell.is-trip .weather-cell-day,
+        .weather-cell.is-trip .weather-cell-week {
+            color: var(--blue);
+        }
+
+        .weather-cell.is-trip .weather-cell-text::after {
+            content: ' · 行程日';
+            color: var(--blue);
+            font-weight: 500;
+            font-size: 11px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+
+            .weather-cell.is-trip .weather-cell-day,
+            .weather-cell.is-trip .weather-cell-week,
+            .weather-cell.is-trip .weather-cell-text::after {
+                color: #93c5fd;
+            }
         }
 
         .weather-footer {
@@ -1168,7 +1209,10 @@
             <p class="card-desc">行程相关地点 · 每 30 分钟自动更新</p>
             <div class="weather-grid" data-weather-grid></div>
             <div class="weather-footer">
-                <span class="weather-updated">上次更新：<span data-weather-updated>--</span></span>
+                <span class="weather-updated">
+                    上次更新：<span data-weather-updated>--</span>
+                    · 数据发布：<span data-weather-reporttime>--</span>
+                </span>
                 <span class="weather-status" data-weather-status></span>
             </div>
         </section>
@@ -1811,9 +1855,31 @@
             return '🌡️';
         }
 
+        const WEEK_LABEL = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
         function formatShortDate(iso) {
             const [, m, d] = iso.split('-');
             return `${parseInt(m, 10)}/${parseInt(d, 10)}`;
+        }
+
+        function weekLabel(iso) {
+            const [y, m, d] = iso.split('-').map(Number);
+            return WEEK_LABEL[new Date(y, m - 1, d).getDay()];
+        }
+
+        function formatWeatherText(cast) {
+            const dw = cast.dayweather || '';
+            const nw = cast.nightweather || '';
+            const di = weatherIcon(dw);
+            if (!nw || dw === nw) return `${di} ${dw}`.trim();
+            const ni = weatherIcon(nw);
+            return `${di}${dw} / ${ni}${nw}`;
+        }
+
+        function formatWind(direction, power) {
+            const dir = direction ? `${direction}风` : '';
+            const p = power ? ` ${power}级` : '';
+            return (dir + p).trim() || '--';
         }
 
         function pad2(n) { return n < 10 ? '0' + n : '' + n; }
@@ -1824,9 +1890,15 @@
             grid.innerHTML = LOCATIONS.map(loc => {
                 const rows = TRIP_DATES.map(date => `
                     <div class="weather-cell" data-cell="${loc.id}|${date}">
-                        <span class="weather-cell-date">${formatShortDate(date)}</span>
-                        <span class="weather-cell-text">--</span>
-                        <span class="weather-cell-temp">--</span>
+                        <div class="weather-cell-date">
+                            <div class="weather-cell-day">${formatShortDate(date)}</div>
+                            <div class="weather-cell-week">${weekLabel(date)}</div>
+                        </div>
+                        <div class="weather-cell-main">
+                            <div class="weather-cell-text">--</div>
+                            <div class="weather-cell-wind">--</div>
+                        </div>
+                        <div class="weather-cell-temp">--</div>
                     </div>`).join('');
                 return `
                     <div class="weather-location" data-loc="${loc.id}">
@@ -1845,8 +1917,12 @@
             return data;
         }
 
+        function getForecast(data) {
+            return data && data.forecasts && data.forecasts[0] || null;
+        }
+
         function findCastByDate(data, isoDate) {
-            const forecast = data && data.forecasts && data.forecasts[0];
+            const forecast = getForecast(data);
             if (!forecast || !Array.isArray(forecast.casts)) return null;
             return forecast.casts.find(c => c.date === isoDate) || null;
         }
@@ -1855,15 +1931,16 @@
             const cell = document.querySelector(`[data-cell="${locId}|${date}"]`);
             if (!cell) return;
             const textEl = cell.querySelector('.weather-cell-text');
+            const windEl = cell.querySelector('.weather-cell-wind');
             const tempEl = cell.querySelector('.weather-cell-temp');
             if (!cast) {
                 textEl.textContent = '暂未发布';
+                windEl.textContent = '行程临近后可见';
                 tempEl.textContent = '--';
                 return;
             }
-            const dayText = cast.dayweather || '';
-            const icon = weatherIcon(dayText);
-            textEl.textContent = `${icon} ${dayText}`.trim();
+            textEl.textContent = formatWeatherText(cast);
+            windEl.textContent = formatWind(cast.daywind, cast.daypower);
             tempEl.innerHTML = `<span class="lo">${cast.nighttemp}°</span>${cast.daytemp}°`;
         }
 
@@ -1874,8 +1951,7 @@
                 el.textContent = `${locName} · 暂未发布`;
                 return;
             }
-            const icon = weatherIcon(cast.dayweather);
-            el.textContent = `${locName} · ${icon} ${cast.dayweather} ${cast.nighttemp}°–${cast.daytemp}° ${cast.daywind || ''}风${cast.daypower || ''}级`.replace(/\s+/g, ' ').trim();
+            el.textContent = `${locName} · ${formatWeatherText(cast)} · ${cast.nighttemp}°–${cast.daytemp}°`;
         }
 
         function renderAll(resultsById) {
@@ -1885,14 +1961,22 @@
                     renderCell(loc.id, date, data ? findCastByDate(data, date) : null);
                 });
             });
-            Object.entries(DAY_LOCATION).forEach(([dayId, locId]) => {
+            document.querySelectorAll('.weather-cell.is-trip').forEach(el => el.classList.remove('is-trip'));
+            const dayIds = Object.keys(DAY_LOCATION);
+            dayIds.forEach((dayId, idx) => {
+                const locId = DAY_LOCATION[dayId];
                 const loc = LOCATIONS.find(l => l.id === locId);
-                const dayIdx = Object.keys(DAY_LOCATION).indexOf(dayId);
-                const date = TRIP_DATES[dayIdx];
                 const data = resultsById[locId];
-                const cast = data ? findCastByDate(data, date) : null;
+                const cast = data ? findCastByDate(data, TRIP_DATES[idx]) : null;
                 renderDayRow(dayId, locId, cast, loc ? loc.name : '');
+                const cell = document.querySelector(`[data-cell="${locId}|${TRIP_DATES[idx]}"]`);
+                if (cell) cell.classList.add('is-trip');
             });
+            // 取任意一份数据的 reporttime 展示（三地通常接近）
+            const anyForecast = Object.values(resultsById).map(getForecast).find(Boolean);
+            const rt = anyForecast && anyForecast.reporttime;
+            const rtEl = document.querySelector('[data-weather-reporttime]');
+            if (rtEl) rtEl.textContent = rt ? rt.slice(5, 16) : '--'; // MM-DD HH:MM
         }
 
         function setUpdatedTime(date) {
