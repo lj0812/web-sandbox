@@ -1,0 +1,24 @@
+duanwu.html
+  50ffd2a22195a2fd 1020,1022-1023,1033-1041,1043-1047,1057-1062,1066,1075-1095,1212-1215,1858-1859,1865-1884,1893-1901,1920-1923,1925,1934,1938,1942-1943,1954,1964-1967,1970,1972-1973,1975-1979
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.14",
+  "base_commit_sha": "201eba27f3ab12b456bd308a8d408115e0e915f8",
+  "prompts": {
+    "50ffd2a22195a2fd": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4ba47eaf-8ef5-40f1-8b33-77e318058c06",
+        "model": "claude-opus-4-7",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 110,
+      "total_deletions": 26,
+      "accepted_lines": 102,
+      "overriden_lines": 0
+    }
+  }
+}
