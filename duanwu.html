@@ -939,6 +939,133 @@
             color: inherit;
             text-decoration: none;
         }
+
+        /* ============ Weather ============ */
+        .weather-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .weather-refresh {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--foreground);
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            cursor: pointer;
+            line-height: 1.3;
+            transition: opacity 0.15s;
+            min-height: 28px;
+        }
+
+        .weather-refresh:hover {
+            background: var(--secondary);
+        }
+
+        .weather-refresh:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .weather-refresh-icon {
+            display: inline-block;
+        }
+
+        .weather-refresh.is-loading .weather-refresh-icon {
+            animation: weather-spin 0.9s linear infinite;
+        }
+
+        @keyframes weather-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 640px) {
+            .weather-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+        }
+
+        .weather-location {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: var(--muted);
+        }
+
+        .weather-location-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .weather-cell {
+            display: grid;
+            grid-template-columns: 48px 1fr auto;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 13px;
+        }
+
+        .weather-cell:last-child {
+            border-bottom: none;
+        }
+
+        .weather-cell-date {
+            color: var(--muted-foreground);
+            font-size: 12px;
+        }
+
+        .weather-cell-text {
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .weather-cell-temp {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .weather-cell-temp .lo {
+            color: var(--muted-foreground);
+            font-weight: 400;
+            margin-right: 4px;
+        }
+
+        .weather-footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--muted-foreground);
+        }
+
+        .weather-status {
+            color: var(--red);
+        }
     </style>
 </head>
 
@@ -1029,6 +1156,23 @@
             </div>
         </section>
 
+        <!-- ============ 天气预报 ============ -->
+        <section class="card" id="weather">
+            <div class="weather-head">
+                <div class="card-title" style="margin-bottom:0"><span class="dot"></span>天气预报</div>
+                <button type="button" class="weather-refresh" data-weather-refresh aria-label="刷新天气">
+                    <span class="weather-refresh-icon">↻</span>
+                    <span class="weather-refresh-text">刷新</span>
+                </button>
+            </div>
+            <p class="card-desc">行程相关地点 · 每 30 分钟自动更新</p>
+            <div class="weather-grid" data-weather-grid></div>
+            <div class="weather-footer">
+                <span class="weather-updated">上次更新：<span data-weather-updated>--</span></span>
+                <span class="weather-status" data-weather-status></span>
+            </div>
+        </section>
+
         <!-- ============ 行程 ============ -->
         <section class="card" id="itinerary">
             <div class="card-title"><span class="dot"></span>三日行程</div>
@@ -1052,6 +1196,10 @@
                     <div class="info-row">
                         <span class="key">日期</span>
                         <span class="val">6/19 周五</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="key">天气</span>
+                        <span class="val" data-day-weather="day1">载入中…</span>
                     </div>
                     <div class="info-row">
                         <span class="key">主题</span>
@@ -1116,6 +1264,10 @@
                     <div class="info-row">
                         <span class="key">日期</span>
                         <span class="val">6/20 周六</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="key">天气</span>
+                        <span class="val" data-day-weather="day2">载入中…</span>
                     </div>
                     <div class="info-row">
                         <span class="key">主题</span>
@@ -1186,6 +1338,10 @@
                     <div class="info-row">
                         <span class="key">日期</span>
                         <span class="val">6/21 周日</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="key">天气</span>
+                        <span class="val" data-day-weather="day3">载入中…</span>
                     </div>
                     <div class="info-row">
                         <span class="key">主题</span>
@@ -1628,6 +1784,170 @@
             if (dx < 0 && activeIdx < tabs.length - 1) tabs[activeIdx + 1].click();
             if (dx > 0 && activeIdx > 0) tabs[activeIdx - 1].click();
         }, { passive: true });
+
+        // ============ 高德天气 ============
+        // TODO: 替换为你的高德 Web 服务 Key
+        const AMAP_KEY = '9cd3965df87339862761916f1ba74876';
+
+        const LOCATIONS = [
+            { id: 'beijing', name: '北京', adcode: '110000' },
+            { id: 'wlcb', name: '乌兰察布市区', adcode: '150902' },
+            { id: 'huoshan', name: '乌兰哈达火山', adcode: '150929' },
+        ];
+        const TRIP_DATES = ['2026-06-19', '2026-06-20', '2026-06-21'];
+        const DAY_LOCATION = { day1: 'wlcb', day2: 'huoshan', day3: 'huoshan' };
+
+        function weatherIcon(text) {
+            if (!text) return '';
+            const t = String(text);
+            if (/雷/.test(t)) return '⛈️';
+            if (/雨/.test(t)) return '🌧️';
+            if (/雪/.test(t)) return '🌨️';
+            if (/雾|霾/.test(t)) return '🌫️';
+            if (/沙|尘/.test(t)) return '🌬️';
+            if (/阴/.test(t)) return '☁️';
+            if (/多云/.test(t)) return '⛅';
+            if (/晴/.test(t)) return '☀️';
+            return '🌡️';
+        }
+
+        function formatShortDate(iso) {
+            const [, m, d] = iso.split('-');
+            return `${parseInt(m, 10)}/${parseInt(d, 10)}`;
+        }
+
+        function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+        function buildGridSkeleton() {
+            const grid = document.querySelector('[data-weather-grid]');
+            if (!grid) return;
+            grid.innerHTML = LOCATIONS.map(loc => {
+                const rows = TRIP_DATES.map(date => `
+                    <div class="weather-cell" data-cell="${loc.id}|${date}">
+                        <span class="weather-cell-date">${formatShortDate(date)}</span>
+                        <span class="weather-cell-text">--</span>
+                        <span class="weather-cell-temp">--</span>
+                    </div>`).join('');
+                return `
+                    <div class="weather-location" data-loc="${loc.id}">
+                        <div class="weather-location-name">${loc.name}</div>
+                        ${rows}
+                    </div>`;
+            }).join('');
+        }
+
+        async function fetchForecast(adcode) {
+            const url = `https://restapi.amap.com/v3/weather/weatherInfo?key=${encodeURIComponent(AMAP_KEY)}&city=${adcode}&extensions=all`;
+            const r = await fetch(url);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const data = await r.json();
+            if (data.status !== '1') throw new Error(data.info || '接口错误');
+            return data;
+        }
+
+        function findCastByDate(data, isoDate) {
+            const forecast = data && data.forecasts && data.forecasts[0];
+            if (!forecast || !Array.isArray(forecast.casts)) return null;
+            return forecast.casts.find(c => c.date === isoDate) || null;
+        }
+
+        function renderCell(locId, date, cast) {
+            const cell = document.querySelector(`[data-cell="${locId}|${date}"]`);
+            if (!cell) return;
+            const textEl = cell.querySelector('.weather-cell-text');
+            const tempEl = cell.querySelector('.weather-cell-temp');
+            if (!cast) {
+                textEl.textContent = '暂未发布';
+                tempEl.textContent = '--';
+                return;
+            }
+            const dayText = cast.dayweather || '';
+            const icon = weatherIcon(dayText);
+            textEl.textContent = `${icon} ${dayText}`.trim();
+            tempEl.innerHTML = `<span class="lo">${cast.nighttemp}°</span>${cast.daytemp}°`;
+        }
+
+        function renderDayRow(dayId, locId, cast, locName) {
+            const el = document.querySelector(`[data-day-weather="${dayId}"]`);
+            if (!el) return;
+            if (!cast) {
+                el.textContent = `${locName} · 暂未发布`;
+                return;
+            }
+            const icon = weatherIcon(cast.dayweather);
+            el.textContent = `${locName} · ${icon} ${cast.dayweather} ${cast.nighttemp}°–${cast.daytemp}° ${cast.daywind || ''}风${cast.daypower || ''}级`.replace(/\s+/g, ' ').trim();
+        }
+
+        function renderAll(resultsById) {
+            LOCATIONS.forEach(loc => {
+                const data = resultsById[loc.id];
+                TRIP_DATES.forEach(date => {
+                    renderCell(loc.id, date, data ? findCastByDate(data, date) : null);
+                });
+            });
+            Object.entries(DAY_LOCATION).forEach(([dayId, locId]) => {
+                const loc = LOCATIONS.find(l => l.id === locId);
+                const dayIdx = Object.keys(DAY_LOCATION).indexOf(dayId);
+                const date = TRIP_DATES[dayIdx];
+                const data = resultsById[locId];
+                const cast = data ? findCastByDate(data, date) : null;
+                renderDayRow(dayId, locId, cast, loc ? loc.name : '');
+            });
+        }
+
+        function setUpdatedTime(date) {
+            const el = document.querySelector('[data-weather-updated]');
+            if (!el) return;
+            const hh = pad2(date.getHours()), mm = pad2(date.getMinutes()), ss = pad2(date.getSeconds());
+            el.textContent = `${hh}:${mm}:${ss}`;
+        }
+
+        function showStatus(msg) {
+            const el = document.querySelector('[data-weather-status]');
+            if (el) el.textContent = msg || '';
+        }
+
+        function setRefreshing(isRefreshing) {
+            const btn = document.querySelector('[data-weather-refresh]');
+            if (!btn) return;
+            btn.disabled = isRefreshing;
+            btn.classList.toggle('is-loading', isRefreshing);
+            const txt = btn.querySelector('.weather-refresh-text');
+            if (txt) txt.textContent = isRefreshing ? '刷新中…' : '刷新';
+        }
+
+        let weatherRefreshing = false;
+        async function refreshWeather() {
+            if (weatherRefreshing) return;
+            if (AMAP_KEY === 'YOUR_AMAP_KEY') {
+                showStatus('请在源码中替换 AMAP_KEY');
+                return;
+            }
+            weatherRefreshing = true;
+            setRefreshing(true);
+            showStatus('');
+            try {
+                const results = await Promise.all(LOCATIONS.map(l => fetchForecast(l.adcode)));
+                const byId = {};
+                LOCATIONS.forEach((l, i) => { byId[l.id] = results[i]; });
+                renderAll(byId);
+                setUpdatedTime(new Date());
+            } catch (e) {
+                showStatus('加载失败，请稍后重试');
+            } finally {
+                weatherRefreshing = false;
+                setRefreshing(false);
+            }
+        }
+
+        buildGridSkeleton();
+        const refreshBtn = document.querySelector('[data-weather-refresh]');
+        if (refreshBtn) refreshBtn.addEventListener('click', refreshWeather);
+        refreshWeather();
+        setInterval(refreshWeather, 30 * 60 * 1000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshWeather();
+        });
     </script>
 
 </body>
