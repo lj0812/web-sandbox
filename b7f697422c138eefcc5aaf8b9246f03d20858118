@@ -1,0 +1,24 @@
+duanwu.html
+  50ffd2a22195a2fd 942-1068,1159-1175,1200-1203,1268-1271,1342-1345,1787-1789,1791-1950
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.14",
+  "base_commit_sha": "b7f697422c138eefcc5aaf8b9246f03d20858118",
+  "prompts": {
+    "50ffd2a22195a2fd": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "4ba47eaf-8ef5-40f1-8b33-77e318058c06",
+        "model": "claude-opus-4-7",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 320,
+      "total_deletions": 0,
+      "accepted_lines": 319,
+      "overriden_lines": 1
+    }
+  }
+}
