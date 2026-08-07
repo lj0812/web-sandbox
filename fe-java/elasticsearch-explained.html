@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elasticsearch 是什么 —— 全面说明</title>
+<style>
+  :root{
+    --background:#fafafa;
+    --card:#ffffff;
+    --foreground:#09090b;
+    --muted:#71717a;
+    --muted-bg:#f4f4f5;
+    --border:#e4e4e7;
+    --primary:#18181b;
+    --primary-fg:#fafafa;
+    --accent:#b45309;
+    --accent-soft:#fffbeb;
+    --accent-border:#fde68a;
+    --radius:0.75rem;
+    --mono: "SFMono-Regular", Menlo, Consolas, "Courier New", monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--background);color:var(--foreground);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px;}
+
+  .hero{padding:72px 0 44px;border-bottom:1px solid var(--border);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px;
+    letter-spacing:.02em;margin-bottom:20px;border:1px solid var(--accent-border);
+  }
+  .hero h1{font-size:40px;font-weight:700;letter-spacing:-0.02em;margin:0 0 16px;}
+  .hero .accent{color:var(--accent);}
+  .hero p.lead{font-size:17px;color:var(--muted);max-width:660px;margin:0;}
+  code{background:var(--muted-bg);padding:1px 6px;border-radius:5px;font-family:var(--mono);font-size:0.9em;color:var(--foreground);}
+
+  section{padding:48px 0;border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px;}
+  h3{font-size:24px;font-weight:650;letter-spacing:-0.01em;margin:0 0 22px;}
+  p.sub{color:var(--muted);font-size:14.5px;margin:-10px 0 22px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);}
+  th{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--muted-bg);}
+  tr:last-child td{border-bottom:none;}
+  td code{background:var(--muted-bg);padding:2px 6px;border-radius:5px;font-family:var(--mono);font-size:0.88em;}
+
+  .badge{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);}
+
+  pre{background:var(--primary);color:var(--primary-fg);padding:18px 20px;border-radius:var(--radius);overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;}
+  pre .cm{color:#a1a1aa;}
+  pre .kw{color:#fcd34d;}
+  pre .st{color:#86efac;}
+  pre .fn{color:#7dd3fc;}
+  pre .an{color:#fca5a5;}
+
+  .note{display:flex;gap:12px;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:var(--radius);padding:16px 18px;font-size:14px;}
+  .note b{color:var(--accent);}
+
+  ul.plain{margin:0;padding-left:18px;}
+  ul.plain li{margin-bottom:8px;font-size:14.5px;}
+  ul.plain li b{font-weight:650;}
+
+  .diagram-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 20px;}
+
+  /* inverted index visual */
+  .idx-demo{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;}
+  .idx-col .h{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+  .doc-row{background:var(--muted-bg);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:8px;font-family:var(--mono);}
+  .term-row{display:flex;justify-content:space-between;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:8px;}
+  .term-row b{font-family:var(--mono);color:var(--accent);}
+  .term-row span{color:var(--muted);font-family:var(--mono);font-size:12px;}
+  .idx-arrow{padding:0 18px;color:var(--muted);font-size:20px;}
+
+  .cluster-node{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .cluster-node .role{font-size:10.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
+  .cluster-node .shards{display:flex;gap:4px;justify-content:center;margin-top:8px;}
+  .cluster-node .shard{width:18px;height:18px;border-radius:4px;background:var(--accent-soft);border:1px solid var(--accent-border);font-size:9px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700;}
+  .cluster-node .shard.replica{background:var(--muted-bg);border-color:var(--border);color:var(--muted);}
+
+  footer{padding:40px 0 60px;color:var(--muted);font-size:13px;}
+
+  @media (max-width:680px){
+    .hero h1{font-size:28px;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+    .idx-demo{grid-template-columns:1fr;}
+    .idx-arrow{transform:rotate(90deg);padding:8px 0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="eyebrow">● Elasticsearch</span>
+    <h1>ES 到底是<span class="accent">什么</span>？</h1>
+    <p class="lead">
+      ES（Elasticsearch）是一个基于 Lucene 的<b>分布式全文搜索引擎</b>，同时也常被当成一种
+      文档型数据库来用。如果 MySQL 擅长"按索引精确查一条记录"，ES 擅长的是
+      "在一堆文本里搜出相关的内容，并按相关度排序"——本质是一个预先建好索引、能水平扩展的
+      "超级 <code>Array.filter</code> + 打分排序"。
+    </p>
+  </div>
+
+  <section>
+    <h2>01 · 核心概念对照</h2>
+    <h3>ES 术语 ↔ 关系型数据库</h3>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead><tr><th>Elasticsearch</th><th>关系型数据库类比</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge">Index</span></td>
+            <td><code>数据库 / 表</code></td>
+            <td>一类文档的集合，比如 <code>products</code> 索引存所有商品。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Document</span></td>
+            <td><code>一行数据</code></td>
+            <td>本质是一个 JSON 对象，比如一件商品的完整信息。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Field</span></td>
+            <td><code>列</code></td>
+            <td>文档里的一个字段，比如 <code>title</code>、<code>price</code>。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Mapping</span></td>
+            <td><code>表结构 / Schema</code></td>
+            <td>定义每个字段的类型，尤其是文本字段"怎么分词"，直接决定搜索效果。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Shard</span></td>
+            <td><code>分表</code></td>
+            <td>一个 Index 被拆成多个分片，分布到不同节点并行处理，是 ES 能扩展的关键。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Replica</span></td>
+            <td><code>副本</code></td>
+            <td>每个分片的备份，节点挂了也不丢数据，同时能分摊查询压力。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>02 · 为什么搜索这么快</h2>
+    <h3>核心原理：倒排索引</h3>
+    <p class="sub">
+      普通数据库的 <code>LIKE '%关键词%'</code> 是"拿关键词去每一行里找"，数据量大了必然全表扫描很慢。
+      ES 反过来，提前把"每个词出现在哪些文档里"整理成一张表，查询时直接按词查文档 —— 这就是"倒排索引"。
+    </p>
+    <div class="diagram-wrap">
+      <div class="idx-demo">
+        <div class="idx-col">
+          <div class="h">原始文档</div>
+          <div class="doc-row">doc1: "苹果手机 promax 黑色"</div>
+          <div class="doc-row">doc2: "苹果笔记本电脑"</div>
+          <div class="doc-row">doc3: "华为手机 promax"</div>
+        </div>
+        <div class="idx-arrow">→</div>
+        <div class="idx-col">
+          <div class="h">倒排索引（分词后）</div>
+          <div class="term-row"><b>苹果</b><span>doc1, doc2</span></div>
+          <div class="term-row"><b>手机</b><span>doc1, doc3</span></div>
+          <div class="term-row"><b>promax</b><span>doc1, doc3</span></div>
+          <div class="term-row"><b>笔记本</b><span>doc2</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="sub" style="margin-top:16px;">搜"苹果手机"时，直接查倒排索引拿到 <code>doc1</code>（两个词都命中，分数最高），不需要扫描原始文档全文。</p>
+  </section>
+
+  <section>
+    <h2>03 · 为什么不直接用数据库自带的模糊搜索</h2>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">全文检索能力</div>
+        <div style="font-size:14px;color:var(--muted);">支持中文分词、同义词、拼音搜索、拼写纠错、高亮显示，这些 <code>LIKE</code> 完全做不到。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">相关度排序</div>
+        <div style="font-size:14px;color:var(--muted);">内置 BM25 算法，搜索结果按"匹配程度"打分排序，而不只是"有没有匹配上"。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">聚合分析</div>
+        <div style="font-size:14px;color:var(--muted);">除了搜索，还能做类似 <code>GROUP BY</code> + 统计的聚合，常用来做日志分析、监控大盘。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">水平扩展</div>
+        <div style="font-size:14px;color:var(--muted);">天生分布式架构，数据量大了加节点就行，不需要像单机数据库那样做复杂分库分表。</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>04 · 集群架构</h2>
+    <h3>分片 + 副本怎么分布</h3>
+    <div class="diagram-wrap">
+      <div class="grid3">
+        <div class="cluster-node">
+          <div class="role">Node 1</div>
+          <div style="font-size:12px;color:var(--muted);">products 索引</div>
+          <div class="shards">
+            <div class="shard">S0</div>
+            <div class="shard replica">S1</div>
+          </div>
+        </div>
+        <div class="cluster-node">
+          <div class="role">Node 2</div>
+          <div style="font-size:12px;color:var(--muted);">products 索引</div>
+          <div class="shards">
+            <div class="shard">S1</div>
+            <div class="shard replica">S2</div>
+          </div>
+        </div>
+        <div class="cluster-node">
+          <div class="role">Node 3</div>
+          <div style="font-size:12px;color:var(--muted);">products 索引</div>
+          <div class="shards">
+            <div class="shard">S2</div>
+            <div class="shard replica">S0</div>
+          </div>
+        </div>
+      </div>
+      <p class="sub" style="margin-top:16px;margin-bottom:0;">深色块是主分片（Primary Shard），浅色块是副本（Replica）—— 副本永远和自己的主分片放在不同节点，任意一台机器挂了数据都还在。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>05 · 典型使用场景</h2>
+    <ul class="plain">
+      <li><b>站内搜索：</b>电商商品搜索、内容站文章搜索，几乎是标配选型。</li>
+      <li><b>日志分析（ELK / EFK）：</b>Elasticsearch + Logstash/Filebeat + Kibana，把各服务日志集中存储、检索、可视化。</li>
+      <li><b>可观测性里的日志与 Trace 检索：</b>和之前聊的 Prometheus/InfluxDB 是互补关系——指标库看"数值趋势"，ES 看"具体发生了什么"。</li>
+      <li><b>推荐 / 风控等场景的复杂条件查询：</b>多字段组合过滤 + 打分，比关系型数据库拼一堆 <code>WHERE</code> 更灵活。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>06 · 在 Java 项目里怎么接</h2>
+    <p class="sub">Spring 生态里可以用 <b>Spring Data Elasticsearch</b>，写法和 Spring Data JPA 很像；也可以直接用官方 <b>Java Client</b>，用 JSON 拼查询 DSL 更灵活。</p>
+    <pre><span class="cm">// 定义文档 —— 类似前端定义一个 TS interface</span>
+<span class="an">@Document</span>(indexName = <span class="st">"products"</span>)
+<span class="kw">public class</span> Product {
+    <span class="an">@Id</span>
+    <span class="kw">private</span> String id;
+
+    <span class="an">@Field</span>(type = FieldType.Text, analyzer = <span class="st">"ik_max_word"</span>)
+    <span class="kw">private</span> String title;   <span class="cm">// 用中文分词器</span>
+
+    <span class="an">@Field</span>(type = FieldType.Double)
+    <span class="kw">private</span> Double price;
+}
+
+<span class="cm">// 定义查询 —— 类似前端写一个 Repository 方法名即可自动生成 SQL</span>
+<span class="kw">public interface</span> ProductRepository <span class="kw">extends</span> ElasticsearchRepository&lt;Product, String&gt; {
+    List&lt;Product&gt; <span class="fn">findByTitleContaining</span>(String keyword);
+}</pre>
+  </section>
+
+  <section>
+    <div class="note">
+      <div>💡</div>
+      <div>
+        <b>一句话记忆：</b>ES 就是"预先建好倒排索引、天生分布式的全文搜索引擎"。
+        数据库解决"精确存取"，ES 解决"从大量文本里搜出相关内容并排序"，两者通常是配合使用而不是互相替代——
+        业务数据存 MySQL，需要搜索的字段再同步一份到 ES。
+      </div>
+    </div>
+  </section>
+
+  <footer>Elasticsearch 速览 · 面向前端工程师的类比说明</footer>
+
+</div>
+</body>
+</html>
