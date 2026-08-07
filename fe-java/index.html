@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java 知识索引 · 写给前端工程师</title>
+<style>
+  :root{
+    --background:#fafafa;
+    --card:#ffffff;
+    --foreground:#09090b;
+    --muted:#71717a;
+    --muted-bg:#f4f4f5;
+    --border:#e4e4e7;
+    --primary:#18181b;
+    --primary-fg:#fafafa;
+    --accent:#4f46e5;
+    --accent-soft:#eef2ff;
+    --accent-border:#c7d2fe;
+    --radius:0.75rem;
+    --mono:"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--background);color:var(--foreground);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px;}
+
+  .hero{padding:64px 0 40px;border-bottom:1px solid var(--border);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px;
+    letter-spacing:.02em;margin-bottom:20px;border:1px solid var(--accent-border);
+  }
+  .hero h1{font-size:36px;font-weight:700;letter-spacing:-0.02em;margin:0 0 14px;}
+  .hero .accent{color:var(--accent);}
+  .hero p.lead{font-size:16px;color:var(--muted);max-width:640px;margin:0;}
+  code{background:var(--muted-bg);padding:1px 6px;border-radius:5px;font-family:var(--mono);font-size:0.9em;}
+
+  .toolbar{
+    display:flex;gap:8px;flex-wrap:wrap;padding:24px 0 0;
+  }
+  .chip{
+    font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;
+    border:1px solid var(--border);background:var(--card);color:var(--muted);
+    cursor:pointer;transition:all .15s ease;user-select:none;
+  }
+  .chip:hover{border-color:var(--accent-border);color:var(--accent);}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  main{padding:32px 0 60px;}
+  .category-block{margin-bottom:36px;}
+  .category-block:last-child{margin-bottom:0;}
+  .category-title{
+    display:flex;align-items:center;gap:10px;
+    font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);margin-bottom:14px;
+  }
+  .category-title .count{
+    font-size:11px;background:var(--muted-bg);color:var(--muted);
+    padding:1px 8px;border-radius:999px;font-weight:650;
+  }
+
+  .card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+
+  a.entry-card{
+    display:block;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:18px 20px;transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  a.entry-card:hover{
+    border-color:var(--accent-border);
+    box-shadow:0 4px 14px rgba(79,70,229,0.08);
+    transform:translateY(-1px);
+  }
+  a.entry-card .top-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:10px;}
+  a.entry-card .title{font-size:16px;font-weight:650;letter-spacing:-0.01em;}
+  a.entry-card .arrow{color:var(--muted);font-size:15px;flex-shrink:0;transition:transform .15s ease;}
+  a.entry-card:hover .arrow{transform:translateX(3px);color:var(--accent);}
+  a.entry-card .desc{font-size:13.5px;color:var(--muted);margin-bottom:12px;}
+  a.entry-card .meta{display:flex;gap:8px;align-items:center;}
+  .tag{
+    font-size:11px;font-weight:650;padding:2px 9px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);
+  }
+  .date{font-size:11.5px;color:var(--muted);font-family:var(--mono);}
+
+  /* placeholder / empty card */
+  .placeholder-card{
+    border:1px dashed var(--border);border-radius:var(--radius);
+    padding:18px 20px;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:13.5px;min-height:88px;background:transparent;
+  }
+
+  footer{
+    padding:28px 0 50px;color:var(--muted);font-size:12.5px;
+    border-top:1px solid var(--border);
+  }
+  footer code{font-size:0.92em;}
+
+  @media (max-width:640px){
+    .card-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="eyebrow">● Java 知识索引</span>
+    <h1>写给前端工程师的 <span class="accent">Java 后端知识笔记</span></h1>
+    <p class="lead">
+      整理每次探讨过的 Java / 后端相关知识点，尽量用 Vue3 / 前端概念做类比，方便快速理解和回顾。
+    </p>
+    <div class="toolbar" id="toolbar"></div>
+  </div>
+
+  <main id="main"></main>
+
+  <footer>
+    共 <span id="total-count">0</span> 篇 · 新增内容请在下方脚本的 <code>ENTRIES</code> 数组里追加一项
+  </footer>
+
+</div>
+
+<script>
+/* ============================================================
+   在这里追加新条目即可自动出现在索引页里，无需改动其他代码。
+   每一项字段说明：
+   - title:    页面标题
+   - desc:     一句话简介
+   - href:     对应 html 文件的相对路径（放在同一目录下）
+   - category: 分类名（相同 category 会自动分组显示）
+   - date:     生成日期 "YYYY-MM-DD"，用于排序展示
+   ============================================================ */
+const ENTRIES = [
+  {
+    title: "Kafka 是什么",
+    desc: "用前端 EventBus / mitt 类比 Kafka 的 Topic、Partition、Consumer Group 等核心概念。",
+    href: "kafka-for-frontend.html",
+    category: "消息队列",
+    date: "2026-08-07"
+  },
+  {
+    title: "时序数据库 & InfluxDB",
+    desc: "时序数据库两大阵营对比，深入讲解 InfluxDB 的数据模型、写入与查询方式。",
+    href: "tsdb-and-influxdb.html",
+    category: "存储与数据库",
+    date: "2026-08-07"
+  },
+  {
+    title: "Elasticsearch 是什么",
+    desc: "倒排索引原理、核心概念对照、集群分片架构，以及 Spring Data Elasticsearch 接入示例。",
+    href: "elasticsearch-explained.html",
+    category: "搜索引擎",
+    date: "2026-08-07"
+  }
+
+  // 👇 后续新增示例（取消注释并修改即可）：
+  // {
+  //   title: "新知识点标题",
+  //   desc: "一句话简介",
+  //   href: "new-topic.html",
+  //   category: "分类名（新分类会自动出现）",
+  //   date: "2026-xx-xx"
+  // },
+];
+
+function render(filterCategory) {
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+
+  const categories = [...new Set(ENTRIES.map(e => e.category))];
+  const visibleCategories = filterCategory === "全部"
+    ? categories
+    : categories.filter(c => c === filterCategory);
+
+  if (ENTRIES.length === 0) {
+    main.innerHTML = '<div class="placeholder-card">还没有内容，去和 Claude 聊点 Java 知识吧 👋</div>';
+    return;
+  }
+
+  visibleCategories.forEach(cat => {
+    const items = ENTRIES.filter(e => e.category === cat)
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
+
+    const block = document.createElement("div");
+    block.className = "category-block";
+    block.innerHTML = `
+      <div class="category-title">${cat} <span class="count">${items.length}</span></div>
+      <div class="card-grid">
+        ${items.map(e => `
+          <a class="entry-card" href="${e.href}">
+            <div class="top-row">
+              <div class="title">${e.title}</div>
+              <div class="arrow">→</div>
+            </div>
+            <div class="desc">${e.desc}</div>
+            <div class="meta">
+              <span class="tag">${e.category}</span>
+              <span class="date">${e.date}</span>
+            </div>
+          </a>
+        `).join("")}
+      </div>
+    `;
+    main.appendChild(block);
+  });
+}
+
+function renderToolbar() {
+  const toolbar = document.getElementById("toolbar");
+  const categories = ["全部", ...new Set(ENTRIES.map(e => e.category))];
+  toolbar.innerHTML = categories.map((c, i) =>
+    `<span class="chip${i === 0 ? " active" : ""}" data-cat="${c}">${c}</span>`
+  ).join("");
+
+  toolbar.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      toolbar.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      render(chip.dataset.cat);
+    });
+  });
+}
+
+document.getElementById("total-count").textContent = ENTRIES.length;
+renderToolbar();
+render("全部");
+</script>
+</body>
+</html>
