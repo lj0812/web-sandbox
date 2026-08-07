@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>时序数据库 & InfluxDB 速览</title>
+<style>
+  :root{
+    --background:#fafafa;
+    --card:#ffffff;
+    --foreground:#09090b;
+    --muted:#71717a;
+    --muted-bg:#f4f4f5;
+    --border:#e4e4e7;
+    --primary:#18181b;
+    --primary-fg:#fafafa;
+    --accent:#0d9488;
+    --accent-soft:#ecfdf5;
+    --accent-border:#bbf7d0;
+    --radius:0.75rem;
+    --mono: "SFMono-Regular", Menlo, Consolas, "Courier New", monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--background);color:var(--foreground);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px;}
+
+  .hero{padding:72px 0 44px;border-bottom:1px solid var(--border);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px;
+    letter-spacing:.02em;margin-bottom:20px;border:1px solid var(--accent-border);
+  }
+  .hero h1{font-size:40px;font-weight:700;letter-spacing:-0.02em;margin:0 0 16px;}
+  .hero .accent{color:var(--accent);}
+  .hero p.lead{font-size:17px;color:var(--muted);max-width:660px;margin:0;}
+  code{background:var(--muted-bg);padding:1px 6px;border-radius:5px;font-family:var(--mono);font-size:0.9em;color:var(--foreground);}
+
+  section{padding:48px 0;border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px;}
+  h3{font-size:24px;font-weight:650;letter-spacing:-0.01em;margin:0 0 22px;}
+  p.sub{color:var(--muted);font-size:14.5px;margin:-10px 0 22px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);}
+  th{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--muted-bg);}
+  tr:last-child td{border-bottom:none;}
+  td code{background:var(--muted-bg);padding:2px 6px;border-radius:5px;font-family:var(--mono);font-size:0.88em;}
+
+  .tabs-visual{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .cat-card{border:1px solid var(--border);border-radius:var(--radius);padding:20px;background:var(--card);}
+  .cat-card.hi{background:var(--accent-soft);border-color:var(--accent-border);}
+  .cat-card .kicker{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .cat-card.hi .kicker{color:var(--accent);}
+  .cat-card .item{font-size:14px;padding:6px 0;border-top:1px dashed var(--border);}
+  .cat-card .item:first-of-type{border-top:none;padding-top:0;}
+  .cat-card .item b{font-weight:650;}
+  .cat-card .item span{color:var(--muted);}
+
+  .badge{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);}
+
+  pre{background:var(--primary);color:var(--primary-fg);padding:18px 20px;border-radius:var(--radius);overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;}
+  pre .cm{color:#a1a1aa;}
+  pre .kw{color:#5eead4;}
+  pre .st{color:#86efac;}
+  pre .fn{color:#7dd3fc;}
+
+  .note{display:flex;gap:12px;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:var(--radius);padding:16px 18px;font-size:14px;}
+  .note b{color:var(--accent);}
+
+  ul.plain{margin:0;padding-left:18px;}
+  ul.plain li{margin-bottom:8px;font-size:14.5px;}
+  ul.plain li b{font-weight:650;}
+
+  .diagram-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 20px;}
+
+  .flow-step{display:flex;align-items:center;gap:10px;}
+  .flow-box{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:13.5px;}
+  .flow-box .t{font-weight:650;margin-bottom:2px;}
+  .flow-box .d{color:var(--muted);font-size:12.5px;}
+  .flow-arrow{color:var(--muted);font-size:18px;padding:0 4px;}
+
+  footer{padding:40px 0 60px;color:var(--muted);font-size:13px;}
+
+  @media (max-width:680px){
+    .hero h1{font-size:28px;}
+    .grid2,.grid3,.tabs-visual{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="eyebrow">● 时序数据库 (TSDB)</span>
+    <h1>时序数据库 <span class="accent">& InfluxDB</span></h1>
+    <p class="lead">
+      时序数据库专门用来存"随时间不断产生的一串数值"——比如每 10 秒一次的 CPU 使用率、每次请求的耗时、
+      每分钟一次的传感器读数。它和普通业务数据库(MySQL)的核心区别是：数据几乎<b>只写不改</b>、
+      按时间<b>批量写入</b>、查询大多是"某个时间范围内的聚合"(求和/平均/最大值)，为此在存储和索引结构上做了专门优化。
+    </p>
+  </div>
+
+  <section>
+    <h2>01 · 分类总览</h2>
+    <h3>两大阵营</h3>
+    <div class="tabs-visual">
+      <div class="cat-card">
+        <div class="kicker">运维监控向</div>
+        <div class="item"><b>Prometheus</b> <span>— 事实标准，自带存储但默认短期保留</span></div>
+        <div class="item"><b>InfluxDB</b> <span>— 独立时序库，写入快，自带查询语言</span></div>
+        <div class="item"><b>VictoriaMetrics</b> <span>— 兼容 Prometheus，常做长期存储后端</span></div>
+        <div class="item"><b>Thanos / Mimir</b> <span>— 给 Prometheus 加长期存储、多副本能力</span></div>
+      </div>
+      <div class="cat-card hi">
+        <div class="kicker">通用 / 海量数据向</div>
+        <div class="item"><b>TimescaleDB</b> <span>— PostgreSQL 插件，能直接用 SQL</span></div>
+        <div class="item"><b>ClickHouse</b> <span>— 列存 OLAP，做时序聚合也很快</span></div>
+        <div class="item"><b>IoTDB / TDengine</b> <span>— 国产，专为 IoT 海量设备设计</span></div>
+        <div class="item"><b>QuestDB</b> <span>— 主打超高写入性能，SQL 兼容</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>02 · 深入 InfluxDB</h2>
+    <h3>最主流的独立时序数据库</h3>
+    <p class="sub">InfluxDB 是专门为时序场景从零设计的数据库，单机版免费开源，写入性能好、自带类 SQL 的查询语言，是很多监控/IoT 项目的第一选择。</p>
+
+    <div class="grid2" style="margin-bottom:16px;">
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">数据模型：拿前端的 JS 对象类比</div>
+        <div style="font-size:14px;color:var(--muted);">
+          一条 InfluxDB 数据点长得很像一个带时间戳的对象：<code>{ measurement, tags, fields, timestamp }</code>。
+          <code>tags</code> 是"用来筛选/分组的标签"（类似给对象打的分类字段，会被索引），
+          <code>fields</code> 是"实际的数值"（不会被索引，只是数据本身）。
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">为什么区分 tag 和 field</div>
+        <div style="font-size:14px;color:var(--muted);">
+          类似前端里区分"路由参数"（用来定位/筛选）和"表单数据"（承载的内容）。
+          tag 建了索引，按 tag 过滤（比如 <code>host="server-01"</code>）会很快；
+          field 没有索引，是用来聚合计算的数值本身。
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;margin-bottom:16px;">
+      <table>
+        <thead><tr><th>InfluxDB 概念</th><th>类比</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge">Measurement</span></td>
+            <td><code>表名 / 事件名</code></td>
+            <td>类似关系型数据库里的"表"，比如 <code>cpu_usage</code>。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Tag</span></td>
+            <td><code>可索引的分类字段</code></td>
+            <td>比如 <code>host</code>、<code>region</code>，用来筛选和分组，存的是字符串。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Field</span></td>
+            <td><code>实际数值</code></td>
+            <td>比如 <code>usage_percent=87.3</code>，是要被聚合计算的数据本身。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Timestamp</span></td>
+            <td><code>时间戳</code></td>
+            <td>每条数据的主键之一，InfluxDB 所有存储和查询都围绕它优化。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Bucket</span>(2.x)</td>
+            <td><code>数据库 + 保留策略</code></td>
+            <td>2.x 版本里替代了 1.x 的 database，同时定义了数据保留多久（比如 30 天后自动删除）。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2" style="margin-bottom:16px;">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">写入示例（Line Protocol）</div>
+        <pre><span class="cm">// measurement,tag集合 field集合 时间戳</span>
+cpu_usage,host=server-01,region=cn-bj usage_percent=87.3 1691400000000000000
+cpu_usage,host=server-02,region=cn-sh usage_percent=42.1 1691400000000000000</pre>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">查询示例（Flux 语言）</div>
+        <pre><span class="fn">from</span>(bucket: <span class="st">"metrics"</span>)
+  |&gt; <span class="fn">range</span>(start: <span class="cm">-1h</span>)
+  |&gt; <span class="fn">filter</span>(fn: (r) =&gt; r._measurement == <span class="st">"cpu_usage"</span>)
+  |&gt; <span class="fn">filter</span>(fn: (r) =&gt; r.host == <span class="st">"server-01"</span>)
+  |&gt; <span class="fn">aggregateWindow</span>(every: <span class="cm">5m</span>, fn: mean)</pre>
+      </div>
+    </div>
+
+    <div class="diagram-wrap">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px;">典型接入链路</div>
+      <div class="flow-step">
+        <div class="flow-box"><div class="t">采集</div><div class="d">Telegraf / 应用埋点</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box"><div class="t">写入</div><div class="d">InfluxDB（Line Protocol）</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box"><div class="t">查询</div><div class="d">Flux / InfluxQL</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box"><div class="t">展示</div><div class="d">Grafana 面板</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>03 · 什么时候选 InfluxDB</h2>
+    <h3>优势与局限</h3>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:8px;">适合</div>
+        <ul class="plain">
+          <li>监控告警、IoT 设备数据、应用性能指标这类<b>高频写入、按时间聚合查询</b>的场景</li>
+          <li>想要"开箱即用"，不想自己维护 PostgreSQL/ClickHouse 这类通用数据库</li>
+          <li>和 Telegraf / Grafana 生态搭配，几乎零配置起步</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:8px;">不适合</div>
+        <ul class="plain">
+          <li>需要和普通业务表做复杂 <code>JOIN</code> 的场景 —— 这种更适合 TimescaleDB</li>
+          <li>数据量特别大、要做复杂多维分析（这时 ClickHouse 通常更快、更省资源）</li>
+          <li>需要强事务、频繁更新/删除单条数据的场景（时序库普遍只擅长追加写入）</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="note">
+      <div>💡</div>
+      <div>
+        <b>一句话记忆：</b>时序数据库解决的是"数据只增不改、按时间聚合查询"这个专门问题。
+        InfluxDB 是这个领域最"开箱即用"的独立选手；如果你已经在用 PostgreSQL 就考虑 TimescaleDB，
+        如果数据量巨大且要做复杂分析就考虑 ClickHouse。
+      </div>
+    </div>
+  </section>
+
+  <footer>时序数据库 & InfluxDB 速览</footer>
+
+</div>
+</body>
+</html>
