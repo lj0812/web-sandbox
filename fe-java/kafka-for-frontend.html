@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka 是什么 —— 写给前端工程师</title>
+<style>
+  :root{
+    --background:#fafafa;
+    --card:#ffffff;
+    --foreground:#09090b;
+    --muted:#71717a;
+    --muted-bg:#f4f4f5;
+    --border:#e4e4e7;
+    --primary:#18181b;
+    --primary-fg:#fafafa;
+    --accent:#7c3aed;
+    --accent-soft:#f3eefe;
+    --radius:0.75rem;
+    --mono: "SFMono-Regular", Menlo, Consolas, "Courier New", monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--background);
+    color:var(--foreground);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Helvetica, Arial, sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px;}
+
+  /* Hero */
+  .hero{
+    padding:72px 0 48px;
+    border-bottom:1px solid var(--border);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12.5px;font-weight:600;color:var(--accent);
+    background:var(--accent-soft);
+    padding:4px 10px;border-radius:999px;
+    letter-spacing:.02em;
+    margin-bottom:20px;
+  }
+  .hero h1{
+    font-size:42px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    margin:0 0 16px;
+  }
+  .hero .accent{color:var(--accent);}
+  .hero p.lead{
+    font-size:17px;
+    color:var(--muted);
+    max-width:640px;
+    margin:0;
+  }
+  .hero code{
+    background:var(--muted-bg);
+    padding:1px 6px;
+    border-radius:5px;
+    font-family:var(--mono);
+    font-size:0.92em;
+    color:var(--foreground);
+  }
+
+  section{padding:48px 0;border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+
+  h2{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--muted);
+    margin:0 0 8px;
+  }
+  h3{
+    font-size:24px;
+    font-weight:650;
+    letter-spacing:-0.01em;
+    margin:0 0 24px;
+  }
+
+  /* Card */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+
+  .analogy-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .analogy-card .row{
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+  }
+  .analogy-card .side{padding:18px 20px;}
+  .analogy-card .side.kafka{background:var(--accent-soft);}
+  .analogy-card .side .tag{
+    font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:6px;display:block;
+  }
+  .analogy-card .side.kafka .tag{color:var(--accent);}
+  .analogy-card .side .name{font-size:16px;font-weight:650;margin-bottom:4px;}
+  .analogy-card .side .desc{font-size:13.5px;color:var(--muted);}
+  .analogy-card .arrow{
+    padding:0 14px;color:var(--border);font-size:20px;
+  }
+  .analogy-card + .analogy-card{margin-top:12px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);}
+  th{
+    font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--muted);background:var(--muted-bg);
+  }
+  tr:last-child td{border-bottom:none;}
+  td code{
+    background:var(--muted-bg);padding:2px 6px;border-radius:5px;
+    font-family:var(--mono);font-size:0.88em;
+  }
+  .badge{
+    display:inline-block;font-size:12px;font-weight:600;
+    padding:2px 9px;border-radius:999px;
+    background:var(--muted-bg);color:var(--foreground);
+    border:1px solid var(--border);
+  }
+
+  pre{
+    background:var(--primary);
+    color:var(--primary-fg);
+    padding:18px 20px;
+    border-radius:var(--radius);
+    overflow-x:auto;
+    font-family:var(--mono);
+    font-size:13px;
+    line-height:1.7;
+  }
+  pre .cm{color:#a1a1aa;}
+  pre .kw{color:#c4b5fd;}
+  pre .an{color:#7dd3fc;}
+  pre .st{color:#86efac;}
+
+  .note{
+    display:flex;gap:12px;
+    background:var(--accent-soft);
+    border:1px solid #e4d9fb;
+    border-radius:var(--radius);
+    padding:16px 18px;
+    font-size:14px;
+  }
+  .note b{color:var(--accent);}
+
+  ul.plain{margin:0;padding-left:18px;}
+  ul.plain li{margin-bottom:8px;font-size:14.5px;}
+  ul.plain li b{font-weight:650;}
+
+  /* diagram */
+  .diagram-wrap{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px 20px;
+  }
+
+  footer{
+    padding:40px 0 60px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  @media (max-width:680px){
+    .hero h1{font-size:30px;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+    .analogy-card .row{grid-template-columns:1fr;}
+    .analogy-card .arrow{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="eyebrow">● 写给 Vue3 前端工程师</span>
+    <h1>Kafka 到底是<span class="accent">什么</span>？</h1>
+    <p class="lead">
+      一句话：Kafka 是一个<b>分布式、持久化的消息系统</b>。如果说你熟悉的 <code>mitt</code> /
+      <code>EventBus</code> 是"进程内、内存里、用完即丢"的事件总线，那 Kafka 就是把这套
+      发布订阅模型搬到了服务器集群上，还给每条消息上了"永久保险"——写盘、可重放、可以有很多个消费者各自独立消费。
+    </p>
+  </div>
+
+  <section>
+    <h2>01 · 核心类比</h2>
+    <h3>把 Kafka 想象成"跨服务器的 EventBus"</h3>
+    <div class="analogy-card">
+      <div class="row">
+        <div class="side">
+          <span class="tag">前端 · mitt / EventBus</span>
+          <div class="name">emitter.emit('order:paid', data)</div>
+          <div class="desc">事件发到内存里，页面刷新/组件销毁后事件历史就没了，只有当前在监听的组件能收到。</div>
+        </div>
+        <div class="arrow">≈</div>
+        <div class="side kafka">
+          <span class="tag">Kafka · Producer</span>
+          <div class="name">producer.send("order-paid", data)</div>
+          <div class="desc">事件被写入磁盘并保留一段时间（比如 7 天），谁都可以在任意时间"回放"这段历史。</div>
+        </div>
+      </div>
+    </div>
+    <div class="analogy-card">
+      <div class="row">
+        <div class="side">
+          <span class="tag">前端 · on 监听</span>
+          <div class="name">emitter.on('order:paid', fn)</div>
+          <div class="desc">同一个事件，多个组件各自 on，互不干扰，谁注册谁收到。</div>
+        </div>
+        <div class="arrow">≈</div>
+        <div class="side kafka">
+          <span class="tag">Kafka · Consumer Group</span>
+          <div class="name">@KafkaListener(topics="order-paid")</div>
+          <div class="desc">不同的"消费者组"（比如短信服务、积分服务）各自独立消费同一份消息，互不影响。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>02 · 术语对照表</h2>
+    <h3>Kafka 概念 ↔ 前端概念</h3>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead>
+          <tr><th>Kafka 术语</th><th>前端类比</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge">Topic</span></td>
+            <td><code>事件名称</code></td>
+            <td>就像 <code>emitter.emit('topic名', ...)</code> 里的事件名，一类消息的分类频道。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Producer</span></td>
+            <td><code>emit 的一方</code></td>
+            <td>发消息的服务，比如"下单服务"发出 <code>order-paid</code> 事件。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Consumer</span></td>
+            <td><code>on 的一方</code></td>
+            <td>监听并处理消息的服务，比如"发短信服务"。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Consumer Group</span></td>
+            <td><code>一组订阅者</code></td>
+            <td>同组内多个实例分摊消息（类似多个 worker 分工），不同组之间互不影响、都能收到完整消息。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Partition</span></td>
+            <td><code>数组分片</code></td>
+            <td>一个 Topic 拆成多个分区并行处理，类似把长列表 chunk 成多份并行渲染/处理，提高吞吐。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Offset</span></td>
+            <td><code>数组下标 / 已读游标</code></td>
+            <td>消费者记录"我读到第几条了"，类似分页/无限滚动里的 <code>cursor</code>。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Broker</span></td>
+            <td><code>服务器节点</code></td>
+            <td>运行 Kafka 的一台机器，多个 Broker 组成集群（对应"分布式"三个字）。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Message / Record</span></td>
+            <td><code>事件 payload</code></td>
+            <td>一条消息，类似 <code>emit</code> 时传的 data 对象，通常是 JSON。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>03 · 整体架构</h2>
+    <h3>一条消息是怎么流转的</h3>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:inherit;">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#a1a1aa"/>
+          </marker>
+        </defs>
+
+        <!-- Producer -->
+        <rect x="20" y="118" width="120" height="64" rx="10" fill="#ffffff" stroke="#e4e4e7"/>
+        <text x="80" y="145" text-anchor="middle" font-size="12" fill="#71717a" font-weight="700">PRODUCER</text>
+        <text x="80" y="165" text-anchor="middle" font-size="12.5" fill="#09090b">下单服务</text>
+
+        <line x1="140" y1="150" x2="196" y2="150" stroke="#a1a1aa" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+        <!-- Topic box -->
+        <rect x="200" y="60" width="280" height="180" rx="12" fill="#f3eefe" stroke="#e4d9fb"/>
+        <text x="340" y="84" text-anchor="middle" font-size="12" fill="#7c3aed" font-weight="700">TOPIC: order-paid</text>
+
+        <!-- partitions -->
+        <g>
+          <rect x="222" y="100" width="236" height="34" rx="6" fill="#ffffff" stroke="#e4d9fb"/>
+          <text x="234" y="121" font-size="11" fill="#71717a" font-family="monospace">P0</text>
+          <rect x="258" y="107" width="20" height="20" rx="3" fill="#ddd6fe"/>
+          <rect x="282" y="107" width="20" height="20" rx="3" fill="#ddd6fe"/>
+          <rect x="306" y="107" width="20" height="20" rx="3" fill="#ede9fe"/>
+        </g>
+        <g>
+          <rect x="222" y="142" width="236" height="34" rx="6" fill="#ffffff" stroke="#e4d9fb"/>
+          <text x="234" y="163" font-size="11" fill="#71717a" font-family="monospace">P1</text>
+          <rect x="258" y="149" width="20" height="20" rx="3" fill="#ddd6fe"/>
+          <rect x="282" y="149" width="20" height="20" rx="3" fill="#ede9fe"/>
+        </g>
+        <g>
+          <rect x="222" y="184" width="236" height="34" rx="6" fill="#ffffff" stroke="#e4d9fb"/>
+          <text x="234" y="205" font-size="11" fill="#71717a" font-family="monospace">P2</text>
+          <rect x="258" y="191" width="20" height="20" rx="3" fill="#ddd6fe"/>
+          <rect x="282" y="191" width="20" height="20" rx="3" fill="#ddd6fe"/>
+          <rect x="306" y="191" width="20" height="20" rx="3" fill="#ddd6fe"/>
+          <rect x="330" y="191" width="20" height="20" rx="3" fill="#ede9fe"/>
+        </g>
+
+        <line x1="480" y1="120" x2="536" y2="90" stroke="#a1a1aa" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <line x1="480" y1="150" x2="536" y2="150" stroke="#a1a1aa" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <line x1="480" y1="180" x2="536" y2="210" stroke="#a1a1aa" stroke-width="1.4" marker-end="url(#arrow)"/>
+
+        <!-- Consumer group A -->
+        <rect x="540" y="60" width="140" height="60" rx="10" fill="#ffffff" stroke="#e4e4e7"/>
+        <text x="610" y="82" text-anchor="middle" font-size="11" fill="#71717a" font-weight="700">CONSUMER GROUP</text>
+        <text x="610" y="101" text-anchor="middle" font-size="12.5" fill="#09090b">短信服务</text>
+
+        <!-- Consumer group B -->
+        <rect x="540" y="120" width="140" height="60" rx="10" fill="#ffffff" stroke="#e4e4e7"/>
+        <text x="610" y="142" text-anchor="middle" font-size="11" fill="#71717a" font-weight="700">CONSUMER GROUP</text>
+        <text x="610" y="161" text-anchor="middle" font-size="12.5" fill="#09090b">积分服务</text>
+
+        <!-- Consumer group C -->
+        <rect x="540" y="180" width="140" height="60" rx="10" fill="#ffffff" stroke="#e4e4e7"/>
+        <text x="610" y="202" text-anchor="middle" font-size="11" fill="#71717a" font-weight="700">CONSUMER GROUP</text>
+        <text x="610" y="221" text-anchor="middle" font-size="12.5" fill="#09090b">数据仓库同步</text>
+
+        <text x="410" y="270" text-anchor="middle" font-size="12" fill="#a1a1aa">同一条消息，三个消费者组各自独立读取、互不影响，就像三个组件各自 on 同一个事件</text>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <h2>04 · 为什么不直接用接口调用</h2>
+    <h3>Kafka 解决的核心问题</h3>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">解耦</div>
+        <div style="font-size:14px;color:var(--muted);">
+          下单服务不需要知道有多少个下游要处理"支付成功"这件事，就像组件 emit 事件时不需要关心谁在 on。新增一个消费方，不用改 Producer 代码。
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">削峰填谷</div>
+        <div style="font-size:14px;color:var(--muted);">
+          秒杀瞬间涌入的十万条消息先落到 Kafka 里排队，后端按自己的处理能力慢慢消费，类似前端的节流/队列，不会被瞬时流量打垮。
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">可回放</div>
+        <div style="font-size:14px;color:var(--muted);">
+          消息持久化在磁盘上，消费者挂了重启后可以从上次的 offset 继续读，甚至重置 offset 重新消费一遍历史消息——这是内存版 EventBus 完全做不到的。
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">顺序保证（分区内）</div>
+        <div style="font-size:14px;color:var(--muted);">
+          同一个分区内消息严格有序，类似数组按下标顺序处理；但跨分区不保证全局顺序，需要按业务 key（如订单号）路由到固定分区来保证同一订单的消息有序。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>05 · 在 Java 项目里长什么样</h2>
+    <h3>Spring Kafka 的最小示例</h3>
+    <p style="color:var(--muted);font-size:14.5px;margin-top:-8px;">
+      对应关系：<code>@KafkaListener</code> 大致相当于前端里的 <code>emitter.on(...)</code>，方法被自动调用；
+      <code>KafkaTemplate.send(...)</code> 相当于 <code>emitter.emit(...)</code>。
+    </p>
+    <pre><span class="cm">// 发送消息 —— 类似 emitter.emit('order-paid', order)</span>
+<span class="kw">@Service</span>
+<span class="kw">public class</span> OrderService {
+    <span class="kw">private final</span> KafkaTemplate&lt;String, Order&gt; kafkaTemplate;
+
+    <span class="kw">public void</span> payOrder(Order order) {
+        <span class="cm">// topic 名, key(决定进哪个分区), 消息体</span>
+        kafkaTemplate.send(<span class="st">"order-paid"</span>, order.getId(), order);
+    }
+}
+
+<span class="cm">// 消费消息 —— 类似 emitter.on('order-paid', fn)</span>
+<span class="kw">@Component</span>
+<span class="kw">public class</span> SmsConsumer {
+
+    <span class="an">@KafkaListener</span>(topics = <span class="st">"order-paid"</span>, groupId = <span class="st">"sms-service"</span>)
+    <span class="kw">public void</span> onOrderPaid(Order order) {
+        smsClient.send(order.getUserPhone(), <span class="st">"您的订单已支付成功"</span>);
+    }
+}</pre>
+  </section>
+
+  <section>
+    <h2>06 · 容易搞混的地方</h2>
+    <h3>Kafka ≠ mitt/Vuex，别踩这几个坑</h3>
+    <ul class="plain">
+      <li><b>不是内存态：</b>Vuex/Pinia store 进程重启数据就没了；Kafka 消息默认写盘并按时间/大小保留，重启服务不会丢历史消息。</li>
+      <li><b>不是请求-响应模型：</b>它更接近"广播"，Producer 发完就不管了，不像 axios 请求那样等一个返回值。如果需要"结果"，通常是消费者处理完再发一条新消息（比如 <code>order-notified</code>）。</li>
+      <li><b>分区 ≠ 随便并行：</b>同一个 key（比如同一个用户 id）的消息会固定进同一个分区，这样才能保证这个用户的消息是有序处理的，别以为分区越多性能越无脑好。</li>
+      <li><b>Consumer Group 是"组"级别的负载均衡：</b>组内多个实例会分摊分区（类似多个 tab 页共享一份任务队列，各自处理不同的部分），但组与组之间是各自拿到完整的一份数据。</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="note">
+      <div>💡</div>
+      <div>
+        <b>一句话记忆：</b> Kafka 就是一个"带持久化、支持多消费者独立回放、可以水平扩展"的分布式版 EventBus。
+        理解了这一点，剩下的 Topic / Partition / Offset / Consumer Group 都只是在解决"怎么把这个 EventBus
+        扩展到多台机器、保证数据不丢、还能并行处理"这几件事而已。
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Kafka 速览 · 面向前端工程师的类比说明
+  </footer>
+
+</div>
+</body>
+</html>
