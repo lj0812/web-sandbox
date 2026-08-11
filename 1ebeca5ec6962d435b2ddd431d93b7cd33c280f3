@@ -1,0 +1,24 @@
+mac-pf-firewall.html
+  9885e448abac7a4a 188,204-206,214-215,389-392,395,406-411,418-419,421-435,621-636
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.28",
+  "base_commit_sha": "1ebeca5ec6962d435b2ddd431d93b7cd33c280f3",
+  "prompts": {
+    "9885e448abac7a4a": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "46db4ca9-a475-4258-8191-bc02fbcfb6cc",
+        "model": "default",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 53,
+      "total_deletions": 9,
+      "accepted_lines": 53,
+      "overriden_lines": 0
+    }
+  }
+}
