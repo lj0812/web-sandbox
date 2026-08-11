@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>macOS PF 防火墙配置与使用指南</title>
+<style>
+  :root {
+    color-scheme: light;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* Header */
+  header.hero {
+    padding: 2rem 0 2.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+    margin-bottom: 2.5rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
+    background: hsl(var(--muted));
+  }
+
+  .badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #10b981;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin: 0.75rem 0 0.5rem;
+    letter-spacing: -0.02em;
+    color: hsl(var(--foreground));
+  }
+
+  .subtitle {
+    color: hsl(var(--muted-foreground));
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 3rem 0 1rem;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem; height: 1.75rem;
+    border-radius: 0.375rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 1.75rem 0 0.5rem;
+  }
+
+  p { margin: 0.5rem 0 1rem; }
+
+  /* Card */
+  .card {
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background: hsl(var(--card));
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-desc {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+  }
+
+  /* Alert */
+  .alert {
+    border: 1px solid hsl(var(--border));
+    border-left: 3px solid hsl(var(--primary));
+    border-radius: var(--radius);
+    padding: 0.875rem 1rem;
+    background: hsl(var(--muted));
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .alert.warning { border-left-color: #f59e0b; }
+  .alert.danger { border-left-color: hsl(var(--destructive)); }
+  .alert.info { border-left-color: #3b82f6; }
+
+  .alert-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    display: flex; align-items: center; gap: 0.375rem;
+  }
+
+  /* Code */
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 1rem 1.125rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    margin: 0.75rem 0 1rem;
+    font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+  }
+
+  pre .cmt { color: #94a3b8; }
+  pre .kw { color: #f472b6; }
+  pre .str { color: #86efac; }
+  pre .num2 { color: #fbbf24; }
+
+  code.inline {
+    background: hsl(var(--muted));
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.85em;
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* Tabs (static, visually only) */
+  .tabs {
+    display: inline-flex;
+    padding: 0.25rem;
+    background: hsl(var(--muted));
+    border-radius: var(--radius);
+    margin: 0.5rem 0 1rem;
+    gap: 0.125rem;
+  }
+  .tab {
+    padding: 0.375rem 0.875rem;
+    font-size: 0.85rem;
+    border-radius: calc(var(--radius) - 0.25rem);
+    cursor: pointer;
+    color: hsl(var(--muted-foreground));
+    user-select: none;
+  }
+  .tab.active {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    font-weight: 500;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  th {
+    background: hsl(var(--muted));
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  /* Grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    h1 { font-size: 1.75rem; }
+  }
+
+  /* Analogy box - for the FE devs */
+  .analogy {
+    background: linear-gradient(135deg, hsl(240 4.8% 97%), hsl(240 4.8% 99%));
+    border: 1px dashed hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 1rem 1.125rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .analogy-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    margin-bottom: 0.375rem;
+  }
+
+  ul, ol {
+    padding-left: 1.25rem;
+    margin: 0.5rem 0 1rem;
+  }
+  li { margin-bottom: 0.25rem; }
+
+  /* TOC */
+  nav.toc {
+    background: hsl(var(--muted));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0 2rem;
+  }
+  nav.toc .toc-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 0.5rem;
+  }
+  nav.toc ol {
+    columns: 2;
+    column-gap: 2rem;
+    margin: 0; padding-left: 1.25rem;
+    font-size: 0.9rem;
+  }
+  nav.toc a {
+    color: hsl(var(--foreground));
+    text-decoration: none;
+  }
+  nav.toc a:hover { text-decoration: underline; }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid hsl(var(--border));
+    font-size: 0.85rem;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hero">
+    <span class="badge"><span class="dot"></span>macOS · 内建组件</span>
+    <h1>macOS PF 防火墙配置与使用指南</h1>
+    <p class="subtitle">从零理解 Packet Filter (pf) — 一个继承自 OpenBSD、藏在你 Mac 里的企业级包过滤防火墙。</p>
+  </header>
+
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <ol>
+      <li><a href="#what">什么是 PF</a></li>
+      <li><a href="#arch">系统架构与文件</a></li>
+      <li><a href="#pfctl">pfctl 命令速览</a></li>
+      <li><a href="#syntax">规则语法</a></li>
+      <li><a href="#examples">常用配置示例</a></li>
+      <li><a href="#anchor">Anchor 机制</a></li>
+      <li><a href="#persist">开机自动加载</a></li>
+      <li><a href="#debug">调试与排查</a></li>
+      <li><a href="#pitfalls">常见坑</a></li>
+    </ol>
+  </nav>
+
+  <!-- Section 1 -->
+  <section id="what">
+    <h2><span class="num">1</span>什么是 PF</h2>
+    <p>
+      <strong>PF (Packet Filter)</strong> 是 macOS 从 10.7 (Lion) 起内建的底层包过滤防火墙,继承自 OpenBSD。它工作在网络层,可以基于 IP、端口、协议、接口、方向等对进出流量做精细化控制。
+    </p>
+
+    <div class="analogy">
+      <span class="analogy-label">前端类比</span>
+      如果说 macOS 系统偏好设置里的“防火墙”开关像 Vue3 的模板语法 —— 简单、面向使用者;那么 <strong>PF 就是底层的 render 函数</strong>:能力更强、更灵活,但需要你手写规则文件。它跟前端里 nginx 的 <code class="inline">location</code> / <code class="inline">deny</code> 配置更接近。
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">✅ PF 能做什么</div>
+        <p class="card-desc">按 IP/端口/协议过滤、NAT、端口转发、限速、地址集合(table)、按接口区分策略</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🔍 与 Application Firewall 区别</div>
+        <p class="card-desc">系统设置里的“防火墙”是应用层 (ALF),只按应用签名判定;PF 是包层,基于五元组匹配。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2 -->
+  <section id="arch">
+    <h2><span class="num">2</span>系统架构与关键文件</h2>
+
+    <table>
+      <thead>
+        <tr><th>路径</th><th>作用</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code class="inline">/etc/pf.conf</code></td><td>系统主配置文件(默认几乎为空,通过 anchor 加载子规则)</td></tr>
+        <tr><td><code class="inline">/etc/pf.anchors/</code></td><td>系统/自定义 anchor 规则目录</td></tr>
+        <tr><td><code class="inline">/System/Library/LaunchDaemons/com.apple.pfctl.plist</code></td><td>开机加载 PF 的 launchd 服务</td></tr>
+        <tr><td><code class="inline">/var/log/pf.log</code></td><td>日志文件(需 pflog0 接口)</td></tr>
+        <tr><td><code class="inline">/dev/pf</code></td><td>PF 与用户态通信的字符设备</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert info">
+      <div class="alert-title">💡 提示</div>
+      macOS 上 PF 默认是启用状态但规则集为空,所以“感觉不到”。要用它,你只需写规则并加载即可,不用装任何东西。
+    </div>
+  </section>
+
+  <!-- Section 3 -->
+  <section id="pfctl">
+    <h2><span class="num">3</span>pfctl 命令速览</h2>
+    <p><code class="inline">pfctl</code> 是操作 PF 的唯一命令行工具,所有操作都需要 <code class="inline">sudo</code>。</p>
+
+    <div class="tabs">
+      <div class="tab active">最常用</div>
+      <div class="tab">查询</div>
+      <div class="tab">高级</div>
+    </div>
+
+<pre><span class="cmt"># 启用 / 禁用 PF</span>
+sudo pfctl <span class="kw">-e</span>          <span class="cmt"># enable</span>
+sudo pfctl <span class="kw">-d</span>          <span class="cmt"># disable</span>
+
+<span class="cmt"># 加载规则文件(不启动)</span>
+sudo pfctl <span class="kw">-f</span> /etc/pf.conf
+
+<span class="cmt"># 语法检查(不加载,推荐先跑一遍)</span>
+sudo pfctl <span class="kw">-nf</span> /etc/pf.conf
+
+<span class="cmt"># 查看当前规则</span>
+sudo pfctl <span class="kw">-sr</span>
+
+<span class="cmt"># 查看状态表(当前连接)</span>
+sudo pfctl <span class="kw">-ss</span>
+
+<span class="cmt"># 查看统计信息</span>
+sudo pfctl <span class="kw">-si</span>
+
+<span class="cmt"># 清空规则</span>
+sudo pfctl <span class="kw">-F</span> all</pre>
+
+    <div class="analogy">
+      <span class="analogy-label">前端类比</span>
+      把 <code class="inline">pfctl</code> 想成 <code class="inline">npm</code>: <code class="inline">-f</code> 像 <code class="inline">install</code>(加载配置)、 <code class="inline">-e/-d</code> 像 <code class="inline">run start/stop</code>、 <code class="inline">-s</code> 像 <code class="inline">ls</code>(查看当前状态)。
+    </div>
+  </section>
+
+  <!-- Section 4 -->
+  <section id="syntax">
+    <h2><span class="num">4</span>规则语法</h2>
+    <p>PF 规则文件按顺序执行,但采用<strong>“最后匹配优先”(last match wins)</strong>,除非规则里加了 <code class="inline">quick</code>。</p>
+
+    <h3>规则的基本骨架</h3>
+<pre>action  direction  [log]  [quick]  on interface  proto  from src  to dst  [flags/keep state]</pre>
+
+    <table>
+      <thead>
+        <tr><th>字段</th><th>可选值</th><th>示例</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>action</td><td><code class="inline">pass</code> / <code class="inline">block</code> / <code class="inline">match</code></td><td><code class="inline">block</code></td></tr>
+        <tr><td>direction</td><td><code class="inline">in</code> / <code class="inline">out</code></td><td><code class="inline">in</code></td></tr>
+        <tr><td>interface</td><td>网卡名</td><td><code class="inline">on en0</code></td></tr>
+        <tr><td>proto</td><td><code class="inline">tcp</code> / <code class="inline">udp</code> / <code class="inline">icmp</code></td><td><code class="inline">proto tcp</code></td></tr>
+        <tr><td>from/to</td><td>地址 + 端口</td><td><code class="inline">from any to any port 22</code></td></tr>
+        <tr><td>状态</td><td><code class="inline">keep state</code>(默认)</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert warning">
+      <div class="alert-title">⚠️ 匹配顺序要点</div>
+      默认“最后匹配的规则生效”。把最宽松的规则写在前面、越具体的写在越后面,或者用 <code class="inline">quick</code> 立即命中并结束匹配 — 这是最容易踩坑的地方。
+    </div>
+  </section>
+
+  <!-- Section 5 -->
+  <section id="examples">
+    <h2><span class="num">5</span>常用配置示例</h2>
+
+    <h3>示例 1:阻止所有入站,允许所有出站</h3>
+<pre><span class="cmt"># /etc/pf.anchors/com.mycompany</span>
+<span class="kw">block</span> in all
+<span class="kw">pass</span>  out all keep state
+<span class="kw">pass</span>  quick on lo0 all         <span class="cmt"># 放行本地回环</span></pre>
+
+    <h3>示例 2:仅允许特定 IP 访问 SSH (22 端口)</h3>
+<pre><span class="kw">block</span> in proto tcp to any port 22
+<span class="kw">pass</span>  in quick proto tcp from <span class="num2">192.168.1.0/24</span> to any port 22 keep state</pre>
+
+    <h3>示例 3:封禁一批 IP(使用 table)</h3>
+<pre><span class="kw">table</span> &lt;badguys&gt; persist { <span class="num2">10.0.0.5</span>, <span class="num2">203.0.113.0/24</span> }
+<span class="kw">block</span> in quick from &lt;badguys&gt; to any</pre>
+    <p>之后可以用命令动态增删:</p>
+<pre>sudo pfctl <span class="kw">-t</span> badguys <span class="kw">-T</span> add <span class="num2">1.2.3.4</span>
+sudo pfctl <span class="kw">-t</span> badguys <span class="kw">-T</span> show
+sudo pfctl <span class="kw">-t</span> badguys <span class="kw">-T</span> delete <span class="num2">1.2.3.4</span></pre>
+
+    <div class="analogy">
+      <span class="analogy-label">前端类比</span>
+      <code class="inline">table</code> 就像一个响应式的 <code class="inline">ref&lt;Set&gt;</code>:引用它的规则不用改,你在运行时动态增删表项即可 — 无需 reload 规则。
+    </div>
+
+    <h3>示例 4:开发端口只对内网开放</h3>
+<pre><span class="kw">block</span> in quick proto tcp to any port { <span class="num2">3000</span>, <span class="num2">5173</span>, <span class="num2">8080</span> }
+<span class="kw">pass</span>  in quick proto tcp from <span class="num2">192.168.0.0/16</span> to any port { <span class="num2">3000</span>, <span class="num2">5173</span>, <span class="num2">8080</span> }</pre>
+
+    <h3>示例 5:限速(带宽整形)</h3>
+<pre><span class="cmt"># 需要 ALTQ 支持,macOS 上此功能受限,仅供参考</span>
+<span class="kw">pass</span> out on en0 proto tcp to any port 443 queue web</pre>
+  </section>
+
+  <!-- Section 6 -->
+  <section id="anchor">
+    <h2><span class="num">6</span>Anchor 机制(推荐使用)</h2>
+    <p>
+      Anchor 相当于“<strong>命名的规则子集</strong>”,可以被主配置动态加载。macOS 系统自己就通过 anchor 挂载了很多规则(比如 <code class="inline">com.apple/*</code>),所以推荐你也用 anchor 来放自己的规则,避免污染主 <code class="inline">pf.conf</code>。
+    </p>
+
+    <div class="analogy">
+      <span class="analogy-label">前端类比</span>
+      Anchor 就是 Vue 里的<strong>异步组件 / 子模块</strong>:主配置只写“挂载点”,具体规则放在独立文件里,可以按需加载、独立维护。
+    </div>
+
+    <h3>步骤:添加自己的 anchor</h3>
+    <p>① 建立规则文件 <code class="inline">/etc/pf.anchors/com.myrules</code>:</p>
+<pre><span class="kw">block</span> drop in quick from &lt;banned&gt; to any
+<span class="kw">table</span> &lt;banned&gt; persist</pre>
+
+    <p>② 修改 <code class="inline">/etc/pf.conf</code>,追加两行:</p>
+<pre><span class="kw">anchor</span> <span class="str">"com.myrules"</span>
+<span class="kw">load anchor</span> <span class="str">"com.myrules"</span> from <span class="str">"/etc/pf.anchors/com.myrules"</span></pre>
+
+    <p>③ 加载并启用:</p>
+<pre>sudo pfctl <span class="kw">-f</span> /etc/pf.conf
+sudo pfctl <span class="kw">-e</span></pre>
+  </section>
+
+  <!-- Section 7 -->
+  <section id="persist">
+    <h2><span class="num">7</span>开机自动加载</h2>
+    <p>PF 服务由 launchd 管理,默认已注册但规则为空。要让自定义规则开机生效,创建一个 launchd plist:</p>
+
+    <p><code class="inline">/Library/LaunchDaemons/com.myrules.pf.plist</code>:</p>
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;
+  &lt;string&gt;com.myrules.pf&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;
+  &lt;array&gt;
+    &lt;string&gt;/sbin/pfctl&lt;/string&gt;
+    &lt;string&gt;-Ef&lt;/string&gt;
+    &lt;string&gt;/etc/pf.conf&lt;/string&gt;
+  &lt;/array&gt;
+  &lt;key&gt;RunAtLoad&lt;/key&gt;&lt;true/&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;</pre>
+
+    <p>加载服务:</p>
+<pre>sudo chown root:wheel /Library/LaunchDaemons/com.myrules.pf.plist
+sudo launchctl load /Library/LaunchDaemons/com.myrules.pf.plist</pre>
+  </section>
+
+  <!-- Section 8 -->
+  <section id="debug">
+    <h2><span class="num">8</span>调试与排查</h2>
+
+    <h3>启用日志</h3>
+    <p>在规则里加 <code class="inline">log</code> 关键字,匹配的包会被写到伪接口 <code class="inline">pflog0</code>:</p>
+<pre><span class="kw">block</span> log quick from &lt;banned&gt; to any</pre>
+
+    <p>实时查看日志:</p>
+<pre>sudo tcpdump <span class="kw">-n</span> <span class="kw">-e</span> <span class="kw">-ttt</span> <span class="kw">-i</span> pflog0</pre>
+
+    <h3>常用诊断命令</h3>
+    <table>
+      <thead><tr><th>命令</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">sudo pfctl -sr</code></td><td>列出当前规则</td></tr>
+        <tr><td><code class="inline">sudo pfctl -ss</code></td><td>列出当前 state (连接)</td></tr>
+        <tr><td><code class="inline">sudo pfctl -si</code></td><td>看统计:匹配数、丢弃数</td></tr>
+        <tr><td><code class="inline">sudo pfctl -sa</code></td><td>看所有信息(all)</td></tr>
+        <tr><td><code class="inline">sudo pfctl -sA</code></td><td>看 anchors 列表</td></tr>
+        <tr><td><code class="inline">sudo pfctl -a com.myrules -sr</code></td><td>看某个 anchor 里的规则</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Section 9 -->
+  <section id="pitfalls">
+    <h2><span class="num">9</span>常见坑</h2>
+
+    <div class="alert danger">
+      <div class="alert-title">🚫 别忘了放行 lo0</div>
+      如果你写了 <code class="inline">block in all</code> 而没放行环回接口,本机很多服务(如 <code class="inline">localhost</code> 上的开发服务)会直接不通。永远加一条 <code class="inline">pass quick on lo0 all</code>。
+    </div>
+
+    <div class="alert warning">
+      <div class="alert-title">⚠️ Last match wins</div>
+      规则默认按“最后匹配生效”,不是“第一条命中”。想立即生效必须加 <code class="inline">quick</code>。这跟 iptables / 前端 <code class="inline">if-else</code> 的直觉不同。
+    </div>
+
+    <div class="alert warning">
+      <div class="alert-title">⚠️ 修改 /etc/pf.conf 可能被系统覆盖</div>
+      macOS 升级时系统文件可能被重置。推荐做法是:自定义规则放到 <code class="inline">/etc/pf.anchors/</code>,主 pf.conf 只加一行 anchor 挂载,或者干脆用独立的 launchd + 独立 conf 文件。
+    </div>
+
+    <div class="alert info">
+      <div class="alert-title">💡 SIP 与权限</div>
+      即使有 sudo,某些系统级 anchor(如 <code class="inline">com.apple/*</code>)也不允许修改。这是 macOS 安全策略,别硬刚。
+    </div>
+
+    <div class="alert info">
+      <div class="alert-title">💡 与 Application Firewall / Little Snitch 关系</div>
+      PF 位于最底层(内核网络栈),Application Firewall 在应用层,Little Snitch 通过 Network Extension 挂钩。它们互不冲突,但排查网络问题时要意识到"每层都可能拦"。
+    </div>
+  </section>
+
+  <footer>
+    macOS PF 防火墙参考文档 · 建议以 <code class="inline">man pf.conf</code> / <code class="inline">man pfctl</code> 为准
+  </footer>
+
+</div>
+</body>
+</html>
