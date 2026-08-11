@@ -185,7 +185,7 @@
     border: 1px solid hsl(var(--border));
   }
 
-  /* Tabs (static, visually only) */
+  /* Tabs */
   .tabs {
     display: inline-flex;
     padding: 0.25rem;
@@ -201,6 +201,9 @@
     cursor: pointer;
     color: hsl(var(--muted-foreground));
     user-select: none;
+    border: none;
+    background: transparent;
+    font-family: inherit;
   }
   .tab.active {
     background: hsl(var(--background));
@@ -208,6 +211,8 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     font-weight: 500;
   }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 
   /* Table */
   table {
@@ -381,12 +386,13 @@
     <h2><span class="num">3</span>pfctl 命令速览</h2>
     <p><code class="inline">pfctl</code> 是操作 PF 的唯一命令行工具,所有操作都需要 <code class="inline">sudo</code>。</p>
 
-    <div class="tabs">
-      <div class="tab active">最常用</div>
-      <div class="tab">查询</div>
-      <div class="tab">高级</div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" data-tab="common">最常用</button>
+      <button type="button" class="tab" data-tab="query">查询</button>
+      <button type="button" class="tab" data-tab="advanced">高级</button>
     </div>
 
+    <div class="tab-panel active" data-panel="common">
 <pre><span class="cmt"># 启用 / 禁用 PF</span>
 sudo pfctl <span class="kw">-e</span>          <span class="cmt"># enable</span>
 sudo pfctl <span class="kw">-d</span>          <span class="cmt"># disable</span>
@@ -397,17 +403,36 @@ sudo pfctl <span class="kw">-f</span> /etc/pf.conf
 <span class="cmt"># 语法检查(不加载,推荐先跑一遍)</span>
 sudo pfctl <span class="kw">-nf</span> /etc/pf.conf
 
-<span class="cmt"># 查看当前规则</span>
+<span class="cmt"># 清空规则</span>
+sudo pfctl <span class="kw">-F</span> all</pre>
+    </div>
+
+    <div class="tab-panel" data-panel="query">
+<pre><span class="cmt"># 查看当前规则</span>
 sudo pfctl <span class="kw">-sr</span>
 
 <span class="cmt"># 查看状态表(当前连接)</span>
 sudo pfctl <span class="kw">-ss</span>
 
 <span class="cmt"># 查看统计信息</span>
-sudo pfctl <span class="kw">-si</span>
+sudo pfctl <span class="kw">-si</span></pre>
+    </div>
 
-<span class="cmt"># 清空规则</span>
-sudo pfctl <span class="kw">-F</span> all</pre>
+    <div class="tab-panel" data-panel="advanced">
+<pre><span class="cmt"># 查看所有信息</span>
+sudo pfctl <span class="kw">-sa</span>
+
+<span class="cmt"># 查看 anchors 列表</span>
+sudo pfctl <span class="kw">-sA</span>
+
+<span class="cmt"># 查看某个 anchor 里的规则</span>
+sudo pfctl <span class="kw">-a</span> com.myrules <span class="kw">-sr</span>
+
+<span class="cmt"># 动态操作 table</span>
+sudo pfctl <span class="kw">-t</span> badguys <span class="kw">-T</span> add <span class="num2">1.2.3.4</span>
+sudo pfctl <span class="kw">-t</span> badguys <span class="kw">-T</span> show
+sudo pfctl <span class="kw">-t</span> badguys <span class="kw">-T</span> delete <span class="num2">1.2.3.4</span></pre>
+    </div>
 
     <div class="analogy">
       <span class="analogy-label">前端类比</span>
@@ -593,5 +618,21 @@ sudo launchctl load /Library/LaunchDaemons/com.myrules.pf.plist</pre>
   </footer>
 
 </div>
+<script>
+  document.querySelectorAll(".tabs").forEach(function (tabs) {
+    var section = tabs.parentElement;
+    tabs.addEventListener("click", function (e) {
+      var tab = e.target.closest(".tab");
+      if (!tab || !tabs.contains(tab)) return;
+      var name = tab.getAttribute("data-tab");
+      tabs.querySelectorAll(".tab").forEach(function (t) {
+        t.classList.toggle("active", t === tab);
+      });
+      section.querySelectorAll(".tab-panel").forEach(function (panel) {
+        panel.classList.toggle("active", panel.getAttribute("data-panel") === name);
+      });
+    });
+  });
+</script>
 </body>
 </html>
