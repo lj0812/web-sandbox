@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前端工程师的 Java / Spring Boot 学习地图</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --border: 240 5.9% 90%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --accent: 240 4.8% 95.9%;
+    --java-accent: 217 91% 60%;
+    --vue-accent: 152 60% 40%;
+    --radius: 0.625rem;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px;}
+
+  /* Nav */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background: hsl(var(--background) / 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid hsl(var(--border));
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:56px; max-width:960px;}
+  .nav-brand{font-weight:700; font-size:14px; display:flex; align-items:center; gap:8px;}
+  .nav-brand .dot{width:8px; height:8px; border-radius:50%; background:hsl(var(--java-accent));}
+  .nav-links{display:flex; gap:20px; font-size:13px; color:hsl(var(--muted-foreground));}
+  .nav-links a{color:inherit; text-decoration:none;}
+  .nav-links a:hover{color:hsl(var(--foreground));}
+
+  /* Hero */
+  .hero{padding:72px 0 48px; border-bottom:1px solid hsl(var(--border));}
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:500; color:hsl(var(--muted-foreground));
+    background:hsl(var(--muted)); border:1px solid hsl(var(--border));
+    padding:4px 10px; border-radius:999px; margin-bottom:20px;
+  }
+  h1{font-size:38px; font-weight:800; letter-spacing:-0.03em; line-height:1.15; max-width:680px;}
+  .hero p.lead{margin-top:14px; font-size:16px; color:hsl(var(--muted-foreground)); max-width:600px;}
+  .hero-stats{display:flex; gap:0; margin-top:32px; border:1px solid hsl(var(--border)); border-radius:var(--radius); overflow:hidden;}
+  .hero-stats div{flex:1; padding:14px 18px; border-right:1px solid hsl(var(--border));}
+  .hero-stats div:last-child{border-right:none;}
+  .hero-stats .num{font-size:20px; font-weight:700; font-family:'JetBrains Mono', monospace;}
+  .hero-stats .label{font-size:12px; color:hsl(var(--muted-foreground)); margin-top:2px;}
+
+  section{padding:56px 0; border-bottom:1px solid hsl(var(--border));}
+  .section-head{margin-bottom:28px;}
+  .section-eyebrow{font-size:12px; font-weight:600; color:hsl(var(--java-accent)); text-transform:uppercase; letter-spacing:0.06em;}
+  .section-title{font-size:24px; font-weight:700; letter-spacing:-0.02em; margin-top:6px;}
+  .section-desc{font-size:14px; color:hsl(var(--muted-foreground)); margin-top:8px; max-width:640px;}
+
+  /* Mindset table */
+  .shift-grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:hsl(var(--border)); border:1px solid hsl(var(--border)); border-radius:var(--radius); overflow:hidden;}
+  .shift-col-head{background:hsl(var(--muted)); padding:10px 16px; font-size:12px; font-weight:700;}
+  .shift-row{background:hsl(var(--card)); padding:14px 16px; font-size:13.5px;}
+  .shift-row .k{font-weight:600; margin-bottom:2px;}
+  .shift-row .v{color:hsl(var(--muted-foreground)); font-size:12.5px;}
+
+  /* Phase timeline */
+  .phase{
+    position:relative;
+    display:grid; grid-template-columns:56px 1fr; gap:20px;
+    padding-bottom:36px;
+  }
+  .phase:last-child{padding-bottom:0;}
+  .phase-marker{display:flex; flex-direction:column; align-items:center;}
+  .phase-marker .circle{
+    width:36px; height:36px; border-radius:50%;
+    background:hsl(var(--primary)); color:hsl(var(--primary-foreground));
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; font-family:'JetBrains Mono', monospace;
+    flex-shrink:0;
+  }
+  .phase-marker .line{width:1px; flex:1; background:hsl(var(--border)); margin-top:8px;}
+  .phase-card{
+    border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    padding:20px 22px; background:hsl(var(--card));
+  }
+  .phase-card-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .phase-card-head h3{font-size:16px; font-weight:700;}
+  .phase-time{
+    font-size:11px; font-family:'JetBrains Mono', monospace; color:hsl(var(--muted-foreground));
+    background:hsl(var(--muted)); padding:3px 8px; border-radius:6px; white-space:nowrap;
+  }
+  .phase-analogy{
+    margin-top:10px; font-size:13px; color:hsl(var(--foreground) / 0.85);
+    background:hsl(var(--muted) / 0.6); border-left:2px solid hsl(var(--java-accent));
+    padding:8px 12px; border-radius:0 6px 6px 0;
+  }
+  .phase-analogy b{color:hsl(var(--java-accent));}
+  .phase-points{margin-top:14px; display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{
+    font-size:12px; font-family:'JetBrains Mono', monospace;
+    border:1px solid hsl(var(--border)); padding:3px 9px; border-radius:6px;
+    color:hsl(var(--foreground) / 0.8);
+  }
+  .phase-goal{margin-top:12px; font-size:13.5px; color:hsl(var(--muted-foreground));}
+
+  /* Concept map table */
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  thead th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.05em;
+    color:hsl(var(--muted-foreground)); padding:0 14px 10px; border-bottom:1px solid hsl(var(--border));
+  }
+  tbody td{padding:12px 14px; border-bottom:1px solid hsl(var(--border)); vertical-align:top;}
+  tbody tr:last-child td{border-bottom:none;}
+  .tag-vue{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:hsl(var(--vue-accent)); font-weight:600;}
+  .tag-java{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:hsl(var(--java-accent)); font-weight:600;}
+  .note{font-size:12.5px; color:hsl(var(--muted-foreground));}
+
+  /* Tips */
+  .tips{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .tip-card{border:1px solid hsl(var(--border)); border-radius:var(--radius); padding:18px 20px;}
+  .tip-card .n{font-size:11px; font-family:'JetBrains Mono',monospace; color:hsl(var(--muted-foreground));}
+  .tip-card h4{font-size:14px; font-weight:700; margin-top:6px;}
+  .tip-card p{font-size:13px; color:hsl(var(--muted-foreground)); margin-top:6px;}
+
+  footer{padding:32px 0 56px; text-align:center;}
+  footer p{font-size:12.5px; color:hsl(var(--muted-foreground));}
+
+  @media (max-width: 640px){
+    h1{font-size:28px;}
+    .hero{padding:48px 0 32px;}
+    .hero-stats{flex-direction:column;}
+    .hero-stats div{border-right:none; border-bottom:1px solid hsl(var(--border));}
+    .hero-stats div:last-child{border-bottom:none;}
+    .shift-grid{grid-template-columns:1fr;}
+    .tips{grid-template-columns:1fr;}
+    table{font-size:12px;}
+    thead th:nth-child(3), tbody td:nth-child(3){display:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-brand"><span class="dot"></span>Java / Spring Boot 学习地图</div>
+    <div class="nav-links">
+      <a href="#mindset">思维转换</a>
+      <a href="#path">学习路径</a>
+      <a href="#map">概念对照</a>
+      <a href="#tips">建议</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge">面向 Vue3 前端工程师 · 8 个阶段</div>
+    <h1>你已经会写代码了，<br>只是换一门语言、换一套工具链。</h1>
+    <p class="lead">这份路径不从零开始讲"什么是编程"，而是把 Java / Spring Boot 的每个概念，尽量映射回你已经熟悉的 JavaScript / Vue3 世界，帮你更快建立类比、少走弯路。</p>
+    <div class="hero-stats">
+      <div><div class="num">8</div><div class="label">学习阶段</div></div>
+      <div><div class="num">6-8</div><div class="label">建议周数</div></div>
+      <div><div class="num">1</div><div class="label">最终产出：一个可运行的 CRUD 项目</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="mindset">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Step 0</div>
+      <div class="section-title">先调整思维方式，再学语法</div>
+      <div class="section-desc">Java 和 JavaScript 长得像，但底层假设完全不同。理解这几点差异，后面学 Spring 会顺畅很多。</div>
+    </div>
+    <div class="shift-grid">
+      <div class="shift-col-head">JavaScript / Vue3 世界</div>
+      <div class="shift-col-head">Java 世界</div>
+
+      <div class="shift-row"><div class="k mono">动态类型</div><div class="v">变量类型运行时才确定，<span class="mono">let x = 1</span> 之后能变成字符串</div></div>
+      <div class="shift-row"><div class="k mono">静态类型</div><div class="v">编译期就要确定类型，<span class="mono">int x = 1</span> 之后不能赋值字符串，IDE 会实时报错</div></div>
+
+      <div class="shift-row"><div class="k mono">解释执行 / JIT</div><div class="v">V8 引擎直接跑你的 <span class="mono">.js</span> 文件</div></div>
+      <div class="shift-row"><div class="k mono">先编译后运行</div><div class="v"><span class="mono">.java</span> 编译成字节码 <span class="mono">.class</span>，再由 JVM 运行，类似 TypeScript 编译成 JS 再执行</div></div>
+
+      <div class="shift-row"><div class="k mono">npm / pnpm</div><div class="v"><span class="mono">package.json</span> 管理依赖和脚本</div></div>
+      <div class="shift-row"><div class="k mono">Maven / Gradle</div><div class="v"><span class="mono">pom.xml</span> / <span class="mono">build.gradle</span> 管理依赖、构建、打包，一次学一种即可（先学 Maven 更常见）</div></div>
+
+      <div class="shift-row"><div class="k mono">ESM import</div><div class="v"><span class="mono">import { ref } from 'vue'</span>，按文件路径找模块</div></div>
+      <div class="shift-row"><div class="k mono">package + import</div><div class="v">每个类归属一个包（类似命名空间/文件夹），<span class="mono">import com.example.User;</span></div></div>
+
+      <div class="shift-row"><div class="k mono">组件是最小单元</div><div class="v">一个 <span class="mono">.vue</span> 文件封装模板 + 逻辑 + 样式</div></div>
+      <div class="shift-row"><div class="k mono">类是最小单元</div><div class="v">一切皆对象，一个 <span class="mono">.java</span> 文件通常对应一个 class，封装数据 + 方法</div></div>
+
+      <div class="shift-row"><div class="k mono">运行时报错</div><div class="v">很多错误要跑起来、甚至用户点到才暴露</div></div>
+      <div class="shift-row"><div class="k mono">编译期报错</div><div class="v">大量错误在编译阶段就会被拦下，代价是写起来更"啰嗦"</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="path">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Roadmap</div>
+      <div class="section-title">8 个阶段，从语法到可上线的项目</div>
+      <div class="section-desc">每个阶段给出目标、与前端知识的类比、关键概念和建议时间，按顺序推进即可，不需要跳跃。</div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">01</div><div class="line"></div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>Java 语言基础</h3><span class="phase-time">1–2 周</span></div>
+        <p class="phase-goal">掌握基本语法、静态类型系统、控制流和常用数据结构，能读懂别人写的 Java 代码。</p>
+        <div class="phase-analogy"><b>类比：</b>把它当成"语法更严格的 TypeScript"——变量必须声明类型（或用 <span class="mono">var</span> 局部推断），函数叫方法，数组之外还有更强类型的集合。</div>
+        <div class="phase-points">
+          <span class="chip">变量与基本类型</span><span class="chip">条件 / 循环</span><span class="chip">数组 / String</span>
+          <span class="chip">方法 method</span><span class="chip">异常 try/catch</span><span class="chip">泛型 &lt;T&gt;</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">02</div><div class="line"></div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>面向对象与集合框架</h3><span class="phase-time">1 周</span></div>
+        <p class="phase-goal">理解类、接口、继承、多态，熟练使用 List / Map / Set 等集合类型。</p>
+        <div class="phase-analogy"><b>类比：</b>Java 的 <span class="mono">interface</span> 类似 TS 的 <span class="mono">interface</span>；<span class="mono">class</span> 继承类似 ES6 class extends；<span class="mono">List&lt;User&gt;</span> 就是强类型版的数组，<span class="mono">Map&lt;String, User&gt;</span> 就是强类型版的对象/Object。</div>
+        <div class="phase-points">
+          <span class="chip">class / interface</span><span class="chip">extends / implements</span><span class="chip">List / Map / Set</span>
+          <span class="chip">Stream API</span><span class="chip">Lambda 表达式</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">03</div><div class="line"></div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>构建工具与项目结构</h3><span class="phase-time">3–4 天</span></div>
+        <p class="phase-goal">看懂 Maven 项目结构，会加依赖、会跑构建命令，理解生命周期。</p>
+        <div class="phase-analogy"><b>类比：</b><span class="mono">pom.xml</span> ≈ <span class="mono">package.json</span>；<span class="mono">mvn install</span> ≈ <span class="mono">npm install</span>；<span class="mono">mvn package</span> ≈ <span class="mono">npm run build</span>；<span class="mono">src/main/java</span> 目录结构对应约定优于配置，类似 Vue CLI 的目录约定。</div>
+        <div class="phase-points">
+          <span class="chip">pom.xml</span><span class="chip">依赖坐标 groupId/artifactId</span><span class="chip">标准目录结构</span><span class="chip">本地仓库 .m2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">04</div><div class="line"></div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>Spring 核心：IoC 与依赖注入</h3><span class="phase-time">1 周</span></div>
+        <p class="phase-goal">理解 Spring 的核心思想——对象不再自己 new 依赖，而是交给容器统一管理和注入。</p>
+        <div class="phase-analogy"><b>类比：</b>这是最反直觉但最重要的一步。可以类比 Vue3 的 <span class="mono">provide/inject</span>：你不在组件里手动创建服务实例，而是声明"我需要什么"，由外部容器负责"给你什么"。<span class="mono">@Autowired</span> 约等于 <span class="mono">inject('someService')</span>。</div>
+        <div class="phase-points">
+          <span class="chip">IoC 容器</span><span class="chip">@Component</span><span class="chip">@Autowired</span><span class="chip">Bean 生命周期</span><span class="chip">@Configuration</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">05</div><div class="line"></div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>Spring Boot Web 开发</h3><span class="phase-time">1–2 周</span></div>
+        <p class="phase-goal">能写出接收请求、返回 JSON 的 REST 接口，理解请求生命周期。</p>
+        <div class="phase-analogy"><b>类比：</b><span class="mono">@RestController</span> + <span class="mono">@GetMapping</span> 就是后端版的路由定义，类似你在 Express/Nest 里写 <span class="mono">router.get('/users', handler)</span>；<span class="mono">@RequestBody</span> 自动把 JSON 反序列化成对象，类似前端 <span class="mono">JSON.parse</span> 但更强类型。</div>
+        <div class="phase-points">
+          <span class="chip">@RestController</span><span class="chip">@GetMapping/@PostMapping</span><span class="chip">@RequestBody/@PathVariable</span>
+          <span class="chip">全局异常处理</span><span class="chip">application.yml 配置</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">06</div><div class="line"></div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>数据持久层：Spring Data JPA</h3><span class="phase-time">1 周</span></div>
+        <p class="phase-goal">连接数据库，完成实体映射与基本的增删改查。</p>
+        <div class="phase-analogy"><b>类比：</b>JPA 相当于 Java 世界的 ORM，作用类似前端项目里连接后端 API 用的 Prisma / TypeORM：定义一个 Entity 类，框架自动帮你生成 SQL，<span class="mono">JpaRepository</span> 提供的 <span class="mono">findById</span> 之类方法不用你手写。</div>
+        <div class="phase-points">
+          <span class="chip">@Entity</span><span class="chip">JpaRepository</span><span class="chip">@OneToMany 关联</span><span class="chip">事务 @Transactional</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">07</div><div class="line"></div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>测试：JUnit + Mockito</h3><span class="phase-time">3–4 天</span></div>
+        <p class="phase-goal">为接口和核心逻辑补上单元测试与集成测试。</p>
+        <div class="phase-analogy"><b>类比：</b>JUnit ≈ Jest/Vitest 的角色，<span class="mono">@Test</span> 标注测试方法，断言写法类似 <span class="mono">expect().toBe()</span>；Mockito 用来 mock 依赖，类似前端 mock API 请求。</div>
+        <div class="phase-points">
+          <span class="chip">@Test</span><span class="chip">assertEquals</span><span class="chip">@Mock / @MockBean</span><span class="chip">MockMvc 接口测试</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-marker"><div class="circle">08</div></div>
+      <div class="phase-card">
+        <div class="phase-card-head"><h3>项目实战与部署</h3><span class="phase-time">2 周</span></div>
+        <p class="phase-goal">独立完成一个带权限、分页、异常处理的 CRUD 项目，并打包部署。</p>
+        <div class="phase-analogy"><b>类比：</b>把之前所有阶段串起来，就像你做过的每个 Vue3 全栈小项目一样——只是这次后端换成了 Spring Boot，最后 <span class="mono">mvn package</span> 打出一个可执行 jar，用 <span class="mono">java -jar app.jar</span> 启动，类似前端 <span class="mono">npm run build</span> 产出静态文件后部署。</div>
+        <div class="phase-points">
+          <span class="chip">用户/权限模块</span><span class="chip">统一响应格式</span><span class="chip">Swagger/OpenAPI</span><span class="chip">Docker 打包</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="map">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Quick Reference</div>
+      <div class="section-title">Vue3 / JS ⇄ Java / Spring 概念对照表</div>
+      <div class="section-desc">卡壳的时候翻一翻，大部分陌生概念都能在你已有的知识里找到落脚点。</div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Vue3 / JS 里的说法</th><th>Java / Spring 里的说法</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="tag-vue">package.json</span></td><td><span class="tag-java">pom.xml</span></td><td class="note">依赖与构建配置文件</td></tr>
+        <tr><td><span class="tag-vue">npm install</span></td><td><span class="tag-java">mvn install</span></td><td class="note">安装依赖</td></tr>
+        <tr><td><span class="tag-vue">provide / inject</span></td><td><span class="tag-java">@Autowired 依赖注入</span></td><td class="note">不自己 new，交给容器管理</td></tr>
+        <tr><td><span class="tag-vue">Vue Router 路由</span></td><td><span class="tag-java">@GetMapping 等注解</span></td><td class="note">URL 与处理函数的映射</td></tr>
+        <tr><td><span class="tag-vue">Pinia store</span></td><td><span class="tag-java">@Service 类</span></td><td class="note">集中管理业务逻辑/状态的地方</td></tr>
+        <tr><td><span class="tag-vue">Prisma / TypeORM</span></td><td><span class="tag-java">Spring Data JPA</span></td><td class="note">ORM，对象与数据库表的映射</td></tr>
+        <tr><td><span class="tag-vue">axios 拦截器</span></td><td><span class="tag-java">Filter / Interceptor</span></td><td class="note">统一处理请求前后逻辑</td></tr>
+        <tr><td><span class="tag-vue">Jest / Vitest</span></td><td><span class="tag-java">JUnit</span></td><td class="note">测试框架</td></tr>
+        <tr><td><span class="tag-vue">TypeScript interface</span></td><td><span class="tag-java">interface / DTO 类</span></td><td class="note">定义数据结构和契约</td></tr>
+        <tr><td><span class="tag-vue">.env 环境变量</span></td><td><span class="tag-java">application.yml</span></td><td class="note">环境相关配置</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tips" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Advice</div>
+      <div class="section-title">给前端背景学习者的四条建议</div>
+    </div>
+    <div class="tips">
+      <div class="tip-card">
+        <div class="n">01</div>
+        <h4>不要跳过静态类型的"啰嗦"</h4>
+        <p>前期会觉得 Java 写起来比 JS 慢，这是正常的——类型系统在编译期帮你挡掉了大量运行时才会暴露的 bug，是用"啰嗦"换"安全"。</p>
+      </div>
+      <div class="tip-card">
+        <div class="n">02</div>
+        <h4>IoC/DI 是最大的思维门槛，多花时间</h4>
+        <p>这是和前端组件化思维差异最大的部分，建议动手写 3-5 个小 Demo，观察 Bean 是如何被注入的，理解透了后面 Spring 全家桶都会顺很多。</p>
+      </div>
+      <div class="tip-card">
+        <div class="n">03</div>
+        <h4>用你熟悉的方式验证接口</h4>
+        <p>后端写好的接口，继续用 Postman/Apifox 甚至你熟悉的 axios 脚本去调用验证，这块经验完全可以复用，不用重新学。</p>
+      </div>
+      <div class="tip-card">
+        <div class="n">04</div>
+        <h4>尽早做一个前后端联调的小项目</h4>
+        <p>比如用 Vue3 写前端、Spring Boot 写后端的一个 Todo List，联调过程会把零散知识点串成一条完整链路，比单独刷教程有效得多。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>建议按阶段顺序推进，每个阶段结束后写一个可运行的小 Demo 再进入下一阶段。</p>
+  </div>
+</footer>
+
+</body>
+</html>
