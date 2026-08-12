@@ -43,8 +43,8 @@
   nav .wrap{display:flex; align-items:center; justify-content:space-between; height:56px; max-width:960px;}
   .nav-brand{font-weight:700; font-size:14px; display:flex; align-items:center; gap:8px;}
   .nav-brand .dot{width:8px; height:8px; border-radius:50%; background:hsl(var(--java-accent));}
-  .nav-links{display:flex; gap:20px; font-size:13px; color:hsl(var(--muted-foreground));}
-  .nav-links a{color:inherit; text-decoration:none;}
+  .nav-links{display:flex; gap:16px; font-size:13px; color:hsl(var(--muted-foreground)); flex-wrap:wrap; justify-content:flex-end;}
+  .nav-links a{color:inherit; text-decoration:none; white-space:nowrap;}
   .nav-links a:hover{color:hsl(var(--foreground));}
 
   /* Hero */
@@ -116,6 +116,226 @@
   }
   .phase-goal{margin-top:12px; font-size:13.5px; color:hsl(var(--muted-foreground));}
 
+  /* Phase — enriched sub-sections */
+  .phase-subs{margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .phase-sub{
+    border:1px solid hsl(var(--border)); border-radius:8px;
+    padding:12px 14px; background:hsl(var(--muted) / 0.4);
+  }
+  .phase-sub .sub-title{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:hsl(var(--muted-foreground)); margin-bottom:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .phase-sub .sub-title .ico{
+    display:inline-flex; width:16px; height:16px; align-items:center; justify-content:center;
+    border-radius:4px; background:hsl(var(--background)); border:1px solid hsl(var(--border));
+    font-size:10px;
+  }
+  .phase-sub ul{list-style:none; padding:0; margin:0;}
+  .phase-sub li{
+    font-size:12.5px; color:hsl(var(--foreground) / 0.88);
+    padding:3px 0 3px 14px; position:relative; line-height:1.55;
+  }
+  .phase-sub li::before{
+    content:""; position:absolute; left:0; top:11px;
+    width:5px; height:5px; border-radius:50%;
+    background:hsl(var(--muted-foreground) / 0.5);
+  }
+  .phase-sub li .mono{color:hsl(var(--java-accent));}
+  .phase-sub.warn{background:hsl(0 80% 97%); border-color:hsl(0 60% 90%);}
+  .phase-sub.warn .sub-title{color:hsl(0 70% 45%);}
+  .phase-sub.warn li::before{background:hsl(0 70% 55%);}
+  .phase-check{
+    margin-top:12px; display:flex; align-items:flex-start; gap:8px;
+    font-size:12.5px; color:hsl(var(--foreground) / 0.85);
+    padding:10px 12px; border-radius:6px;
+    background:hsl(152 60% 96%); border:1px dashed hsl(var(--vue-accent) / 0.5);
+  }
+  .phase-check::before{
+    content:"✓"; flex-shrink:0;
+    color:hsl(var(--vue-accent)); font-weight:800; font-size:14px; line-height:1.35;
+  }
+  .phase-check b{color:hsl(var(--vue-accent));}
+
+  /* Rhythm overview */
+  .rhythm{
+    margin-bottom:36px; border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    padding:18px 20px; background:hsl(var(--card));
+  }
+  .rhythm-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;}
+  .rhythm-head .t{font-size:13px; font-weight:700;}
+  .rhythm-head .sub{font-size:12px; color:hsl(var(--muted-foreground));}
+  .rhythm-bar{display:flex; height:10px; border-radius:6px; overflow:hidden; background:hsl(var(--muted));}
+  .rhythm-bar span{display:block; height:100%;}
+  .rhythm-legend{
+    margin-top:12px; display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;
+    font-size:11.5px; color:hsl(var(--muted-foreground));
+  }
+  .rhythm-legend .item{display:flex; align-items:center; gap:6px;}
+  .rhythm-legend .swatch{width:10px; height:10px; border-radius:3px; flex-shrink:0;}
+
+  /* Quickstart section */
+  .qs-toolbar{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;
+    margin-bottom:24px;
+  }
+  .qs-tool{
+    border:1px solid hsl(var(--border)); border-radius:8px; padding:12px 14px;
+    background:hsl(var(--card)); position:relative;
+  }
+  .qs-tool .qs-tool-name{font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px;}
+  .qs-tool .qs-tool-name .n{
+    width:18px; height:18px; border-radius:4px;
+    background:hsl(var(--java-accent) / 0.12); color:hsl(var(--java-accent));
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:10px; font-family:'JetBrains Mono', monospace; font-weight:800;
+  }
+  .qs-tool .qs-tool-desc{font-size:11.5px; color:hsl(var(--muted-foreground)); margin-top:4px; line-height:1.5;}
+  .qs-tool .qs-tool-cmd{
+    margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:11px;
+    background:hsl(var(--muted)); padding:4px 8px; border-radius:4px;
+    color:hsl(var(--foreground) / 0.75); overflow-x:auto; white-space:nowrap;
+  }
+
+  .qs-code-compare{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;
+  }
+  .qs-code{
+    border:1px solid hsl(var(--border)); border-radius:8px; overflow:hidden;
+    background:hsl(240 6% 10%);
+  }
+  .qs-code-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 14px; background:hsl(240 6% 15%);
+    border-bottom:1px solid hsl(240 6% 20%);
+  }
+  .qs-code-head .lang{font-size:11px; font-weight:700; font-family:'JetBrains Mono', monospace;}
+  .qs-code-head .lang.vue{color:hsl(152 60% 65%);}
+  .qs-code-head .lang.java{color:hsl(217 91% 70%);}
+  .qs-code-head .dot-row{display:flex; gap:5px;}
+  .qs-code-head .dot-row span{width:8px; height:8px; border-radius:50%; background:hsl(240 6% 30%);}
+  pre.qs-code-body{
+    margin:0; padding:14px 16px; font-family:'JetBrains Mono', monospace;
+    font-size:12px; line-height:1.6; color:hsl(240 5% 85%);
+    overflow-x:auto;
+  }
+  pre.qs-code-body .k{color:hsl(340 80% 70%);}
+  pre.qs-code-body .a{color:hsl(217 91% 70%);}
+  pre.qs-code-body .s{color:hsl(90 60% 65%);}
+  pre.qs-code-body .c{color:hsl(240 5% 55%); font-style:italic;}
+  pre.qs-code-body .t{color:hsl(180 60% 65%);}
+
+  .qs-steps{
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;
+    counter-reset:step;
+  }
+  .qs-step{
+    border:1px solid hsl(var(--border)); border-radius:8px; padding:12px 12px 14px;
+    background:hsl(var(--card)); position:relative;
+  }
+  .qs-step::before{
+    counter-increment:step; content:counter(step);
+    position:absolute; top:-10px; left:12px;
+    width:22px; height:22px; border-radius:50%;
+    background:hsl(var(--java-accent)); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-family:'JetBrains Mono', monospace; font-weight:700;
+  }
+  .qs-step .qs-step-t{margin-top:6px; font-size:12.5px; font-weight:700;}
+  .qs-step .qs-step-d{font-size:11.5px; color:hsl(var(--muted-foreground)); margin-top:4px; line-height:1.5;}
+
+  /* Annotation cheatsheet */
+  .anno-groups{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .anno-group{
+    border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    padding:14px 16px; background:hsl(var(--card));
+  }
+  .anno-group h4{
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    color:hsl(var(--muted-foreground)); margin-bottom:10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .anno-group h4 .sw{width:8px; height:8px; border-radius:2px;}
+  .anno-list{display:flex; flex-direction:column; gap:8px;}
+  .anno-item{display:grid; grid-template-columns:170px 1fr; gap:10px; font-size:12.5px; align-items:baseline;}
+  .anno-item .a-name{font-family:'JetBrains Mono', monospace; color:hsl(var(--java-accent)); font-weight:600;}
+  .anno-item .a-desc{color:hsl(var(--foreground) / 0.85); line-height:1.5;}
+
+  /* Command cheatsheet */
+  .cmd-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;}
+  .cmd-card{
+    border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    padding:14px 16px; background:hsl(var(--card));
+  }
+  .cmd-card h4{
+    font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    color:hsl(var(--muted-foreground)); margin-bottom:10px;
+  }
+  .cmd-list{display:flex; flex-direction:column; gap:8px;}
+  .cmd-row{display:flex; flex-direction:column; gap:2px;}
+  .cmd-row .cmd{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px;
+    color:hsl(var(--java-accent)); background:hsl(var(--muted) / 0.6);
+    padding:3px 8px; border-radius:4px; align-self:flex-start;
+    max-width:100%; overflow-x:auto; white-space:nowrap;
+  }
+  .cmd-row .cmd-desc{font-size:11.5px; color:hsl(var(--muted-foreground));}
+
+  /* Anti-patterns section */
+  .traps{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .trap{
+    border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    padding:14px 16px; background:hsl(var(--card));
+  }
+  .trap-head{
+    font-size:12.5px; font-weight:700; margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .trap-head .no{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:4px;
+    background:hsl(0 80% 96%); color:hsl(0 70% 45%);
+    font-size:12px; font-weight:800;
+  }
+  .trap-code{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px;
+    background:hsl(240 6% 10%); color:hsl(240 5% 85%);
+    padding:8px 12px; border-radius:6px; margin:8px 0;
+    overflow-x:auto; white-space:pre; line-height:1.55;
+  }
+  .trap-code.good{border-left:3px solid hsl(var(--vue-accent));}
+  .trap-code.bad{border-left:3px solid hsl(0 70% 55%);}
+  .trap-label{font-size:11px; font-weight:700; color:hsl(var(--muted-foreground)); margin-top:4px;}
+  .trap-label.g{color:hsl(var(--vue-accent));}
+  .trap-label.b{color:hsl(0 70% 45%);}
+  .trap-why{font-size:12px; color:hsl(var(--muted-foreground)); margin-top:8px; line-height:1.55;}
+
+  /* FAQ */
+  .faq details{
+    border:1px solid hsl(var(--border)); border-radius:var(--radius);
+    padding:12px 18px; margin-bottom:10px; background:hsl(var(--card));
+  }
+  .faq details[open]{background:hsl(var(--muted) / 0.4);}
+  .faq summary{
+    font-size:13.5px; font-weight:600; cursor:pointer;
+    list-style:none; display:flex; align-items:center; gap:10px;
+  }
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary::before{
+    content:"+"; display:inline-flex; align-items:center; justify-content:center;
+    width:18px; height:18px; border-radius:4px;
+    background:hsl(var(--java-accent) / 0.12); color:hsl(var(--java-accent));
+    font-family:'JetBrains Mono', monospace; font-weight:800; font-size:12px;
+    flex-shrink:0; transition:transform 0.2s;
+  }
+  .faq details[open] summary::before{content:"−";}
+  .faq .faq-body{
+    margin-top:10px; padding-top:10px; border-top:1px dashed hsl(var(--border));
+    font-size:13px; color:hsl(var(--foreground) / 0.85); line-height:1.65;
+  }
+  .faq .faq-body .mono{color:hsl(var(--java-accent));}
+
   /* Concept map table */
   table{width:100%; border-collapse:collapse; font-size:13.5px;}
   thead th{
@@ -148,6 +368,17 @@
     .tips{grid-template-columns:1fr;}
     table{font-size:12px;}
     thead th:nth-child(3), tbody td:nth-child(3){display:none;}
+    .phase-subs{grid-template-columns:1fr;}
+    .rhythm-legend{grid-template-columns:repeat(2, 1fr);}
+    .phase{grid-template-columns:44px 1fr; gap:14px;}
+    .phase-marker .circle{width:32px; height:32px; font-size:12px;}
+    .qs-toolbar{grid-template-columns:1fr 1fr;}
+    .qs-code-compare{grid-template-columns:1fr;}
+    .qs-steps{grid-template-columns:1fr 1fr;}
+    .anno-groups{grid-template-columns:1fr;}
+    .cmd-grid{grid-template-columns:1fr;}
+    .traps{grid-template-columns:1fr;}
+    .anno-item{grid-template-columns:130px 1fr;}
   }
 </style>
 </head>
@@ -158,8 +389,13 @@
     <div class="nav-brand"><span class="dot"></span>Java / Spring Boot 学习地图</div>
     <div class="nav-links">
       <a href="#mindset">思维转换</a>
+      <a href="#quickstart">快速上手</a>
       <a href="#path">学习路径</a>
+      <a href="#annotations">注解速查</a>
       <a href="#map">概念对照</a>
+      <a href="#commands">命令速查</a>
+      <a href="#traps">避坑对比</a>
+      <a href="#faq">常见问题</a>
       <a href="#tips">建议</a>
     </div>
   </div>
@@ -172,8 +408,9 @@
     <p class="lead">这份路径不从零开始讲"什么是编程"，而是把 Java / Spring Boot 的每个概念，尽量映射回你已经熟悉的 JavaScript / Vue3 世界，帮你更快建立类比、少走弯路。</p>
     <div class="hero-stats">
       <div><div class="num">8</div><div class="label">学习阶段</div></div>
-      <div><div class="num">6-8</div><div class="label">建议周数</div></div>
-      <div><div class="num">1</div><div class="label">最终产出：一个可运行的 CRUD 项目</div></div>
+      <div><div class="num">40+</div><div class="label">动手任务 &amp; Demo</div></div>
+      <div><div class="num">40+</div><div class="label">常用注解速查</div></div>
+      <div><div class="num">1</div><div class="label">最终产出：可运行的 CRUD 项目</div></div>
     </div>
   </div>
 </header>
@@ -206,6 +443,117 @@
 
       <div class="shift-row"><div class="k mono">运行时报错</div><div class="v">很多错误要跑起来、甚至用户点到才暴露</div></div>
       <div class="shift-row"><div class="k mono">编译期报错</div><div class="v">大量错误在编译阶段就会被拦下，代价是写起来更"啰嗦"</div></div>
+
+      <div class="shift-row"><div class="k mono">单线程 + 事件循环</div><div class="v">Node.js 用异步回调 / async-await 解决 IO 阻塞</div></div>
+      <div class="shift-row"><div class="k mono">多线程 + 阻塞 IO</div><div class="v">Servlet 每请求一个线程（默认），线程池承载并发；Java 里 <span class="mono">Thread / ExecutorService</span> 是一等公民</div></div>
+
+      <div class="shift-row"><div class="k mono">GC 存在感很低</div><div class="v">V8 自动回收，日常几乎感觉不到</div></div>
+      <div class="shift-row"><div class="k mono">JVM 与 GC 调优</div><div class="v">堆大小、GC 算法（G1/ZGC）是运维必修，OOM 是日常需要面对的问题</div></div>
+
+      <div class="shift-row"><div class="k mono">没有严格空安全</div><div class="v"><span class="mono">undefined</span> 和 <span class="mono">null</span> 满天飞，靠 TS 或运行时兜底</div></div>
+      <div class="shift-row"><div class="k mono">NPE 与 Optional</div><div class="v">Java 只有 <span class="mono">null</span>，空指针（NPE）是最经典 bug；用 <span class="mono">Optional&lt;T&gt;</span> 表达"可能为空"更安全</div></div>
+
+      <div class="shift-row"><div class="k mono">函数是一等公民</div><div class="v">可以直接把函数赋值、传参、返回</div></div>
+      <div class="shift-row"><div class="k mono">类是最小载体</div><div class="v">"函数"必须挂在类上（方法）；Java 8+ 用 Lambda + 函数式接口逼近，但心智模型仍围绕类</div></div>
+
+      <div class="shift-row"><div class="k mono">前端服务无状态</div><div class="v">刷新页面全没了，状态存在 Pinia/localStorage</div></div>
+      <div class="shift-row"><div class="k mono">后端服务长驻</div><div class="v">JVM 启动一次跑很久，单例 Bean 在整个进程内共享——<b>不要在 Bean 里存请求相关的可变状态</b></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Quickstart · 30 分钟</div>
+      <div class="section-title">先跑起来一个 Hello World，再回头看语法</div>
+      <div class="section-desc">环境准备 + 项目初始化 + 一个能返回 JSON 的接口。这一小时能让你对整个链路建立"我能改动它"的信心。</div>
+    </div>
+
+    <div class="qs-toolbar">
+      <div class="qs-tool">
+        <div class="qs-tool-name"><span class="n">1</span>JDK 21 LTS</div>
+        <div class="qs-tool-desc">推荐 SDKMAN 或 <a href="https://adoptium.net" style="color:inherit; text-decoration:underline;">Adoptium Temurin</a> 分发版</div>
+        <div class="qs-tool-cmd">sdk install java 21-tem</div>
+      </div>
+      <div class="qs-tool">
+        <div class="qs-tool-name"><span class="n">2</span>Maven 3.9+</div>
+        <div class="qs-tool-desc">构建工具，等价于前端的 pnpm；Spring Boot 项目自带 wrapper 也可用</div>
+        <div class="qs-tool-cmd">brew install maven</div>
+      </div>
+      <div class="qs-tool">
+        <div class="qs-tool-name"><span class="n">3</span>IntelliJ IDEA</div>
+        <div class="qs-tool-desc">社区版免费即可；写 Java 的体验远超 VS Code + 插件</div>
+        <div class="qs-tool-cmd">brew install --cask intellij-idea-ce</div>
+      </div>
+      <div class="qs-tool">
+        <div class="qs-tool-name"><span class="n">4</span>HTTP 客户端</div>
+        <div class="qs-tool-desc">Postman / Apifox / IDEA 自带的 <span class="mono">.http</span> 文件都行</div>
+        <div class="qs-tool-cmd">curl / httpie / Apifox</div>
+      </div>
+    </div>
+
+    <div class="qs-steps">
+      <div class="qs-step">
+        <div class="qs-step-t">初始化项目</div>
+        <div class="qs-step-d">打开 <span class="mono">start.spring.io</span>，勾选 <span class="mono">Web / Lombok</span>，下载解压</div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-step-t">用 IDEA 打开</div>
+        <div class="qs-step-d">首次会自动下载依赖，等右下角 Maven 索引跑完</div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-step-t">写一个 Controller</div>
+        <div class="qs-step-d">照抄下面代码，一个类 + 一个方法就够</div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-step-t">点绿色三角运行</div>
+        <div class="qs-step-d">看到 <span class="mono">Started ... in x seconds</span> 就成了</div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-step-t">浏览器打开</div>
+        <div class="qs-step-d">访问 <span class="mono">localhost:8080/hello</span>，看到 JSON 就 OK</div>
+      </div>
+    </div>
+
+    <div style="height:22px;"></div>
+
+    <div class="qs-code-compare">
+      <div class="qs-code">
+        <div class="qs-code-head">
+          <span class="lang vue">Vue 3 + Node 你熟悉的</span>
+          <div class="dot-row"><span></span><span></span><span></span></div>
+        </div>
+<pre class="qs-code-body"><span class="c">// server.mjs · Express 版本</span>
+<span class="k">import</span> express <span class="k">from</span> <span class="s">'express'</span>
+<span class="k">const</span> app = express()
+
+app.get(<span class="s">'/hello'</span>, (req, res) =&gt; {
+  res.json({
+    msg: <span class="s">'hello world'</span>,
+    name: req.query.name ?? <span class="s">'guest'</span>
+  })
+})
+
+app.listen(<span class="t">3000</span>)</pre>
+      </div>
+      <div class="qs-code">
+        <div class="qs-code-head">
+          <span class="lang java">Spring Boot 等价写法</span>
+          <div class="dot-row"><span></span><span></span><span></span></div>
+        </div>
+<pre class="qs-code-body"><span class="c">// HelloController.java</span>
+<span class="a">@RestController</span>
+<span class="k">public class</span> <span class="t">HelloController</span> {
+
+  <span class="a">@GetMapping</span>(<span class="s">"/hello"</span>)
+  <span class="k">public</span> Map&lt;String, Object&gt; hello(
+    <span class="a">@RequestParam</span>(defaultValue = <span class="s">"guest"</span>) String name
+  ) {
+    <span class="k">return</span> Map.of(<span class="s">"msg"</span>, <span class="s">"hello world"</span>, <span class="s">"name"</span>, name);
+  }
+}</pre>
+      </div>
     </div>
   </div>
 </section>
@@ -218,6 +566,32 @@
       <div class="section-desc">每个阶段给出目标、与前端知识的类比、关键概念和建议时间，按顺序推进即可，不需要跳跃。</div>
     </div>
 
+    <div class="rhythm">
+      <div class="rhythm-head">
+        <div>
+          <div class="t">6–8 周节奏总览</div>
+          <div class="sub">按周数分配阶段占比，每天投入 1.5–2 小时可完成</div>
+        </div>
+        <div class="sub mono">≈ 45 天</div>
+      </div>
+      <div class="rhythm-bar" role="img" aria-label="学习阶段时间占比条">
+        <span style="width:18%; background:hsl(217 91% 60%);" title="① Java 基础"></span>
+        <span style="width:12%; background:hsl(217 85% 68%);" title="② OOP + 集合"></span>
+        <span style="width:6%;  background:hsl(217 80% 76%);" title="③ 构建工具"></span>
+        <span style="width:14%; background:hsl(260 70% 60%);" title="④ Spring IoC"></span>
+        <span style="width:16%; background:hsl(260 65% 68%);" title="⑤ Web 开发"></span>
+        <span style="width:12%; background:hsl(300 60% 62%);" title="⑥ JPA"></span>
+        <span style="width:7%;  background:hsl(340 65% 65%);" title="⑦ 测试"></span>
+        <span style="width:15%; background:hsl(20 80% 60%);"  title="⑧ 实战部署"></span>
+      </div>
+      <div class="rhythm-legend">
+        <div class="item"><span class="swatch" style="background:hsl(217 91% 60%);"></span>① 语法 · 30%</div>
+        <div class="item"><span class="swatch" style="background:hsl(260 70% 60%);"></span>② Spring 核心 · 30%</div>
+        <div class="item"><span class="swatch" style="background:hsl(300 60% 62%);"></span>③ 数据 + 测试 · 19%</div>
+        <div class="item"><span class="swatch" style="background:hsl(20 80% 60%);"></span>④ 项目落地 · 21%</div>
+      </div>
+    </div>
+
     <div class="phase">
       <div class="phase-marker"><div class="circle">01</div><div class="line"></div></div>
       <div class="phase-card">
@@ -228,6 +602,44 @@
           <span class="chip">变量与基本类型</span><span class="chip">条件 / 循环</span><span class="chip">数组 / String</span>
           <span class="chip">方法 method</span><span class="chip">异常 try/catch</span><span class="chip">泛型 &lt;T&gt;</span>
         </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>八种基本类型 <span class="mono">int/long/double/boolean</span> 与包装类 <span class="mono">Integer</span></li>
+              <li>值传递 vs 引用传递，与 JS 的对象引用不完全一致</li>
+              <li><span class="mono">==</span> 比较引用、<span class="mono">.equals()</span> 比较内容</li>
+              <li>受检异常与运行时异常的区别</li>
+              <li>字符串常量池、<span class="mono">StringBuilder</span> 拼接性能差异</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>写一个命令行猜数字游戏</li>
+              <li>实现斐波那契数列（递归 + 迭代两版）</li>
+              <li>读取一个 CSV 文件并统计词频</li>
+              <li>用 <span class="mono">try-with-resources</span> 处理文件流</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>用 <span class="mono">==</span> 比字符串——永远用 <span class="mono">equals</span></li>
+              <li>整数除法 <span class="mono">3/2 = 1</span>，忘了转 <span class="mono">double</span></li>
+              <li>把 <span class="mono">null</span> 当空字符串处理，触发 NPE</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>《Head First Java》第 3 版（前 6 章）</li>
+              <li>官方教程 Oracle Java Tutorials（Language Basics）</li>
+              <li>IntelliJ IDEA 官方 Getting Started</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>阶段验收：</b>能独立写 200 行左右不依赖框架的 Java 程序，读懂 <span class="mono">JDK</span> 源码里 <span class="mono">ArrayList.add()</span> 的实现思路。</span></div>
       </div>
     </div>
 
@@ -241,6 +653,44 @@
           <span class="chip">class / interface</span><span class="chip">extends / implements</span><span class="chip">List / Map / Set</span>
           <span class="chip">Stream API</span><span class="chip">Lambda 表达式</span>
         </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>封装 / 继承 / 多态三大特性，抽象类 vs 接口</li>
+              <li><span class="mono">final</span>、<span class="mono">static</span>、<span class="mono">abstract</span> 修饰符含义</li>
+              <li><span class="mono">ArrayList</span> vs <span class="mono">LinkedList</span>、<span class="mono">HashMap</span> vs <span class="mono">TreeMap</span></li>
+              <li>Stream 的 <span class="mono">filter/map/reduce/collect</span></li>
+              <li>Java 8+ 的 <span class="mono">Optional</span> 处理空值</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>建模一个 <span class="mono">Shape</span> 接口 + <span class="mono">Circle/Rect</span> 实现</li>
+              <li>用 Stream 从 <span class="mono">List&lt;Order&gt;</span> 汇总每个用户的消费</li>
+              <li>用 <span class="mono">Comparator</span> 对对象列表按多字段排序</li>
+              <li>实现一个简易的 LRU 缓存（用 <span class="mono">LinkedHashMap</span>）</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>重写 <span class="mono">equals</span> 忘记同时重写 <span class="mono">hashCode</span></li>
+              <li>在 <span class="mono">for-each</span> 里直接删除元素抛 <span class="mono">ConcurrentModificationException</span></li>
+              <li>过度使用继承，忽视了组合 &gt; 继承的原则</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>《Effective Java》第 3 版（第 4、5 章）</li>
+              <li>Baeldung Stream API 系列文章</li>
+              <li>JetBrains Academy - Java Collections</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>阶段验收：</b>能在白板上画出集合类的继承关系图，并解释为什么 <span class="mono">HashMap</span> 的 key 需要实现 <span class="mono">hashCode</span>。</span></div>
       </div>
     </div>
 
@@ -253,6 +703,44 @@
         <div class="phase-points">
           <span class="chip">pom.xml</span><span class="chip">依赖坐标 groupId/artifactId</span><span class="chip">标准目录结构</span><span class="chip">本地仓库 .m2</span>
         </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>Maven 生命周期：<span class="mono">validate → compile → test → package → install → deploy</span></li>
+              <li>依赖范围 scope：<span class="mono">compile/provided/runtime/test</span></li>
+              <li>依赖传递与冲突，<span class="mono">mvn dependency:tree</span> 排查</li>
+              <li>父 POM 与 <span class="mono">dependencyManagement</span></li>
+              <li>Gradle 的 <span class="mono">build.gradle.kts</span> 简单认识即可</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>用 <span class="mono">start.spring.io</span> 生成项目，读懂它的 pom</li>
+              <li>手动引入 <span class="mono">Guava</span>，跑一个 Hello World</li>
+              <li>切换国内镜像（阿里云）加速下载</li>
+              <li>打出可执行 jar，命令行 <span class="mono">java -jar</span> 启动</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>下载慢——没配国内镜像的 <span class="mono">settings.xml</span></li>
+              <li>依赖冲突导致 <span class="mono">NoSuchMethodError</span></li>
+              <li>本地 <span class="mono">.m2</span> 缓存损坏，需要清掉重下</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>Maven 官方文档 5 分钟入门</li>
+              <li>《Maven 实战》许晓斌（可选，中文经典）</li>
+              <li>IDEA 内置 Maven 视图操作练习</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>阶段验收：</b>拿到任意开源 Java 项目，能看懂它的 <span class="mono">pom.xml</span> 并跑起来，能解释每一段依赖是干嘛的。</span></div>
       </div>
     </div>
 
@@ -265,6 +753,45 @@
         <div class="phase-points">
           <span class="chip">IoC 容器</span><span class="chip">@Component</span><span class="chip">@Autowired</span><span class="chip">Bean 生命周期</span><span class="chip">@Configuration</span>
         </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>Bean 的作用域：<span class="mono">singleton</span>（默认） vs <span class="mono">prototype</span></li>
+              <li>四种注入方式：字段 / setter / 构造器 / 方法参数（推荐<b>构造器注入</b>）</li>
+              <li><span class="mono">@Component / @Service / @Repository / @Controller</span> 语义区别</li>
+              <li><span class="mono">@Qualifier</span> 处理同类型多个 Bean</li>
+              <li>Bean 生命周期：实例化 → 属性注入 → 初始化 → 销毁</li>
+              <li>AOP 与切面：<span class="mono">@Aspect</span> 处理横切关注点</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>写两个实现同一接口的 <span class="mono">MessageService</span>，用 <span class="mono">@Qualifier</span> 选择</li>
+              <li>用 <span class="mono">@Aspect</span> 实现方法执行耗时的统一日志</li>
+              <li>写一个自定义 <span class="mono">@Configuration</span>，注册第三方库的 Bean</li>
+              <li>观察 <span class="mono">@PostConstruct/@PreDestroy</span> 触发时机</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>循环依赖——构造器注入会直接报错，字段注入会隐式跳过</li>
+              <li>忘了加 <span class="mono">@ComponentScan</span> 或包路径不对，Bean 找不到</li>
+              <li>把 Bean 当无状态用，却在里面存了实例变量</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>Spring 官方 Reference - Core 章节</li>
+              <li>《Spring 实战》第 6 版第 1–3 章</li>
+              <li>B 站：黑马程序员 Spring 精讲（挑核心 IoC/AOP 章节）</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>阶段验收：</b>能画出一个请求进来后 Bean 之间的调用链路，并解释"为什么要用构造器注入而不是字段注入"。</span></div>
       </div>
     </div>
 
@@ -278,6 +805,48 @@
           <span class="chip">@RestController</span><span class="chip">@GetMapping/@PostMapping</span><span class="chip">@RequestBody/@PathVariable</span>
           <span class="chip">全局异常处理</span><span class="chip">application.yml 配置</span>
         </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>请求生命周期：Filter → DispatcherServlet → Interceptor → Controller</li>
+              <li>参数绑定：<span class="mono">@PathVariable / @RequestParam / @RequestBody</span></li>
+              <li>参数校验：<span class="mono">@Valid + @NotNull/@Size</span>（JSR-303）</li>
+              <li><span class="mono">@ControllerAdvice + @ExceptionHandler</span> 全局异常</li>
+              <li>Jackson 序列化：<span class="mono">@JsonFormat / @JsonIgnore</span></li>
+              <li>Profiles 多环境配置 <span class="mono">application-{dev,prod}.yml</span></li>
+              <li>跨域 CORS 与 <span class="mono">@CrossOrigin</span></li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>实现一个 <span class="mono">/api/users</span> 的 CRUD（先用内存 List 存）</li>
+              <li>加参数校验：手机号格式、必填字段、字段长度</li>
+              <li>写统一响应体 <span class="mono">Result&lt;T&gt;{code, msg, data}</span></li>
+              <li>用 Postman 测完所有接口，写一个 Collection</li>
+              <li>接入 Swagger/Springdoc，浏览器打开 API 文档</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>忘了 <span class="mono">@RequestBody</span>，POST 参数一直是 null</li>
+              <li>日期时区问题：前端传字符串、后端反序列化成 UTC</li>
+              <li>返回 <span class="mono">Entity</span> 直接暴露数据库字段，忘了做 DTO 转换</li>
+              <li>异常没被捕获，用户看到 500 + 完整堆栈</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>Spring Guides: "Building a RESTful Web Service"</li>
+              <li>Baeldung Spring Boot 系列</li>
+              <li>《Spring Boot 实战》第 4 版</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>阶段验收：</b>能独立设计并实现 5+ 个 REST 接口，前端用 axios 联调没有奇怪报错，接口文档能一键生成。</span></div>
       </div>
     </div>
 
@@ -290,6 +859,47 @@
         <div class="phase-points">
           <span class="chip">@Entity</span><span class="chip">JpaRepository</span><span class="chip">@OneToMany 关联</span><span class="chip">事务 @Transactional</span>
         </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>Entity 映射：<span class="mono">@Table / @Column / @Id / @GeneratedValue</span></li>
+              <li>关联关系：<span class="mono">@OneToMany / @ManyToOne / @ManyToMany</span></li>
+              <li>方法命名查询：<span class="mono">findByNameAndStatus</span></li>
+              <li>自定义 JPQL：<span class="mono">@Query("select u from User u where ...")</span></li>
+              <li>分页与排序：<span class="mono">Pageable / Sort</span></li>
+              <li>事务传播行为：<span class="mono">REQUIRED / REQUIRES_NEW</span></li>
+              <li>可选：MyBatis-Plus 作为对比（国内更流行）</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>把上一阶段的内存 CRUD 换成 MySQL 存储</li>
+              <li>建立 User / Order 一对多关系并查询</li>
+              <li>实现分页接口 <span class="mono">?page=0&amp;size=10&amp;sort=createdAt,desc</span></li>
+              <li>写一个转账场景，理解事务回滚</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>N+1 查询：循环里挨个访问关联对象，SQL 爆炸</li>
+              <li>懒加载 <span class="mono">LazyInitializationException</span>——Session 已关</li>
+              <li>没加 <span class="mono">@Transactional</span> 或方法非 public，事务不生效</li>
+              <li>用 <span class="mono">ddl-auto=update</span> 上生产，字段被自动改</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>Spring Data JPA 官方 Reference</li>
+              <li>Vlad Mihalcea 博客（JPA/Hibernate 权威）</li>
+              <li>《高性能 MySQL》前 3 章补数据库基础</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>阶段验收：</b>本地起 MySQL + Spring Boot，接口能对真实数据库读写，日志里看得到 SQL，理解事务边界。</span></div>
       </div>
     </div>
 
@@ -302,6 +912,45 @@
         <div class="phase-points">
           <span class="chip">@Test</span><span class="chip">assertEquals</span><span class="chip">@Mock / @MockBean</span><span class="chip">MockMvc 接口测试</span>
         </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>JUnit 5 生命周期：<span class="mono">@BeforeEach / @AfterEach</span></li>
+              <li>断言库 AssertJ：<span class="mono">assertThat(x).isEqualTo(y)</span> 更直观</li>
+              <li>Mockito：<span class="mono">when(...).thenReturn(...)</span>、<span class="mono">verify(...)</span></li>
+              <li><span class="mono">@SpringBootTest</span> 集成测试 vs 纯单元测试</li>
+              <li><span class="mono">MockMvc</span> 模拟 HTTP 请求测 Controller</li>
+              <li>Testcontainers 拉起真实 MySQL 做集成测试</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>为 Service 层写 3+ 个单元测试，覆盖正常/异常路径</li>
+              <li>用 MockMvc 测一个 <span class="mono">POST /api/users</span> 完整流程</li>
+              <li>Mock Repository 返回值，验证业务逻辑</li>
+              <li>用 IDEA 的 Coverage 工具看看覆盖率</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>测试用例互相依赖顺序——加 <span class="mono">@DirtiesContext</span> 或重置数据</li>
+              <li>Mockito 用在 <span class="mono">final</span> 类上失败（需要额外配置）</li>
+              <li>只测正常路径，异常和边界完全没覆盖</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>JUnit 5 User Guide</li>
+              <li>Mockito 官方文档 + Baeldung Mockito 系列</li>
+              <li>《单元测试的艺术》第 2 版</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>阶段验收：</b>核心 Service 单测覆盖率 &ge; 60%，能用 MockMvc 跑通接口测试，CI 里跑绿。</span></div>
       </div>
     </div>
 
@@ -313,6 +962,121 @@
         <div class="phase-analogy"><b>类比：</b>把之前所有阶段串起来，就像你做过的每个 Vue3 全栈小项目一样——只是这次后端换成了 Spring Boot，最后 <span class="mono">mvn package</span> 打出一个可执行 jar，用 <span class="mono">java -jar app.jar</span> 启动，类似前端 <span class="mono">npm run build</span> 产出静态文件后部署。</div>
         <div class="phase-points">
           <span class="chip">用户/权限模块</span><span class="chip">统一响应格式</span><span class="chip">Swagger/OpenAPI</span><span class="chip">Docker 打包</span>
+        </div>
+        <div class="phase-subs">
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">◎</span>核心概念</div>
+            <ul>
+              <li>JWT 登录鉴权，<span class="mono">Spring Security</span> 基础配置</li>
+              <li>密码加密 <span class="mono">BCryptPasswordEncoder</span></li>
+              <li>日志规范：<span class="mono">SLF4J + Logback</span>，分级 + 文件切分</li>
+              <li>Redis 做缓存/限流/分布式锁（选做）</li>
+              <li>Docker 多阶段构建打镜像，<span class="mono">docker-compose</span> 拉起全套服务</li>
+              <li>Actuator + Prometheus 做健康检查与监控</li>
+              <li>GitHub Actions 做 CI，自动跑测试 + 构建镜像</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">▶</span>动手任务</div>
+            <ul>
+              <li>做一个"任务管理"系统：用户注册登录 + Todo CRUD + 分页 + 搜索</li>
+              <li>前端用 Vue3 写页面，后端用 Spring Boot 提供接口</li>
+              <li>写 <span class="mono">Dockerfile</span> + <span class="mono">docker-compose.yml</span>，一键起服务</li>
+              <li>部署到一台 <span class="mono">2C4G</span> 云主机（或用 Railway/Fly.io）</li>
+              <li>写一份 <span class="mono">README</span>：架构图、API 列表、部署步骤</li>
+            </ul>
+          </div>
+          <div class="phase-sub warn">
+            <div class="sub-title"><span class="ico">!</span>常见坑</div>
+            <ul>
+              <li>把敏感配置（数据库密码、JWT secret）提交到 Git</li>
+              <li>生产环境暴露 <span class="mono">/actuator/*</span> 全部端点</li>
+              <li>忘了配 JVM 参数，容器内存超限被 K8s 杀掉</li>
+              <li>没做接口幂等和限流，一次点击提交多条数据</li>
+            </ul>
+          </div>
+          <div class="phase-sub">
+            <div class="sub-title"><span class="ico">📚</span>推荐资源</div>
+            <ul>
+              <li>Spring Security 官方 Getting Started</li>
+              <li>《Docker Deep Dive》Nigel Poulton</li>
+              <li>12-Factor App 方法论（英文原版）</li>
+              <li>GitHub 上找 <span class="mono">"spring-boot" + "vue"</span> 的开源模板参考架构</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phase-check"><span><b>最终验收：</b>把项目地址、README、部署链接放进简历/作品集，能对着代码讲清楚每一层是干嘛的，可以当作面试项目讲 15 分钟。</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="annotations">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Cheatsheet</div>
+      <div class="section-title">Spring 常用注解速查</div>
+      <div class="section-desc">写 Spring Boot 时 80% 场景会碰到的注解，按用途分组。看到不认识的，先来这里对一眼。</div>
+    </div>
+    <div class="anno-groups">
+      <div class="anno-group">
+        <h4><span class="sw" style="background:hsl(217 91% 60%);"></span>Bean 声明 &amp; 注入</h4>
+        <div class="anno-list">
+          <div class="anno-item"><span class="a-name">@Component</span><span class="a-desc">通用组件，被 Spring 扫描并注册为 Bean</span></div>
+          <div class="anno-item"><span class="a-name">@Service</span><span class="a-desc">语义化：业务层组件</span></div>
+          <div class="anno-item"><span class="a-name">@Repository</span><span class="a-desc">语义化：数据访问层，附带 SQL 异常转换</span></div>
+          <div class="anno-item"><span class="a-name">@Controller</span><span class="a-desc">语义化：MVC 控制器（返回视图）</span></div>
+          <div class="anno-item"><span class="a-name">@RestController</span><span class="a-desc"><span class="mono">@Controller</span> + <span class="mono">@ResponseBody</span>，返回 JSON</span></div>
+          <div class="anno-item"><span class="a-name">@Configuration</span><span class="a-desc">配置类，里面的 <span class="mono">@Bean</span> 方法会被注册</span></div>
+          <div class="anno-item"><span class="a-name">@Bean</span><span class="a-desc">方法级：把返回值注册成 Bean</span></div>
+          <div class="anno-item"><span class="a-name">@Autowired</span><span class="a-desc">按类型注入依赖（推荐构造器注入）</span></div>
+          <div class="anno-item"><span class="a-name">@Qualifier</span><span class="a-desc">同类型多 Bean 时按名字指定</span></div>
+          <div class="anno-item"><span class="a-name">@Value</span><span class="a-desc">注入配置项：<span class="mono">@Value("${app.name}")</span></span></div>
+        </div>
+      </div>
+      <div class="anno-group">
+        <h4><span class="sw" style="background:hsl(260 70% 60%);"></span>Web · 路由 &amp; 参数</h4>
+        <div class="anno-list">
+          <div class="anno-item"><span class="a-name">@RequestMapping</span><span class="a-desc">通用路由，可指定 method/path</span></div>
+          <div class="anno-item"><span class="a-name">@GetMapping</span><span class="a-desc">GET 请求映射</span></div>
+          <div class="anno-item"><span class="a-name">@PostMapping</span><span class="a-desc">POST 请求映射（Put/Delete/Patch 同理）</span></div>
+          <div class="anno-item"><span class="a-name">@PathVariable</span><span class="a-desc">URL 路径参数 <span class="mono">/users/{id}</span></span></div>
+          <div class="anno-item"><span class="a-name">@RequestParam</span><span class="a-desc">Query 参数 <span class="mono">?name=xxx</span></span></div>
+          <div class="anno-item"><span class="a-name">@RequestBody</span><span class="a-desc">Body 反序列化成对象（JSON → POJO）</span></div>
+          <div class="anno-item"><span class="a-name">@RequestHeader</span><span class="a-desc">读取请求头</span></div>
+          <div class="anno-item"><span class="a-name">@CookieValue</span><span class="a-desc">读取 Cookie</span></div>
+          <div class="anno-item"><span class="a-name">@Valid</span><span class="a-desc">触发 JSR-303 参数校验</span></div>
+          <div class="anno-item"><span class="a-name">@CrossOrigin</span><span class="a-desc">开启 CORS</span></div>
+        </div>
+      </div>
+      <div class="anno-group">
+        <h4><span class="sw" style="background:hsl(300 60% 62%);"></span>数据 · JPA</h4>
+        <div class="anno-list">
+          <div class="anno-item"><span class="a-name">@Entity</span><span class="a-desc">标记为实体类，对应数据库表</span></div>
+          <div class="anno-item"><span class="a-name">@Table(name)</span><span class="a-desc">指定表名（不写就用类名小写）</span></div>
+          <div class="anno-item"><span class="a-name">@Id</span><span class="a-desc">主键字段</span></div>
+          <div class="anno-item"><span class="a-name">@GeneratedValue</span><span class="a-desc">主键生成策略（自增/UUID）</span></div>
+          <div class="anno-item"><span class="a-name">@Column</span><span class="a-desc">列映射，可指定长度、非空</span></div>
+          <div class="anno-item"><span class="a-name">@OneToMany</span><span class="a-desc">一对多关联</span></div>
+          <div class="anno-item"><span class="a-name">@ManyToOne</span><span class="a-desc">多对一关联</span></div>
+          <div class="anno-item"><span class="a-name">@Transactional</span><span class="a-desc">开启事务，异常自动回滚</span></div>
+          <div class="anno-item"><span class="a-name">@Query</span><span class="a-desc">自定义 JPQL / 原生 SQL</span></div>
+          <div class="anno-item"><span class="a-name">@Modifying</span><span class="a-desc">配合 <span class="mono">@Query</span> 用于 update/delete</span></div>
+        </div>
+      </div>
+      <div class="anno-group">
+        <h4><span class="sw" style="background:hsl(20 80% 60%);"></span>切面 · 校验 · 其他</h4>
+        <div class="anno-list">
+          <div class="anno-item"><span class="a-name">@Aspect</span><span class="a-desc">声明切面类，AOP 入口</span></div>
+          <div class="anno-item"><span class="a-name">@Before/@After</span><span class="a-desc">前置/后置通知</span></div>
+          <div class="anno-item"><span class="a-name">@Around</span><span class="a-desc">环绕通知，能修改返回值</span></div>
+          <div class="anno-item"><span class="a-name">@ControllerAdvice</span><span class="a-desc">全局异常/响应处理</span></div>
+          <div class="anno-item"><span class="a-name">@ExceptionHandler</span><span class="a-desc">捕获指定异常类型</span></div>
+          <div class="anno-item"><span class="a-name">@NotNull / @NotBlank</span><span class="a-desc">非空校验（对象/字符串）</span></div>
+          <div class="anno-item"><span class="a-name">@Size / @Min / @Max</span><span class="a-desc">长度/数值范围校验</span></div>
+          <div class="anno-item"><span class="a-name">@Pattern</span><span class="a-desc">正则校验</span></div>
+          <div class="anno-item"><span class="a-name">@Scheduled</span><span class="a-desc">定时任务（cron 表达式）</span></div>
+          <div class="anno-item"><span class="a-name">@Async</span><span class="a-desc">方法异步执行（需要 <span class="mono">@EnableAsync</span>）</span></div>
         </div>
       </div>
     </div>
@@ -341,8 +1105,189 @@
         <tr><td><span class="tag-vue">Jest / Vitest</span></td><td><span class="tag-java">JUnit</span></td><td class="note">测试框架</td></tr>
         <tr><td><span class="tag-vue">TypeScript interface</span></td><td><span class="tag-java">interface / DTO 类</span></td><td class="note">定义数据结构和契约</td></tr>
         <tr><td><span class="tag-vue">.env 环境变量</span></td><td><span class="tag-java">application.yml</span></td><td class="note">环境相关配置</td></tr>
+        <tr><td><span class="tag-vue">try/catch async</span></td><td><span class="tag-java">try/catch + throws</span></td><td class="note">Java 有受检异常，方法签名要声明</td></tr>
+        <tr><td><span class="tag-vue">setTimeout</span></td><td><span class="tag-java">ScheduledExecutorService / @Scheduled</span></td><td class="note">定时任务</td></tr>
+        <tr><td><span class="tag-vue">Promise.all</span></td><td><span class="tag-java">CompletableFuture.allOf</span></td><td class="note">并发编排</td></tr>
+        <tr><td><span class="tag-vue">JSON.parse / stringify</span></td><td><span class="tag-java">ObjectMapper (Jackson)</span></td><td class="note">JSON 序列化 / 反序列化</td></tr>
+        <tr><td><span class="tag-vue">console.log</span></td><td><span class="tag-java">Logger / Slf4j</span></td><td class="note">分级日志，别用 <span class="mono">System.out.println</span></td></tr>
+        <tr><td><span class="tag-vue">CORS 配置</span></td><td><span class="tag-java">@CrossOrigin / WebMvcConfigurer</span></td><td class="note">跨域配置</td></tr>
+        <tr><td><span class="tag-vue">middleware</span></td><td><span class="tag-java">HandlerInterceptor / Filter</span></td><td class="note">拦截器链</td></tr>
+        <tr><td><span class="tag-vue">JWT 中间件</span></td><td><span class="tag-java">Spring Security Filter Chain</span></td><td class="note">认证鉴权</td></tr>
+        <tr><td><span class="tag-vue">nodemon 热更新</span></td><td><span class="tag-java">spring-boot-devtools</span></td><td class="note">改代码自动重启</td></tr>
+        <tr><td><span class="tag-vue">Vitest describe/it</span></td><td><span class="tag-java">@Nested / @Test</span></td><td class="note">测试组织</td></tr>
+        <tr><td><span class="tag-vue">Docker + PM2</span></td><td><span class="tag-java">Docker + java -jar</span></td><td class="note">部署方式</td></tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+<section id="commands">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Commands</div>
+      <div class="section-title">日常最常用的命令</div>
+      <div class="section-desc">前端习惯的 npm/pnpm 命令换成这些就行，写在小抄里，用几次就熟。</div>
+    </div>
+    <div class="cmd-grid">
+      <div class="cmd-card">
+        <h4>Maven</h4>
+        <div class="cmd-list">
+          <div class="cmd-row"><span class="cmd">mvn clean install</span><span class="cmd-desc">清理 + 编译 + 测试 + 装到本地仓库</span></div>
+          <div class="cmd-row"><span class="cmd">mvn spring-boot:run</span><span class="cmd-desc">直接启动 Spring Boot 应用</span></div>
+          <div class="cmd-row"><span class="cmd">mvn package -DskipTests</span><span class="cmd-desc">打包成 jar，跳过测试</span></div>
+          <div class="cmd-row"><span class="cmd">mvn dependency:tree</span><span class="cmd-desc">查看依赖树（排查冲突）</span></div>
+          <div class="cmd-row"><span class="cmd">./mvnw ...</span><span class="cmd-desc">项目自带 wrapper，免装 Maven</span></div>
+        </div>
+      </div>
+      <div class="cmd-card">
+        <h4>Java 运行时</h4>
+        <div class="cmd-list">
+          <div class="cmd-row"><span class="cmd">java -version</span><span class="cmd-desc">查看 JDK 版本</span></div>
+          <div class="cmd-row"><span class="cmd">java -jar app.jar</span><span class="cmd-desc">运行打包好的 jar</span></div>
+          <div class="cmd-row"><span class="cmd">java -jar app.jar --server.port=9000</span><span class="cmd-desc">覆盖配置项</span></div>
+          <div class="cmd-row"><span class="cmd">java -Xmx512m -jar app.jar</span><span class="cmd-desc">限制最大堆内存</span></div>
+          <div class="cmd-row"><span class="cmd">jps / jstack &lt;pid&gt;</span><span class="cmd-desc">看 Java 进程 / 打线程栈</span></div>
+        </div>
+      </div>
+      <div class="cmd-card">
+        <h4>Git &amp; Docker</h4>
+        <div class="cmd-list">
+          <div class="cmd-row"><span class="cmd">docker build -t app .</span><span class="cmd-desc">构建镜像</span></div>
+          <div class="cmd-row"><span class="cmd">docker run -p 8080:8080 app</span><span class="cmd-desc">运行容器并映射端口</span></div>
+          <div class="cmd-row"><span class="cmd">docker compose up -d</span><span class="cmd-desc">一键拉起全套服务</span></div>
+          <div class="cmd-row"><span class="cmd">docker logs -f &lt;id&gt;</span><span class="cmd-desc">实时看日志</span></div>
+          <div class="cmd-row"><span class="cmd">curl localhost:8080/actuator/health</span><span class="cmd-desc">健康检查（Actuator）</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="traps">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Bad vs Good</div>
+      <div class="section-title">前端转 Java 最容易踩的 4 个坑</div>
+      <div class="section-desc">这些不是语法错误，而是"写得动，但会在生产环境暴雷"的隐患。左边红色是常见写法，右边绿色是推荐写法。</div>
+    </div>
+    <div class="traps">
+      <div class="trap">
+        <div class="trap-head"><span class="no">!</span>字段注入 vs 构造器注入</div>
+<div class="trap-code bad">@Service
+public class UserService {
+  @Autowired
+  private OrderRepository orderRepo; // ← 隐式依赖
+}</div>
+<div class="trap-label b">× 依赖不透明，单测难 mock，可能循环依赖</div>
+<div class="trap-code good">@Service
+public class UserService {
+  private final OrderRepository orderRepo;
+  public UserService(OrderRepository orderRepo) {
+    this.orderRepo = orderRepo;   // ← final + 构造器
+  }
+}</div>
+<div class="trap-label g">✓ 依赖清晰、可 final、Spring 4.3+ 可省 @Autowired</div>
+        <div class="trap-why">Lombok 用户可以直接 <span class="mono">@RequiredArgsConstructor</span> 让编译器自动生成构造器，代码更简洁。</div>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head"><span class="no">!</span>直接返回 Entity vs DTO</div>
+<div class="trap-code bad">@GetMapping("/users/{id}")
+public User getUser(@PathVariable Long id) {
+  return userRepo.findById(id).orElseThrow();
+  // ← 暴露 password、内部字段、懒加载对象
+}</div>
+<div class="trap-label b">× 数据库字段泄露、序列化 Session 关闭异常</div>
+<div class="trap-code good">@GetMapping("/users/{id}")
+public UserDTO getUser(@PathVariable Long id) {
+  return userService.findById(id);   // ← DTO
+}</div>
+<div class="trap-label g">✓ DTO/VO 隔离层，API 契约与表结构解耦</div>
+        <div class="trap-why">推荐用 MapStruct 或手写转换。修改表结构时不会影响 API 消费者。</div>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head"><span class="no">!</span>循环里查数据库（N+1）</div>
+<div class="trap-code bad">List&lt;Order&gt; orders = orderRepo.findAll();
+for (Order o : orders) {
+  User u = userRepo.findById(o.getUserId()).get();
+  // ← 100 条订单会打 101 次 SQL
+}</div>
+<div class="trap-label b">× 请求变慢，数据库连接爆</div>
+<div class="trap-code good">List&lt;Order&gt; orders = orderRepo.findAll();
+Set&lt;Long&gt; ids = orders.stream()
+    .map(Order::getUserId).collect(toSet());
+Map&lt;Long, User&gt; userMap = userRepo.findAllById(ids)
+    .stream().collect(toMap(User::getId, u -&gt; u));
+// ← 一次 IN 查询，内存 join</div>
+<div class="trap-label g">✓ 批量查询 + 内存 join，2 次 SQL 搞定</div>
+        <div class="trap-why">JPA 关联查询可用 <span class="mono">@EntityGraph</span> 或 <span class="mono">fetch join</span> 一次拉齐。</div>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head"><span class="no">!</span>异常吞掉 vs 交给全局处理</div>
+<div class="trap-code bad">try {
+  return doWork();
+} catch (Exception e) {
+  return null;   // ← 静默吞异常
+}</div>
+<div class="trap-label b">× 出问题查不到堆栈，用户看到空数据一脸问号</div>
+<div class="trap-code good">// Service 层直接抛业务异常
+throw new BizException("USER_NOT_FOUND");
+
+// 一处统一处理
+@ControllerAdvice
+public class GlobalExceptionHandler {
+  @ExceptionHandler(BizException.class)
+  public Result&lt;?&gt; handle(BizException e) { ... }
+}</div>
+<div class="trap-label g">✓ 抛 + 统一转响应，日志与响应格式一致</div>
+        <div class="trap-why">前端 axios 拦截器只需判断 <span class="mono">code !== 0</span> 就能弹提示，链路清晰。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">FAQ</div>
+      <div class="section-title">前端同学最常问的 8 个问题</div>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>选 JDK 8、17 还是 21？</summary>
+        <div class="faq-body">2026 年新项目直接上 <span class="mono">21 LTS</span>；面试/进老项目至少要能看懂 <span class="mono">8</span> 的写法（大量遗留代码）。差别主要在语言特性：<span class="mono">var</span>、<span class="mono">record</span>、Sealed Class、虚拟线程（Loom）都是 8 没有的。</div>
+      </details>
+      <details>
+        <summary>Spring 和 Spring Boot 是什么关系？</summary>
+        <div class="faq-body">Spring 是一个庞大的框架家族（IoC、MVC、Data、Security…）。Spring Boot 是它的"脚手架 + 约定优于配置"层，帮你自动装配 + 内嵌 Tomcat + 起飞就能跑。<b>今天学 Spring 就等于学 Spring Boot</b>，不用管早年 XML 配置那一套。</div>
+      </details>
+      <details>
+        <summary>Maven 和 Gradle 学哪个？</summary>
+        <div class="faq-body">先学 <b>Maven</b>：企业占比更高、配置更死板但直观。Gradle 更灵活（用 Groovy/Kotlin DSL），Android 项目和一些新项目会用，等有需要再看。两者能读懂一个就能读懂另一个。</div>
+      </details>
+      <details>
+        <summary>JPA 还是 MyBatis？</summary>
+        <div class="faq-body">国外/中小项目 <b>JPA</b> 更普及，写法接近前端 ORM；国内互联网大厂 <b>MyBatis / MyBatis-Plus</b> 更主流，因为 SQL 可控性更强。作为入门选 <b>JPA</b>（心智负担小），进公司再学 MyBatis 也很快。</div>
+      </details>
+      <details>
+        <summary>没有 hot reload，改代码要重启很痛苦？</summary>
+        <div class="faq-body">加 <span class="mono">spring-boot-devtools</span> 依赖 + IDEA 开启"自动构建"，改完 Controller 保存后 1–2 秒热重启。改类结构/依赖关系仍需完整重启，这是 JVM 限制。或者用商业方案 <b>JRebel</b>。</div>
+      </details>
+      <details>
+        <summary>为什么大家都用 Lombok？</summary>
+        <div class="faq-body">Java 写 POJO 需要大量样板代码（getter/setter/构造器/equals/hashCode）。Lombok 用 <span class="mono">@Data / @Getter / @Builder</span> 等注解在编译期自动生成，源码干净。缺点是 IDE 需要装插件、调试栈里看不到真实字节码。</div>
+      </details>
+      <details>
+        <summary>Spring 项目怎么调试？</summary>
+        <div class="faq-body">IDEA 里直接点绿色🐞图标就是 Debug 模式，打断点跟前端一样。远程调试：启动加 <span class="mono">-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</span>，IDEA "Remote JVM Debug" 附加即可。</div>
+      </details>
+      <details>
+        <summary>后端要不要学到多线程 / JVM 调优？</summary>
+        <div class="faq-body">入门阶段（这份路线图内）<b>不需要</b>。等你能独立写完 CRUD 项目、能读懂 Spring 官方文档，再深入 <span class="mono">volatile / synchronized / ThreadPoolExecutor / GC</span> 这些主题。过早学容易劝退。</div>
+      </details>
+    </div>
   </div>
 </section>
 
