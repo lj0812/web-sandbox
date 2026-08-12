@@ -1,0 +1,24 @@
+java-roadmap.html
+  0bf33a194b06b4dc 46-47,119-338,371-381,392,394,396-398,411-413,446-460,464-556,569-594,605-642,656-693,706-743,756-794,808-849,862-902,915-953,966-1008,1013-1080,1108-1118,1124-1293
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.28",
+  "base_commit_sha": "873f49c87ea9a8fc10b5d160db7a89a6faf62367",
+  "prompts": {
+    "0bf33a194b06b4dc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "47e6c4c7-741d-407f-9c21-bf0f51ba9eaf",
+        "model": "claude-opus-4-7",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 952,
+      "total_deletions": 5,
+      "accepted_lines": 952,
+      "overriden_lines": 0
+    }
+  }
+}
