@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySQL 业务场景速查手册</title>
+<style>
+  :root{
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --border: 240 5.9% 90%;
+    --card: 0 0% 100%;
+    --primary: 217 91% 45%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 217 91% 96%;
+    --radius: 0.5rem;
+    --code-bg: 240 5.9% 96%;
+    --warn-bg: 38 92% 95%;
+    --warn-border: 38 92% 60%;
+    --warn-fg: 32 81% 29%;
+    --good-bg: 142 76% 95%;
+    --good-border: 142 71% 45%;
+    --good-fg: 142 72% 23%;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", Inter, sans-serif;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  code, pre, .mono{
+    font-family: "SF Mono", ui-monospace, "Cascadia Code", Consolas, "Courier New", monospace;
+  }
+
+  /* ---------- Layout ---------- */
+  .shell{
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px){
+    .shell{ grid-template-columns: 1fr; }
+    .sidebar{ display:none; }
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 28px 18px;
+    border-right: 1px solid hsl(var(--border));
+  }
+  .sidebar-brand{
+    display:flex; align-items:center; gap:10px;
+    padding: 4px 10px 20px 10px;
+  }
+  .sidebar-brand .dot{
+    width: 10px; height:10px; border-radius: 3px;
+    background: hsl(var(--primary));
+    flex-shrink:0;
+  }
+  .sidebar-brand span{
+    font-weight: 700; font-size: 14px; letter-spacing: 0.2px;
+  }
+  .sidebar nav{ display:flex; flex-direction:column; gap: 2px; }
+  .sidebar .group-title{
+    font-size: 11px; font-weight:600; color: hsl(var(--muted-foreground));
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 16px 10px 6px 10px;
+  }
+  .sidebar a{
+    display:block;
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    color: hsl(var(--muted-foreground));
+    text-decoration:none;
+    font-size: 13.5px;
+    border-left: 2px solid transparent;
+  }
+  .sidebar a:hover{ background: hsl(var(--muted)); color: hsl(var(--foreground)); }
+  .sidebar a.active{
+    color: hsl(var(--primary));
+    background: hsl(var(--accent));
+    font-weight: 600;
+  }
+
+  /* ---------- Main ---------- */
+  main{ padding: 0 0 100px 0; min-width:0; }
+  .hero{
+    padding: 56px 48px 40px 48px;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .hero .eyebrow{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size: 12px; font-weight:600; color: hsl(var(--primary));
+    background: hsl(var(--accent));
+    padding: 4px 10px; border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  .hero h1{
+    font-size: 34px; font-weight: 800; letter-spacing: -0.02em;
+    line-height:1.25; margin-bottom: 14px;
+  }
+  .hero p.lead{
+    font-size: 15.5px; color: hsl(var(--muted-foreground));
+    max-width: 640px;
+  }
+  .hero .stats{
+    display:flex; gap: 28px; margin-top: 28px; flex-wrap: wrap;
+  }
+  .hero .stat b{ font-size: 22px; display:block; }
+  .hero .stat span{ font-size: 12px; color: hsl(var(--muted-foreground)); }
+
+  section{ padding: 40px 48px; border-bottom: 1px solid hsl(var(--border)); }
+  section:last-child{ border-bottom: none; }
+
+  .section-head{ margin-bottom: 22px; }
+  .section-head .num{
+    font-size: 12px; font-weight:700; color: hsl(var(--primary));
+    font-family: "SF Mono", monospace;
+    letter-spacing: 0.05em;
+  }
+  .section-head h2{
+    font-size: 23px; font-weight: 800; letter-spacing: -0.01em;
+    margin-top: 4px;
+  }
+  .section-head p{
+    color: hsl(var(--muted-foreground));
+    margin-top: 6px;
+    font-size: 14px;
+    max-width: 680px;
+  }
+
+  h3{
+    font-size: 16px; font-weight: 700; margin: 26px 0 10px 0;
+  }
+  h3:first-of-type{ margin-top: 0; }
+  p{ margin-bottom: 10px; font-size: 14.5px; }
+  ul, ol{ margin: 8px 0 14px 22px; font-size: 14.5px; }
+  li{ margin-bottom: 5px; }
+  strong{ font-weight: 700; }
+
+  .card{
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin: 14px 0;
+  }
+
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px){ .grid-2{ grid-template-columns: 1fr; } }
+
+  pre{
+    background: hsl(var(--code-bg));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    margin: 10px 0 16px 0;
+    line-height: 1.6;
+  }
+  pre code{ background:none; padding:0; }
+  p code, li code, td code{
+    background: hsl(var(--code-bg));
+    padding: 1.5px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+  .kw{ color:#7c3aed; }
+  .str{ color:#0891b2; }
+  .cm{ color: hsl(var(--muted-foreground)); }
+  .fn{ color:#2563eb; }
+
+  table{
+    width:100%; border-collapse: collapse; font-size: 13.5px;
+    margin: 10px 0 18px 0;
+  }
+  th, td{
+    text-align:left; padding: 8px 12px;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  th{
+    color: hsl(var(--muted-foreground));
+    font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+
+  .callout{
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 14px 0;
+    font-size: 13.5px;
+    border: 1px solid;
+    display:flex; gap: 10px;
+  }
+  .callout .icon{ flex-shrink:0; font-weight:800; }
+  .callout.warn{
+    background: hsl(var(--warn-bg));
+    border-color: hsl(var(--warn-border) / 0.4);
+    color: hsl(var(--warn-fg));
+  }
+  .callout.good{
+    background: hsl(var(--good-bg));
+    border-color: hsl(var(--good-border) / 0.4);
+    color: hsl(var(--good-fg));
+  }
+  .callout b{ display:block; margin-bottom: 2px; }
+
+  .badge{
+    display:inline-block;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px;
+    background: hsl(var(--muted)); color: hsl(var(--muted-foreground));
+    margin-right: 6px;
+  }
+  .badge.primary{ background: hsl(var(--accent)); color: hsl(var(--primary)); }
+
+  .toc-mobile{
+    display:none;
+    padding: 16px 20px;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  @media (max-width: 900px){
+    .toc-mobile{ display:block; }
+  }
+  .toc-mobile select{
+    width:100%; padding: 8px 10px; border-radius: var(--radius);
+    border: 1px solid hsl(var(--border)); font-size: 14px;
+  }
+
+  footer{
+    padding: 30px 48px;
+    color: hsl(var(--muted-foreground));
+    font-size: 12.5px;
+  }
+
+  ::selection{ background: hsl(var(--primary) / 0.18); }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="dot"></div>
+      <span>MySQL 场景速查</span>
+    </div>
+    <nav id="toc">
+      <a href="#overview">概览</a>
+      <div class="group-title">建模与设计</div>
+      <a href="#schema">01 · 表设计与数据类型</a>
+      <a href="#index">02 · 索引设计</a>
+      <div class="group-title">查询与性能</div>
+      <a href="#sql-opt">03 · SQL 优化</a>
+      <a href="#pagination">04 · 分页与大数据量</a>
+      <div class="group-title">并发与一致性</div>
+      <a href="#transaction">05 · 事务与隔离级别</a>
+      <a href="#lock">06 · 锁与并发场景</a>
+      <div class="group-title">工程实践</div>
+      <a href="#patterns">07 · 高频业务 SQL 模式</a>
+      <a href="#ops">08 · 连接池与运维配置</a>
+      <a href="#pitfalls">09 · 常见坑位清单</a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="toc-mobile">
+      <select onchange="location.href=this.value">
+        <option value="#overview">概览</option>
+        <option value="#schema">01 表设计与数据类型</option>
+        <option value="#index">02 索引设计</option>
+        <option value="#sql-opt">03 SQL 优化</option>
+        <option value="#pagination">04 分页与大数据量</option>
+        <option value="#transaction">05 事务与隔离级别</option>
+        <option value="#lock">06 锁与并发场景</option>
+        <option value="#patterns">07 高频业务 SQL 模式</option>
+        <option value="#ops">08 连接池与运维配置</option>
+        <option value="#pitfalls">09 常见坑位清单</option>
+      </select>
+    </div>
+
+    <div class="hero" id="overview">
+      <div class="eyebrow">● 后端工程速查 · MySQL 8.0 语境</div>
+      <h1>覆盖日常业务 90% 场景的<br>MySQL 实战手册</h1>
+      <p class="lead">
+        不追求覆盖 MySQL 全部特性，只沉淀真正高频出现在业务系统里的那部分：怎么设计表、怎么建索引、
+        SQL 为什么慢、事务和锁在下单/扣库存这类场景里怎么用、分页为什么会越翻越慢。每节都配可直接抄的
+        SQL 片段和踩坑提示。
+      </p>
+      <div class="stats">
+        <div class="stat"><b>9</b><span>核心主题</span></div>
+        <div class="stat"><b>30+</b><span>可复用 SQL 片段</span></div>
+        <div class="stat"><b>MySQL 8.0</b><span>默认语境（InnoDB）</span></div>
+      </div>
+    </div>
+
+    <!-- 01 表设计 -->
+    <section id="schema">
+      <div class="section-head">
+        <span class="num">01</span>
+        <h2>表设计与数据类型</h2>
+        <p>类型选错，后面所有优化都是在还债。核心原则：够用就好，别为"可能用得上"预留过大字段。</p>
+      </div>
+
+      <h3>字段类型选择速查</h3>
+      <table>
+        <tr><th>场景</th><th>推荐类型</th><th>说明</th></tr>
+        <tr><td>主键</td><td><code>BIGINT UNSIGNED AUTO_INCREMENT</code></td><td>不要用 <code>INT</code>，怕业务量涨起来溢出</td></tr>
+        <tr><td>金额</td><td><code>DECIMAL(12,2)</code></td><td>绝不用 <code>FLOAT/DOUBLE</code>，浮点误差在金额场景是事故</td></tr>
+        <tr><td>状态枚举</td><td><code>TINYINT</code> + 代码里维护常量</td><td>别用 <code>ENUM</code>，改值要改表结构，扩展性差</td></tr>
+        <tr><td>时间</td><td><code>DATETIME</code></td><td><code>TIMESTAMP</code> 有 2038 年上限，且受时区设置影响</td></tr>
+        <tr><td>短文本</td><td><code>VARCHAR(n)</code></td><td>n 按实际业务上限给，不要无脑 255</td></tr>
+        <tr><td>大文本/富文本</td><td><code>TEXT</code></td><td>频繁读取的大字段建议拆到独立表，避免拖慢主表扫描</td></tr>
+        <tr><td>是否删除</td><td><code>TINYINT(1) deleted</code></td><td>配合唯一索引做"软删除"要格外小心，见下文</td></tr>
+      </table>
+
+      <div class="callout warn">
+        <span class="icon">⚠</span>
+        <div><b>NOT NULL 尽量给默认值</b>业务字段能设 <code>NOT NULL DEFAULT xxx</code> 就不要允许 NULL。NULL 参与索引统计、比较、聚合时都有额外心智负担（<code>WHERE col != 1</code> 天然漏掉 NULL 行），前端习惯的"undefined 当空值处理"在这里没有</div>
+      </div>
+
+      <h3>标准业务表模板</h3>
+      <pre><code><span class="kw">CREATE TABLE</span> `order` (
+  `id`          BIGINT UNSIGNED <span class="kw">NOT NULL</span> AUTO_INCREMENT,
+  `order_no`    VARCHAR(32)  <span class="kw">NOT NULL</span> <span class="cm">-- 业务单号，对外展示用，和自增id分开</span>,
+  `user_id`     BIGINT UNSIGNED <span class="kw">NOT NULL</span>,
+  `amount`      DECIMAL(12,2) <span class="kw">NOT NULL</span> <span class="kw">DEFAULT</span> 0,
+  `status`      TINYINT <span class="kw">NOT NULL</span> <span class="kw">DEFAULT</span> 0 <span class="cm">-- 0待支付 1已支付 2已取消</span>,
+  `deleted`     TINYINT(1) <span class="kw">NOT NULL</span> <span class="kw">DEFAULT</span> 0,
+  `create_time` DATETIME <span class="kw">NOT NULL</span> <span class="kw">DEFAULT</span> CURRENT_TIMESTAMP,
+  `update_time` DATETIME <span class="kw">NOT NULL</span> <span class="kw">DEFAULT</span> CURRENT_TIMESTAMP
+                <span class="kw">ON UPDATE</span> CURRENT_TIMESTAMP,
+  <span class="kw">PRIMARY KEY</span> (`id`),
+  <span class="kw">UNIQUE KEY</span> `uk_order_no` (`order_no`),
+  <span class="kw">KEY</span> `idx_user_status` (`user_id`, `status`)
+) ENGINE=InnoDB <span class="kw">DEFAULT CHARSET</span>=utf8mb4;</code></pre>
+
+      <p><strong>类比一下</strong>：这张表里的 <code>create_time / update_time / deleted</code> 就像前端埋点里每个对象都会带的 <code>createdAt / updatedAt</code>，是团队约定的通用字段，几乎每张业务表都该有。</p>
+    </section>
+
+    <!-- 02 索引 -->
+    <section id="index">
+      <div class="section-head">
+        <span class="num">02</span>
+        <h2>索引设计</h2>
+        <p>InnoDB 索引底层是 B+树。可以把它类比成 Vue 的响应式依赖收集：建对了索引，查询才能"精准更新"而不是全表遍历。</p>
+      </div>
+
+      <h3>两种索引，一个概念要分清</h3>
+      <div class="grid-2">
+        <div class="card">
+          <b>聚簇索引（主键索引）</b>
+          <p style="margin-top:6px">叶子节点存的是整行数据。一张表只有一个。相当于数据本身就是按主键顺序物理排列的。</p>
+        </div>
+        <div class="card">
+          <b>二级索引（普通索引）</b>
+          <p style="margin-top:6px">叶子节点存的是"索引列值 + 主键值"。查到之后要拿主键<strong>回表</strong>查完整行——这就是"回表"的由来。</p>
+        </div>
+      </div>
+
+      <h3>最左前缀原则</h3>
+      <p>联合索引 <code>(a, b, c)</code> 相当于按 a 排序，a 相同再按 b 排序，以此类推。只有从最左列开始连续使用，索引才生效：</p>
+      <pre><code><span class="cm">-- 索引 idx_user_status(user_id, status) 有效场景</span>
+<span class="kw">WHERE</span> user_id = 1                     <span class="cm">-- ✅ 用到 user_id</span>
+<span class="kw">WHERE</span> user_id = 1 <span class="kw">AND</span> status = 0       <span class="cm">-- ✅ 两列都用到</span>
+<span class="kw">WHERE</span> user_id = 1 <span class="kw">AND</span> status &gt; 0       <span class="cm">-- ✅ status 范围查询前的等值仍生效</span>
+
+<span class="cm">-- 失效场景</span>
+<span class="kw">WHERE</span> status = 0                      <span class="cm">-- ❌ 跳过了 user_id，索引用不上</span></code></pre>
+
+      <h3>覆盖索引：省掉回表</h3>
+      <p>如果 <code>SELECT</code> 的列全部包含在索引里，查询不需要回表，直接在索引树上就能返回结果，性能显著提升：</p>
+      <pre><code><span class="cm">-- 索引 idx_user_status(user_id, status)</span>
+<span class="kw">SELECT</span> user_id, status <span class="kw">FROM</span> `order` <span class="kw">WHERE</span> user_id = 1; <span class="cm">-- ✅ 覆盖索引，不回表</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> `order` <span class="kw">WHERE</span> user_id = 1;             <span class="cm">-- 需要回表取其它列</span></code></pre>
+
+      <h3>常见导致索引失效的写法</h3>
+      <table>
+        <tr><th>写法</th><th>问题</th></tr>
+        <tr><td><code>WHERE YEAR(create_time) = 2026</code></td><td>对索引列做函数运算，无法走索引，改成范围查询</td></tr>
+        <tr><td><code>WHERE phone LIKE '%1234'</code></td><td>前置 % 无法走 B+树的有序性，只有 <code>LIKE 'abc%'</code> 这种前缀匹配才有效</td></tr>
+        <tr><td><code>WHERE id != 100</code></td><td>不等于条件通常放弃索引，走全表扫描</td></tr>
+        <tr><td><code>WHERE age = '18'</code>（age 是 int）</td><td>字符串与数字隐式转换，索引失效，务必保证类型一致</td></tr>
+        <tr><td>联合索引跳过中间列</td><td>见上方最左前缀原则</td></tr>
+      </table>
+
+      <div class="callout good">
+        <span class="icon">✓</span>
+        <div><b>用 EXPLAIN 验证，别靠猜</b>任何"这个索引是否生效"的判断都应该跑一下 <code>EXPLAIN</code> 确认，重点看 <code>type</code>（ref/range 优于 index，远优于 ALL）和 <code>key</code> 列，第 03 节详细展开。</div>
+      </div>
+    </section>
+
+    <!-- 03 SQL优化 -->
+    <section id="sql-opt">
+      <div class="section-head">
+        <span class="num">03</span>
+        <h2>SQL 优化</h2>
+        <p>优化的第一步永远是"看懂执行计划"，而不是凭经验瞎猜。</p>
+      </div>
+
+      <h3>EXPLAIN 关键字段</h3>
+      <table>
+        <tr><th>字段</th><th>关注点</th></tr>
+        <tr><td><code>type</code></td><td>访问类型，性能从好到差：<code>const &gt; ref &gt; range &gt; index &gt; ALL</code>。出现 <code>ALL</code> 基本等于全表扫描，要重点排查</td></tr>
+        <tr><td><code>key</code></td><td>实际用到的索引，为 <code>NULL</code> 说明没走索引</td></tr>
+        <tr><td><code>rows</code></td><td>预估扫描行数，越小越好</td></tr>
+        <tr><td><code>Extra</code></td><td>出现 <code>Using filesort</code>（额外排序）、<code>Using temporary</code>（用了临时表）都是优化信号</td></tr>
+      </table>
+
+      <pre><code><span class="kw">EXPLAIN</span> <span class="kw">SELECT</span> * <span class="kw">FROM</span> `order`
+<span class="kw">WHERE</span> user_id = 1001 <span class="kw">AND</span> status = 0
+<span class="kw">ORDER BY</span> create_time <span class="kw">DESC</span> <span class="kw">LIMIT</span> 20;</code></pre>
+
+      <h3>排查慢查询</h3>
+      <pre><code><span class="cm">-- 开启慢查询日志（生产建议配合监控平台，而非直接改配置）</span>
+<span class="kw">SET GLOBAL</span> slow_query_log = 1;
+<span class="kw">SET GLOBAL</span> long_query_time = 1; <span class="cm">-- 超过1秒记为慢查询</span>
+
+<span class="cm">-- 查看当前正在执行的 SQL，定位卡住的连接</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> information_schema.processlist
+<span class="kw">WHERE</span> time &gt; 5 <span class="kw">ORDER BY</span> time <span class="kw">DESC</span>;</code></pre>
+
+      <h3>SELECT * 的代价</h3>
+      <p>类比前端接口设计：<code>SELECT *</code> 就像后端不管前端要什么字段，把整个对象全丢回来——多传的数据浪费带宽，这里则是多占用回表成本、多传输网络流量、还可能因为字段变更悄悄破坏上层代码假设。业务代码里按需 <code>SELECT</code> 具体列。</p>
+
+      <h3>JOIN 的基本原则</h3>
+      <ul>
+        <li>小表驱动大表：MySQL 优化器通常会自动选择，但写法上把过滤条件多的表放前面有助于优化器判断</li>
+        <li>参与 <code>JOIN</code> 的字段一定要有索引，否则每次关联都是嵌套循环扫描</li>
+        <li>业务表超过 3～4 张大表 JOIN，考虑是否该在应用层拆成多次查询，用代码里聚合（对前端来说类似"别在一个 GraphQL 查询里塞十层嵌套"）</li>
+      </ul>
+    </section>
+
+    <!-- 04 分页 -->
+    <section id="pagination">
+      <div class="section-head">
+        <span class="num">04</span>
+        <h2>分页与大数据量场景</h2>
+        <p>列表分页几乎是每个后台系统的标配功能，也是最容易随着数据量增长而"温水煮青蛙"变慢的地方。</p>
+      </div>
+
+      <h3>深分页问题</h3>
+      <pre><code><span class="cm">-- 页码越大越慢：MySQL 要先扫描并丢弃前 100000 条，再取 20 条</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> `order` <span class="kw">ORDER BY</span> id <span class="kw">LIMIT</span> 100000, 20;</code></pre>
+
+      <div class="callout warn">
+        <span class="icon">⚠</span>
+        <div><b>LIMIT offset, count 的 offset 不是"跳过"，是"先取出再丢弃"</b>offset 越大，扫描的无效行越多，这是深分页变慢的根本原因，不是索引没建对。</div>
+      </div>
+
+      <h3>解法一：游标分页（推荐用于"下一页"场景，如无限滚动）</h3>
+      <pre><code><span class="cm">-- 记录上一页最后一条的id，直接用条件过滤代替 offset</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> `order`
+<span class="kw">WHERE</span> id &lt; :last_id
+<span class="kw">ORDER BY</span> id <span class="kw">DESC</span> <span class="kw">LIMIT</span> 20;</code></pre>
+      <p>这跟前端虚拟列表 / 无限滚动的思路一致：不依赖"第几页"，而是依赖"上一个游标在哪"。</p>
+
+      <h3>解法二：延迟关联（需要跳页场景，如后台管理系统页码输入）</h3>
+      <pre><code><span class="cm">-- 先在索引上定位主键，再用主键回表，避免大量列的深度扫描</span>
+<span class="kw">SELECT</span> o.* <span class="kw">FROM</span> `order` o
+<span class="kw">INNER JOIN</span> (
+  <span class="kw">SELECT</span> id <span class="kw">FROM</span> `order` <span class="kw">ORDER BY</span> id <span class="kw">LIMIT</span> 100000, 20
+) t <span class="kw">ON</span> o.id = t.id;</code></pre>
+
+      <h3>统计总数（COUNT）的取舍</h3>
+      <p>后台列表经常需要"共 xx 条"，但精确 <code>COUNT(*)</code> 在大表上本身就有成本。常见做法：</p>
+      <ul>
+        <li>业务允许的话，用近似值（如 <code>information_schema.tables</code> 里的 <code>TABLE_ROWS</code>，仅供参考不精确）</li>
+        <li>前端改成"加载更多"代替"共 N 页"，从产品设计上规避这个问题（很多海外 SaaS 后台就是这么做的）</li>
+        <li>确实需要精确值，考虑维护一张计数表，插入/删除时同步更新，而不是每次现查</li>
+      </ul>
+    </section>
+
+    <!-- 05 事务 -->
+    <section id="transaction">
+      <div class="section-head">
+        <span class="num">05</span>
+        <h2>事务与隔离级别</h2>
+        <p>下单、支付、转账这类"多个写操作必须同时成功或同时失败"的场景，都要靠事务兜底。</p>
+      </div>
+
+      <h3>ACID 用一句话记</h3>
+      <table>
+        <tr><th>特性</th><th>一句话</th></tr>
+        <tr><td>原子性 Atomicity</td><td>事务里的操作要么全成功，要么全回滚，没有中间态</td></tr>
+        <tr><td>一致性 Consistency</td><td>事务前后数据都要满足业务约束（比如余额不能为负）</td></tr>
+        <tr><td>隔离性 Isolation</td><td>并发事务之间互不干扰，看不到彼此的中间状态</td></tr>
+        <tr><td>持久性 Durability</td><td>提交后即使宕机，数据也不会丢</td></tr>
+      </table>
+
+      <h3>四种隔离级别（MySQL 默认 REPEATABLE READ）</h3>
+      <table>
+        <tr><th>隔离级别</th><th>脏读</th><th>不可重复读</th><th>幻读</th></tr>
+        <tr><td>READ UNCOMMITTED</td><td>会发生</td><td>会发生</td><td>会发生</td></tr>
+        <tr><td>READ COMMITTED</td><td>不会</td><td>会发生</td><td>会发生</td></tr>
+        <tr><td><strong>REPEATABLE READ（默认）</strong></td><td>不会</td><td>不会</td><td>InnoDB 用 MVCC + 间隙锁基本规避</td></tr>
+        <tr><td>SERIALIZABLE</td><td>不会</td><td>不会</td><td>不会（但退化为串行执行，性能差）</td></tr>
+      </table>
+
+      <div class="callout good">
+        <span class="icon">✓</span>
+        <div><b>90% 的业务场景用默认级别 REPEATABLE READ 就够</b>不需要手动调整隔离级别，除非有特殊的强一致性要求（比如金融对账场景可能要评估 SERIALIZABLE）。</div>
+      </div>
+
+      <h3>转账场景标准写法</h3>
+      <pre><code><span class="kw">START TRANSACTION</span>;
+
+<span class="kw">UPDATE</span> account <span class="kw">SET</span> balance = balance - 100
+<span class="kw">WHERE</span> id = 1 <span class="kw">AND</span> balance &gt;= 100; <span class="cm">-- 用条件代替先查后改，防止超卖</span>
+
+<span class="cm">-- 检查上一步是否真的影响了1行，影响0行说明余额不足，需要回滚</span>
+<span class="kw">UPDATE</span> account <span class="kw">SET</span> balance = balance + 100
+<span class="kw">WHERE</span> id = 2;
+
+<span class="kw">COMMIT</span>;
+<span class="cm">-- 任意一步异常：ROLLBACK;</span></code></pre>
+
+      <div class="callout warn">
+        <span class="icon">⚠</span>
+        <div><b>大事务是性能杀手</b>事务里不要塞进大量非必要逻辑（比如调用第三方接口、发消息、跑循环）。事务越大，占用行锁的时间越长，越容易和其它事务冲突甚至死锁。原则是"事务只包裹真正需要原子性的数据库操作"。</div>
+      </div>
+    </section>
+
+    <!-- 06 锁 -->
+    <section id="lock">
+      <div class="section-head">
+        <span class="num">06</span>
+        <h2>锁与并发场景</h2>
+        <p>秒杀扣库存、防止重复下单，本质都是"多个请求同时改同一行数据"的并发控制问题。</p>
+      </div>
+
+      <h3>悲观锁：加锁再改（并发不高、强一致场景）</h3>
+      <pre><code><span class="kw">START TRANSACTION</span>;
+
+<span class="cm">-- FOR UPDATE 给这行加排他锁，其它事务的同一行更新会被阻塞等待</span>
+<span class="kw">SELECT</span> stock <span class="kw">FROM</span> product <span class="kw">WHERE</span> id = 1 <span class="kw">FOR UPDATE</span>;
+
+<span class="kw">UPDATE</span> product <span class="kw">SET</span> stock = stock - 1 <span class="kw">WHERE</span> id = 1;
+
+<span class="kw">COMMIT</span>;</code></pre>
+
+      <h3>乐观锁：改的时候才检查（高并发秒杀场景首选）</h3>
+      <pre><code><span class="cm">-- 不加锁，靠条件保证并发安全，失败就重试或提示"手慢了"</span>
+<span class="kw">UPDATE</span> product <span class="kw">SET</span> stock = stock - 1
+<span class="kw">WHERE</span> id = 1 <span class="kw">AND</span> stock &gt; 0;
+
+<span class="cm">-- 应用层判断 affected rows，0 说明库存不足或被别人抢先</span></code></pre>
+      <p>可以类比前端的乐观更新（optimistic update）：先假设操作会成功直接改，失败了再纠正，而不是每次都先等一个锁。高并发下吞吐量明显更好。</p>
+
+      <h3>行锁 vs 表锁 vs 间隙锁</h3>
+      <table>
+        <tr><th>类型</th><th>说明</th></tr>
+        <tr><td>行锁</td><td>InnoDB 默认粒度，只锁命中的行，前提是走了索引；没走索引会退化为锁全表</td></tr>
+        <tr><td>间隙锁 Gap Lock</td><td>REPEATABLE READ 下用于防止幻读，锁的是"值的区间"而非具体行，<code>INSERT</code> 到这个区间会被阻塞</td></tr>
+        <tr><td>表锁</td><td>MyISAM 引擎默认，InnoDB 一般只有 <code>ALTER TABLE</code> 这类 DDL 才会触发，业务代码基本不主动用</td></tr>
+      </table>
+
+      <h3>死锁怎么排查</h3>
+      <pre><code><span class="kw">SHOW ENGINE INNODB STATUS</span>; <span class="cm">-- 找 LATEST DETECTED DEADLOCK 部分</span></code></pre>
+      <p>死锁最常见的成因是两个事务以不同顺序更新同一批行。业务上的通用解法：<strong>约定固定的加锁顺序</strong>（比如永远按 id 从小到大更新），能规避大部分死锁。</p>
+    </section>
+
+    <!-- 07 常用模式 -->
+    <section id="patterns">
+      <div class="section-head">
+        <span class="num">07</span>
+        <h2>高频业务 SQL 模式</h2>
+        <p>这些是几乎每个后台系统都会写到的片段，直接抄改字段名即可用。</p>
+      </div>
+
+      <h3>批量插入（比循环单条 INSERT 快一个量级）</h3>
+      <pre><code><span class="kw">INSERT INTO</span> log (user_id, action, create_time) <span class="kw">VALUES</span>
+(1, <span class="str">'login'</span>, NOW()),
+(2, <span class="str">'login'</span>, NOW()),
+(3, <span class="str">'logout'</span>, NOW());</code></pre>
+
+      <h3>存在则更新，不存在则插入</h3>
+      <pre><code><span class="kw">INSERT INTO</span> user_stat (user_id, view_count) <span class="kw">VALUES</span> (1, 1)
+<span class="kw">ON DUPLICATE KEY UPDATE</span> view_count = view_count + 1;</code></pre>
+
+      <h3>软删除 + 唯一索引冲突问题</h3>
+      <p>软删除后，被删记录仍占用唯一索引位，重新创建同名/同 code 数据会因唯一约束报错。常见解法是把删除标记也纳入唯一索引：</p>
+      <pre><code><span class="kw">ALTER TABLE</span> `order`
+  <span class="kw">DROP INDEX</span> `uk_order_no`,
+  <span class="kw">ADD UNIQUE KEY</span> `uk_order_no_deleted` (`order_no`, `deleted`);
+<span class="cm">-- deleted 用 0/软删时间戳区分，而非固定值1，避免多条删除记录仍互相冲突</span></code></pre>
+
+      <h3>按时间范围统计（报表类场景）</h3>
+      <pre><code><span class="kw">SELECT</span>
+  DATE(create_time) <span class="kw">AS</span> day,
+  COUNT(*) <span class="kw">AS</span> cnt,
+  SUM(amount) <span class="kw">AS</span> total
+<span class="kw">FROM</span> `order`
+<span class="kw">WHERE</span> create_time <span class="kw">BETWEEN</span> <span class="str">'2026-08-01'</span> <span class="kw">AND</span> <span class="str">'2026-08-31 23:59:59'</span>
+<span class="kw">GROUP BY</span> DATE(create_time)
+<span class="kw">ORDER BY</span> day;</code></pre>
+      <div class="callout warn">
+        <span class="icon">⚠</span>
+        <div><b>报表类大范围统计不要直接跑在业务库上</b>建议走只读从库，或用定时任务预计算落到汇总表，避免拖慢线上交易查询。</div>
+      </div>
+
+      <h3>树形/层级数据（部门、分类）</h3>
+      <pre><code><span class="cm">-- 简单场景：parent_id 自关联，代码里递归组装（前端常见的flat转tree）</span>
+<span class="kw">SELECT</span> id, parent_id, name <span class="kw">FROM</span> department <span class="kw">WHERE</span> deleted = 0;
+
+<span class="cm">-- MySQL 8.0+ 支持递归 CTE，层级较深时更省心</span>
+<span class="kw">WITH RECURSIVE</span> dept_tree <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> id, parent_id, name <span class="kw">FROM</span> department <span class="kw">WHERE</span> id = 1
+  <span class="kw">UNION ALL</span>
+  <span class="kw">SELECT</span> d.id, d.parent_id, d.name
+  <span class="kw">FROM</span> department d
+  <span class="kw">INNER JOIN</span> dept_tree t <span class="kw">ON</span> d.parent_id = t.id
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> dept_tree;</code></pre>
+    </section>
+
+    <!-- 08 运维配置 -->
+    <section id="ops">
+      <div class="section-head">
+        <span class="num">08</span>
+        <h2>连接池与运维配置</h2>
+        <p>这部分是"Java 后端特有但前端很少接触"的内容，类比一下会更好理解。</p>
+      </div>
+
+      <h3>为什么要连接池</h3>
+      <p>每次新建数据库连接都有三次握手 + 认证的开销。连接池（HikariCP 是 Spring Boot 默认）预先建好一批连接复用，
+      跟前端 <code>axios</code> 复用 HTTP keep-alive 连接、或者浏览器限制同域并发连接数是类似的思路——建立连接是贵操作，能复用就不要重建。</p>
+
+      <h3>Spring Boot + HikariCP 常用配置</h3>
+      <pre><code><span class="cm"># application.yml</span>
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20      <span class="cm"># 最大连接数，不是越大越好，受数据库最大连接数限制</span>
+      minimum-idle: 5            <span class="cm"># 最小空闲连接，避免流量突增时来不及建连接</span>
+      connection-timeout: 3000   <span class="cm"># 拿不到连接时最多等多久（ms）</span>
+      idle-timeout: 600000       <span class="cm"># 空闲连接多久后被回收</span>
+      max-lifetime: 1800000      <span class="cm"># 连接最大存活时间，避免踩到数据库侧的连接超时</span></code></pre>
+
+      <div class="callout warn">
+        <span class="icon">⚠</span>
+        <div><b>连接池不是越大越快</b>连接数超过数据库能高效处理的并发线程数后，只会增加上下文切换开销，性能反而下降。经验值一般是 CPU 核心数的 2～4 倍，需结合压测调整。</div>
+      </div>
+
+      <h3>读写分离的基本思路</h3>
+      <p>写操作走主库，读操作走从库，通过 <code>binlog</code> 异步复制同步数据。业务上要接受"主从延迟"，即写入后立刻读可能读到旧数据——这跟前端"乐观更新后接口还没落库，页面已经先展示新状态"是相反方向的同一类问题，都需要在业务层做取舍。</p>
+
+      <h3>字符集与排序规则</h3>
+      <p>统一使用 <code>utf8mb4</code>（不是 <code>utf8</code>，MySQL 的 utf8 最多 3 字节，装不下 emoji 等 4 字节字符），排序规则推荐 <code>utf8mb4_0900_ai_ci</code>（8.0 默认）或 <code>utf8mb4_general_ci</code>。</p>
+    </section>
+
+    <!-- 09 坑位清单 -->
+    <section id="pitfalls">
+      <div class="section-head">
+        <span class="num">09</span>
+        <h2>常见坑位清单</h2>
+        <p>这些是排查线上问题时反复出现的高频原因，出问题先对着这张表过一遍。</p>
+      </div>
+
+      <div class="card">
+        <span class="badge primary">高频</span><b>大事务导致锁等待超时</b>
+        <p style="margin-top:6px">事务里塞了循环调用、远程接口，行锁持有时间过长，导致其它请求 <code>Lock wait timeout exceeded</code>。原则：事务只包住数据库操作本身。</p>
+      </div>
+      <div class="card">
+        <span class="badge primary">高频</span><b>先查询后更新的竞态条件</b>
+        <p style="margin-top:6px">"先 SELECT 判断库存，再 UPDATE 扣减"这种写法在并发下会超卖。改成 <code>UPDATE ... WHERE stock &gt; 0</code> 用数据库保证原子性。</p>
+      </div>
+      <div class="card">
+        <span class="badge">中频</span><b>索引建太多，拖慢写入</b>
+        <p style="margin-top:6px">每多一个索引，<code>INSERT/UPDATE</code> 都要多维护一棵 B+树。索引不是越多越好，按实际查询模式建，定期清理没用到的索引。</p>
+      </div>
+      <div class="card">
+        <span class="badge">中频</span><b>忘记给外键关联字段建索引</b>
+        <p style="margin-top:6px">MySQL 不会自动为 JOIN 用到的列建索引（外键约束本身除外），手动建的关联字段容易漏掉，导致 JOIN 全表扫描。</p>
+      </div>
+      <div class="card">
+        <span class="badge">中频</span><b>N+1 查询</b>
+        <p style="margin-top:6px">循环里对每条主记录再单独查一次关联表，等价于前端在 <code>.map()</code> 里对每一项都发一次请求。改成一次 <code>IN</code> 查询或 JOIN，在应用层聚合。</p>
+      </div>
+      <div class="card">
+        <span class="badge">低频但致命</span><b>忘记 WHERE 条件的批量 UPDATE/DELETE</b>
+        <p style="margin-top:6px">生产环境务必先跑对应的 <code>SELECT</code> 确认影响范围，重要操作加事务并保留回滚方案，能加 <code>LIMIT</code> 的批量操作尽量加。</p>
+      </div>
+    </section>
+
+    <footer>
+      MySQL 业务场景速查手册 · 语境为 MySQL 8.0 / InnoDB 引擎 · 具体参数请结合实际压测与业务量级调整
+    </footer>
+  </main>
+</div>
+
+<script>
+  // 滚动高亮当前所在章节
+  const links = document.querySelectorAll('#toc a[href^="#"]');
+  const sections = Array.from(links).map(a => document.querySelector(a.getAttribute('href')));
+  function onScroll(){
+    let idx = 0;
+    const y = window.scrollY + 120;
+    sections.forEach((sec, i) => { if(sec && sec.offsetTop <= y) idx = i; });
+    links.forEach(l => l.classList.remove('active'));
+    if(links[idx]) links[idx].classList.add('active');
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+</script>
+</body>
+</html>
