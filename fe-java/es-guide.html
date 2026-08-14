@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elasticsearch 是什么 —— 全面说明</title>
+<style>
+  :root{
+    --background:#fafafa;
+    --card:#ffffff;
+    --foreground:#09090b;
+    --muted:#71717a;
+    --muted-bg:#f4f4f5;
+    --border:#e4e4e7;
+    --primary:#18181b;
+    --primary-fg:#fafafa;
+    --accent:#b45309;
+    --accent-soft:#fffbeb;
+    --accent-border:#fde68a;
+    --radius:0.75rem;
+    --mono: "SFMono-Regular", Menlo, Consolas, "Courier New", monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--background);color:var(--foreground);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px;}
+
+  .hero{padding:72px 0 44px;border-bottom:1px solid var(--border);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:999px;
+    letter-spacing:.02em;margin-bottom:20px;border:1px solid var(--accent-border);
+  }
+  .hero h1{font-size:40px;font-weight:700;letter-spacing:-0.02em;margin:0 0 16px;}
+  .hero .accent{color:var(--accent);}
+  .hero p.lead{font-size:17px;color:var(--muted);max-width:660px;margin:0;}
+  code{background:var(--muted-bg);padding:1px 6px;border-radius:5px;font-family:var(--mono);font-size:0.9em;color:var(--foreground);}
+
+  section{padding:48px 0;border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px;}
+  h3{font-size:24px;font-weight:650;letter-spacing:-0.01em;margin:0 0 22px;}
+  p.sub{color:var(--muted);font-size:14.5px;margin:-10px 0 22px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);}
+  th{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--muted-bg);}
+  tr:last-child td{border-bottom:none;}
+  td code{background:var(--muted-bg);padding:2px 6px;border-radius:5px;font-family:var(--mono);font-size:0.88em;}
+
+  .badge{display:inline-block;font-size:11.5px;font-weight:650;padding:2px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-border);}
+
+  pre{background:var(--primary);color:var(--primary-fg);padding:18px 20px;border-radius:var(--radius);overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;}
+  pre .cm{color:#a1a1aa;}
+  pre .kw{color:#fcd34d;}
+  pre .st{color:#86efac;}
+  pre .fn{color:#7dd3fc;}
+  pre .an{color:#fca5a5;}
+
+  .note{display:flex;gap:12px;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:var(--radius);padding:16px 18px;font-size:14px;}
+  .note b{color:var(--accent);}
+
+  ul.plain{margin:0;padding-left:18px;}
+  ul.plain li{margin-bottom:8px;font-size:14.5px;}
+  ul.plain li b{font-weight:650;}
+
+  .diagram-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 20px;}
+
+  /* inverted index visual */
+  .idx-demo{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;}
+  .idx-col .h{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+  .doc-row{background:var(--muted-bg);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:8px;font-family:var(--mono);}
+  .term-row{display:flex;justify-content:space-between;background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:8px;}
+  .term-row b{font-family:var(--mono);color:var(--accent);}
+  .term-row span{color:var(--muted);font-family:var(--mono);font-size:12px;}
+  .idx-arrow{padding:0 18px;color:var(--muted);font-size:20px;}
+
+  .cluster-node{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+  .cluster-node .role{font-size:10.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
+  .cluster-node .shards{display:flex;gap:4px;justify-content:center;margin-top:8px;}
+  .cluster-node .shard{width:18px;height:18px;border-radius:4px;background:var(--accent-soft);border:1px solid var(--accent-border);font-size:9px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700;}
+  .cluster-node .shard.replica{background:var(--muted-bg);border-color:var(--border);color:var(--muted);}
+
+  footer{padding:40px 0 60px;color:var(--muted);font-size:13px;}
+
+  @media (max-width:680px){
+    .hero h1{font-size:28px;}
+    .grid2,.grid3{grid-template-columns:1fr;}
+    .idx-demo{grid-template-columns:1fr;}
+    .idx-arrow{transform:rotate(90deg);padding:8px 0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <span class="eyebrow">● Elasticsearch</span>
+    <h1>ES 到底是<span class="accent">什么</span>？</h1>
+    <p class="lead">
+      ES（Elasticsearch）是一个基于 Lucene 的<b>分布式全文搜索引擎</b>，同时也常被当成一种
+      文档型数据库来用。如果 MySQL 擅长"按索引精确查一条记录"，ES 擅长的是
+      "在一堆文本里搜出相关的内容，并按相关度排序"——本质是一个预先建好索引、能水平扩展的
+      "超级 <code>Array.filter</code> + 打分排序"。
+    </p>
+  </div>
+
+  <section>
+    <h2>01 · 核心概念对照</h2>
+    <h3>ES 术语 ↔ 关系型数据库</h3>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead><tr><th>Elasticsearch</th><th>关系型数据库类比</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="badge">Index</span></td>
+            <td><code>数据库 / 表</code></td>
+            <td>一类文档的集合，比如 <code>products</code> 索引存所有商品。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Document</span></td>
+            <td><code>一行数据</code></td>
+            <td>本质是一个 JSON 对象，比如一件商品的完整信息。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Field</span></td>
+            <td><code>列</code></td>
+            <td>文档里的一个字段，比如 <code>title</code>、<code>price</code>。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Mapping</span></td>
+            <td><code>表结构 / Schema</code></td>
+            <td>定义每个字段的类型，尤其是文本字段"怎么分词"，直接决定搜索效果。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Shard</span></td>
+            <td><code>分表</code></td>
+            <td>一个 Index 被拆成多个分片，分布到不同节点并行处理，是 ES 能扩展的关键。</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Replica</span></td>
+            <td><code>副本</code></td>
+            <td>每个分片的备份，节点挂了也不丢数据，同时能分摊查询压力。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>02 · 为什么搜索这么快</h2>
+    <h3>核心原理：倒排索引</h3>
+    <p class="sub">
+      普通数据库的 <code>LIKE '%关键词%'</code> 是"拿关键词去每一行里找"，数据量大了必然全表扫描很慢。
+      ES 反过来，提前把"每个词出现在哪些文档里"整理成一张表，查询时直接按词查文档 —— 这就是"倒排索引"。
+    </p>
+    <div class="diagram-wrap">
+      <div class="idx-demo">
+        <div class="idx-col">
+          <div class="h">原始文档</div>
+          <div class="doc-row">doc1: "苹果手机 promax 黑色"</div>
+          <div class="doc-row">doc2: "苹果笔记本电脑"</div>
+          <div class="doc-row">doc3: "华为手机 promax"</div>
+        </div>
+        <div class="idx-arrow">→</div>
+        <div class="idx-col">
+          <div class="h">倒排索引（分词后）</div>
+          <div class="term-row"><b>苹果</b><span>doc1, doc2</span></div>
+          <div class="term-row"><b>手机</b><span>doc1, doc3</span></div>
+          <div class="term-row"><b>promax</b><span>doc1, doc3</span></div>
+          <div class="term-row"><b>笔记本</b><span>doc2</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="sub" style="margin-top:16px;">搜"苹果手机"时，直接查倒排索引拿到 <code>doc1</code>（两个词都命中，分数最高），不需要扫描原始文档全文。</p>
+  </section>
+
+  <section>
+    <h2>03 · 为什么不直接用数据库自带的模糊搜索</h2>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">全文检索能力</div>
+        <div style="font-size:14px;color:var(--muted);">支持中文分词、同义词、拼音搜索、拼写纠错、高亮显示，这些 <code>LIKE</code> 完全做不到。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">相关度排序</div>
+        <div style="font-size:14px;color:var(--muted);">内置 BM25 算法，搜索结果按"匹配程度"打分排序，而不只是"有没有匹配上"。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">聚合分析</div>
+        <div style="font-size:14px;color:var(--muted);">除了搜索，还能做类似 <code>GROUP BY</code> + 统计的聚合，常用来做日志分析、监控大盘。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">水平扩展</div>
+        <div style="font-size:14px;color:var(--muted);">天生分布式架构，数据量大了加节点就行，不需要像单机数据库那样做复杂分库分表。</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>04 · 集群架构</h2>
+    <h3>分片 + 副本怎么分布</h3>
+    <div class="diagram-wrap">
+      <div class="grid3">
+        <div class="cluster-node">
+          <div class="role">Node 1</div>
+          <div style="font-size:12px;color:var(--muted);">products 索引</div>
+          <div class="shards">
+            <div class="shard">S0</div>
+            <div class="shard replica">S1</div>
+          </div>
+        </div>
+        <div class="cluster-node">
+          <div class="role">Node 2</div>
+          <div style="font-size:12px;color:var(--muted);">products 索引</div>
+          <div class="shards">
+            <div class="shard">S1</div>
+            <div class="shard replica">S2</div>
+          </div>
+        </div>
+        <div class="cluster-node">
+          <div class="role">Node 3</div>
+          <div style="font-size:12px;color:var(--muted);">products 索引</div>
+          <div class="shards">
+            <div class="shard">S2</div>
+            <div class="shard replica">S0</div>
+          </div>
+        </div>
+      </div>
+      <p class="sub" style="margin-top:16px;margin-bottom:0;">深色块是主分片（Primary Shard），浅色块是副本（Replica）—— 副本永远和自己的主分片放在不同节点，任意一台机器挂了数据都还在。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>05 · 典型使用场景</h2>
+    <ul class="plain">
+      <li><b>站内搜索：</b>电商商品搜索、内容站文章搜索，几乎是标配选型。</li>
+      <li><b>日志分析（ELK / EFK）：</b>Elasticsearch + Logstash/Filebeat + Kibana，把各服务日志集中存储、检索、可视化。</li>
+      <li><b>可观测性里的日志与 Trace 检索：</b>和之前聊的 Prometheus/InfluxDB 是互补关系——指标库看"数值趋势"，ES 看"具体发生了什么"。</li>
+      <li><b>推荐 / 风控等场景的复杂条件查询：</b>多字段组合过滤 + 打分，比关系型数据库拼一堆 <code>WHERE</code> 更灵活。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>06 · CRUD 操作（REST API）</h2>
+    <h3>文档的增删改查</h3>
+    <p class="sub">ES 所有操作都通过 HTTP REST 接口完成，和前端调接口一模一样，只不过请求体是 JSON。</p>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead><tr><th>操作</th><th>HTTP 方法</th><th>示例路径</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>创建索引</td><td><code>PUT</code></td><td><code>/products</code></td><td>相当于建表</td></tr>
+          <tr><td>新增文档</td><td><code>POST</code></td><td><code>/products/_doc</code></td><td>自动生成 ID；用 <code>PUT /products/_doc/1</code> 可指定 ID</td></tr>
+          <tr><td>查询文档</td><td><code>GET</code></td><td><code>/products/_doc/1</code></td><td>按 ID 精确获取</td></tr>
+          <tr><td>搜索</td><td><code>POST</code></td><td><code>/products/_search</code></td><td>用 DSL 做全文搜索</td></tr>
+          <tr><td>更新文档</td><td><code>POST</code></td><td><code>/products/_update/1</code></td><td>部分更新，只传要改的字段</td></tr>
+          <tr><td>删除文档</td><td><code>DELETE</code></td><td><code>/products/_doc/1</code></td><td>按 ID 删除</td></tr>
+          <tr><td>批量操作</td><td><code>POST</code></td><td><code>/_bulk</code></td><td>一次请求完成多个增删改操作</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <pre><span class="cm">// 新增一条文档</span>
+<span class="kw">POST</span> /products/_doc
+{
+  <span class="st">"title"</span>: <span class="st">"苹果 iPhone 15 Pro Max 256G 黑色"</span>,
+  <span class="st">"price"</span>: 9999,
+  <span class="st">"brand"</span>: <span class="st">"Apple"</span>,
+  <span class="st">"tags"</span>: [<span class="st">"手机"</span>, <span class="st">"5G"</span>, <span class="st">"旗舰"</span>]
+}
+
+<span class="cm">// 部分更新（只改价格）</span>
+<span class="kw">POST</span> /products/_update/1
+{
+  <span class="st">"doc"</span>: { <span class="st">"price"</span>: 8999 }
+}
+
+<span class="cm">// 批量操作 —— _bulk 每两行一组（操作 + 数据）</span>
+<span class="kw">POST</span> /_bulk
+{ <span class="st">"index"</span>: { <span class="st">"_index"</span>: <span class="st">"products"</span>, <span class="st">"_id"</span>: <span class="st">"2"</span> } }
+{ <span class="st">"title"</span>: <span class="st">"华为 Mate 60 Pro"</span>, <span class="st">"price"</span>: 6999 }
+{ <span class="st">"delete"</span>: { <span class="st">"_index"</span>: <span class="st">"products"</span>, <span class="st">"_id"</span>: <span class="st">"3"</span> } }</pre>
+  </section>
+
+  <section>
+    <h2>07 · Mapping 与分词器</h2>
+    <h3>定义字段类型 = 决定搜索效果</h3>
+    <p class="sub">Mapping 就像表的 Schema，最关键的是告诉 ES "这个字段要不要分词、用什么分词器"。</p>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">text 类型</div>
+        <div style="font-size:14px;color:var(--muted);">会被分词，适合全文搜索。如商品标题、文章内容。搜索时也会对查询词分词再匹配。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">keyword 类型</div>
+        <div style="font-size:14px;color:var(--muted);">不分词，整个值作为一个 token。适合精确匹配：品牌、状态、枚举值、ID。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">数值/日期类型</div>
+        <div style="font-size:14px;color:var(--muted);"><code>integer</code>、<code>long</code>、<code>double</code>、<code>date</code> 等，支持范围过滤和聚合统计。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">nested / object</div>
+        <div style="font-size:14px;color:var(--muted);">嵌套对象。<code>object</code> 会扁平化，<code>nested</code> 保持数组内对象的独立性。</div>
+      </div>
+    </div>
+    <pre><span class="cm">// 创建索引时定义 Mapping</span>
+<span class="kw">PUT</span> /products
+{
+  <span class="st">"mappings"</span>: {
+    <span class="st">"properties"</span>: {
+      <span class="st">"title"</span>:    { <span class="st">"type"</span>: <span class="st">"text"</span>, <span class="st">"analyzer"</span>: <span class="st">"ik_max_word"</span> },
+      <span class="st">"brand"</span>:    { <span class="st">"type"</span>: <span class="st">"keyword"</span> },
+      <span class="st">"price"</span>:    { <span class="st">"type"</span>: <span class="st">"double"</span> },
+      <span class="st">"createAt"</span>: { <span class="st">"type"</span>: <span class="st">"date"</span>, <span class="st">"format"</span>: <span class="st">"yyyy-MM-dd HH:mm:ss"</span> },
+      <span class="st">"tags"</span>:     { <span class="st">"type"</span>: <span class="st">"keyword"</span> }
+    }
+  }
+}</pre>
+    <div class="note" style="margin-top:16px;">
+      <div>⚠️</div>
+      <div>
+        <b>注意：</b>Mapping 一旦创建，已有字段的类型不能修改（类似 MySQL <code>ALTER</code> 改字段类型有风险）。
+        如果要改，需要创建新索引 → 重新导入数据（reindex）。所以一开始就要规划好。
+      </div>
+    </div>
+    <h3 style="margin-top:32px;">分词器工作流程</h3>
+    <p class="sub">一个分词器（Analyzer）= 字符过滤器 → 分词器 → 词条过滤器，三步流水线。</p>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead><tr><th>分词器</th><th>适用场景</th><th>示例输入 → 输出</th></tr></thead>
+        <tbody>
+          <tr><td><code>standard</code></td><td>英文默认，按空格/标点切分</td><td>"Quick Fox" → [quick, fox]</td></tr>
+          <tr><td><code>ik_smart</code></td><td>中文智能分词，尽量少切</td><td>"苹果手机" → [苹果手机]</td></tr>
+          <tr><td><code>ik_max_word</code></td><td>中文最细粒度，尽量多切</td><td>"苹果手机" → [苹果, 手机, 苹果手机]</td></tr>
+          <tr><td><code>pinyin</code></td><td>拼音搜索（插件）</td><td>"苹果" → [ping, guo, pg]</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <pre><span class="cm">// 测试某个分词器的效果（开发时很常用）</span>
+<span class="kw">POST</span> /_analyze
+{
+  <span class="st">"analyzer"</span>: <span class="st">"ik_max_word"</span>,
+  <span class="st">"text"</span>: <span class="st">"苹果iPhone15手机很好用"</span>
+}
+<span class="cm">// 输出 tokens: [苹果, iphone15, iphone, 15, 手机, 很好, 好用]</span></pre>
+  </section>
+
+  <section>
+    <h2>08 · Query DSL —— 搜索的核心语言</h2>
+    <h3>ES 的"SQL"，全是 JSON</h3>
+    <p class="sub">
+      DSL（Domain Specific Language）是 ES 的查询语言。把它想象成用 JSON 写 SQL —— 所有搜索条件、过滤、排序、分页都通过一个 JSON body 描述。
+    </p>
+
+    <h3 style="margin-top:32px;">整体结构一览</h3>
+    <pre><span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: { ... },       <span class="cm">// 搜索条件（核心）</span>
+  <span class="st">"sort"</span>: [ ... ],        <span class="cm">// 排序规则</span>
+  <span class="st">"from"</span>: 0,              <span class="cm">// 分页偏移（类似 OFFSET）</span>
+  <span class="st">"size"</span>: 10,             <span class="cm">// 每页条数（类似 LIMIT）</span>
+  <span class="st">"_source"</span>: [<span class="st">"title"</span>, <span class="st">"price"</span>],  <span class="cm">// 只返回哪些字段（类似 SELECT）</span>
+  <span class="st">"highlight"</span>: { ... },   <span class="cm">// 搜索关键词高亮</span>
+  <span class="st">"aggs"</span>: { ... }         <span class="cm">// 聚合统计（类似 GROUP BY）</span>
+}</pre>
+
+    <h3 style="margin-top:40px;">query 里的查询类型</h3>
+    <p class="sub">可以类比前端 <code>Array.filter</code> 里写不同的判断条件。</p>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead><tr><th>查询类型</th><th>用途</th><th>类比</th></tr></thead>
+        <tbody>
+          <tr><td><code>match</code></td><td>全文搜索，先分词再匹配</td><td>搜索框输入关键词</td></tr>
+          <tr><td><code>match_phrase</code></td><td>短语搜索，词序和位置都要匹配</td><td>精确短语搜索</td></tr>
+          <tr><td><code>multi_match</code></td><td>多字段搜索同一关键词</td><td>同时搜标题、描述</td></tr>
+          <tr><td><code>term</code></td><td>精确匹配（不分词）</td><td><code>=== </code> 判断</td></tr>
+          <tr><td><code>terms</code></td><td>多值精确匹配</td><td><code>IN (...)</code></td></tr>
+          <tr><td><code>range</code></td><td>范围过滤</td><td><code>BETWEEN</code>、<code>>= <=</code></td></tr>
+          <tr><td><code>bool</code></td><td>组合多个条件</td><td><code>AND / OR / NOT</code></td></tr>
+          <tr><td><code>exists</code></td><td>字段是否存在</td><td><code>IS NOT NULL</code></td></tr>
+          <tr><td><code>wildcard</code></td><td>通配符匹配</td><td><code>LIKE 'app%'</code></td></tr>
+          <tr><td><code>fuzzy</code></td><td>模糊/纠错搜索</td><td>用户拼错了也能搜到</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:40px;">match —— 最常用的全文搜索</h3>
+    <pre><span class="cm">// 搜 "苹果手机" → 分词成 [苹果, 手机]，命中任一词即返回</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"match"</span>: {
+      <span class="st">"title"</span>: <span class="st">"苹果手机"</span>
+    }
+  }
+}
+
+<span class="cm">// 要求所有词都命中（AND 逻辑）</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"match"</span>: {
+      <span class="st">"title"</span>: {
+        <span class="st">"query"</span>: <span class="st">"苹果手机"</span>,
+        <span class="st">"operator"</span>: <span class="st">"and"</span>
+      }
+    }
+  }
+}</pre>
+
+    <h3 style="margin-top:40px;">term —— 精确匹配（不走分词）</h3>
+    <pre><span class="cm">// 精确匹配品牌（keyword 字段用 term）</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"term"</span>: {
+      <span class="st">"brand"</span>: <span class="st">"Apple"</span>
+    }
+  }
+}
+
+<span class="cm">// terms：匹配多个值（IN 查询）</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"terms"</span>: {
+      <span class="st">"brand"</span>: [<span class="st">"Apple"</span>, <span class="st">"Huawei"</span>, <span class="st">"Xiaomi"</span>]
+    }
+  }
+}</pre>
+
+    <h3 style="margin-top:40px;">range —— 范围过滤</h3>
+    <pre><span class="cm">// 价格在 3000~8000 之间</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"range"</span>: {
+      <span class="st">"price"</span>: {
+        <span class="st">"gte"</span>: 3000,
+        <span class="st">"lte"</span>: 8000
+      }
+    }
+  }
+}
+
+<span class="cm">// 日期范围：最近7天的数据</span>
+<span class="kw">POST</span> /logs/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"range"</span>: {
+      <span class="st">"timestamp"</span>: {
+        <span class="st">"gte"</span>: <span class="st">"now-7d/d"</span>,
+        <span class="st">"lte"</span>: <span class="st">"now"</span>
+      }
+    }
+  }
+}</pre>
+
+    <h3 style="margin-top:40px;">bool —— 组合查询（最重要）</h3>
+    <p class="sub">
+      <code>bool</code> 查询相当于 SQL 的 <code>WHERE ... AND ... OR ... NOT ...</code>，是实际业务中用得最多的。
+    </p>
+    <div class="card" style="padding:0;margin-bottom:16px;">
+      <table>
+        <thead><tr><th>子句</th><th>含义</th><th>类比</th></tr></thead>
+        <tbody>
+          <tr><td><code>must</code></td><td>必须匹配，参与打分</td><td><code>AND</code></td></tr>
+          <tr><td><code>filter</code></td><td>必须匹配，不打分（更快）</td><td><code>WHERE</code> 过滤</td></tr>
+          <tr><td><code>should</code></td><td>满足则加分（至少匹配一个）</td><td><code>OR</code>（加分项）</td></tr>
+          <tr><td><code>must_not</code></td><td>必须不匹配</td><td><code>NOT / !=</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <pre><span class="cm">// 实际业务示例：搜索"手机"、品牌必须是 Apple、价格 5000-10000、排除二手</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"bool"</span>: {
+      <span class="st">"must"</span>: [
+        { <span class="st">"match"</span>: { <span class="st">"title"</span>: <span class="st">"手机"</span> } }
+      ],
+      <span class="st">"filter"</span>: [
+        { <span class="st">"term"</span>: { <span class="st">"brand"</span>: <span class="st">"Apple"</span> } },
+        { <span class="st">"range"</span>: { <span class="st">"price"</span>: { <span class="st">"gte"</span>: 5000, <span class="st">"lte"</span>: 10000 } } }
+      ],
+      <span class="st">"must_not"</span>: [
+        { <span class="st">"term"</span>: { <span class="st">"condition"</span>: <span class="st">"used"</span> } }
+      ],
+      <span class="st">"should"</span>: [
+        { <span class="st">"term"</span>: { <span class="st">"tags"</span>: <span class="st">"旗舰"</span> } }
+      ]
+    }
+  }
+}</pre>
+    <div class="note" style="margin-top:16px;">
+      <div>💡</div>
+      <div>
+        <b>filter vs must：</b>filter 不计算相关度分数，ES 可以缓存 filter 结果。
+        原则：需要影响排序的条件放 <code>must</code>，纯过滤条件（精确匹配、范围）放 <code>filter</code>，性能更好。
+      </div>
+    </div>
+
+    <h3 style="margin-top:40px;">multi_match —— 多字段搜索</h3>
+    <pre><span class="cm">// 同一关键词同时搜标题和描述，标题权重更高</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: {
+    <span class="st">"multi_match"</span>: {
+      <span class="st">"query"</span>: <span class="st">"苹果手机"</span>,
+      <span class="st">"fields"</span>: [<span class="st">"title^3"</span>, <span class="st">"description"</span>]
+    }
+  }
+}
+<span class="cm">// title^3 表示标题字段权重是描述的 3 倍</span></pre>
+
+    <h3 style="margin-top:40px;">排序 + 分页 + 高亮</h3>
+    <pre><span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: { <span class="st">"match"</span>: { <span class="st">"title"</span>: <span class="st">"手机"</span> } },
+  <span class="st">"sort"</span>: [
+    { <span class="st">"price"</span>: <span class="st">"asc"</span> },
+    <span class="st">"_score"</span>
+  ],
+  <span class="st">"from"</span>: 0,
+  <span class="st">"size"</span>: 20,
+  <span class="st">"highlight"</span>: {
+    <span class="st">"fields"</span>: {
+      <span class="st">"title"</span>: {
+        <span class="st">"pre_tags"</span>: [<span class="st">"&lt;em class='hl'&gt;"</span>],
+        <span class="st">"post_tags"</span>: [<span class="st">"&lt;/em&gt;"</span>]
+      }
+    }
+  }
+}
+<span class="cm">// 返回的 highlight.title 会像这样：["苹果&lt;em class='hl'&gt;手机&lt;/em&gt; ProMax"]</span></pre>
+  </section>
+
+  <section>
+    <h2>09 · 聚合分析（Aggregation）</h2>
+    <h3>ES 里的 GROUP BY + 统计函数</h3>
+    <p class="sub">聚合可以在搜索的同时统计数据，常用于搜索页面的筛选面板（"品牌分布"、"价格区间"）和数据看板。</p>
+    <div class="card" style="padding:0;margin-bottom:16px;">
+      <table>
+        <thead><tr><th>聚合类型</th><th>用途</th><th>SQL 类比</th></tr></thead>
+        <tbody>
+          <tr><td><code>terms</code></td><td>按字段分组（桶聚合）</td><td><code>GROUP BY brand</code></td></tr>
+          <tr><td><code>histogram</code></td><td>按区间分桶</td><td>价格每 1000 分一组</td></tr>
+          <tr><td><code>date_histogram</code></td><td>按时间区间分桶</td><td>按天/小时统计</td></tr>
+          <tr><td><code>avg / sum / min / max</code></td><td>指标聚合</td><td><code>AVG(price)</code></td></tr>
+          <tr><td><code>cardinality</code></td><td>去重计数</td><td><code>COUNT(DISTINCT ...)</code></td></tr>
+          <tr><td><code>top_hits</code></td><td>每组取 Top N 条文档</td><td>每组取代表数据</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <pre><span class="cm">// 电商场景：搜"手机"的同时，统计品牌分布和平均价格</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: { <span class="st">"match"</span>: { <span class="st">"title"</span>: <span class="st">"手机"</span> } },
+  <span class="st">"size"</span>: 0,  <span class="cm">// 不需要文档，只要聚合结果</span>
+  <span class="st">"aggs"</span>: {
+    <span class="st">"brand_distribution"</span>: {
+      <span class="st">"terms"</span>: { <span class="st">"field"</span>: <span class="st">"brand"</span>, <span class="st">"size"</span>: 10 }
+    },
+    <span class="st">"avg_price"</span>: {
+      <span class="st">"avg"</span>: { <span class="st">"field"</span>: <span class="st">"price"</span> }
+    },
+    <span class="st">"price_ranges"</span>: {
+      <span class="st">"histogram"</span>: { <span class="st">"field"</span>: <span class="st">"price"</span>, <span class="st">"interval"</span>: 2000 }
+    }
+  }
+}
+<span class="cm">// 返回结果类似：</span>
+<span class="cm">// brand_distribution.buckets: [{key:"Apple",doc_count:42}, {key:"Huawei",doc_count:38}, ...]</span>
+<span class="cm">// avg_price.value: 5680.5</span>
+<span class="cm">// price_ranges.buckets: [{key:2000,doc_count:15}, {key:4000,doc_count:28}, ...]</span></pre>
+
+    <pre style="margin-top:16px;"><span class="cm">// 嵌套聚合：每个品牌下的平均价格</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"size"</span>: 0,
+  <span class="st">"aggs"</span>: {
+    <span class="st">"by_brand"</span>: {
+      <span class="st">"terms"</span>: { <span class="st">"field"</span>: <span class="st">"brand"</span> },
+      <span class="st">"aggs"</span>: {
+        <span class="st">"avg_price"</span>: { <span class="st">"avg"</span>: { <span class="st">"field"</span>: <span class="st">"price"</span> } }
+      }
+    }
+  }
+}</pre>
+  </section>
+
+  <section>
+    <h2>10 · 数据同步方案</h2>
+    <h3>MySQL → ES 怎么同步</h3>
+    <p class="sub">ES 通常不是数据的"源头"，而是从 MySQL 同步一份过来做搜索。常见同步方式：</p>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead><tr><th>方案</th><th>原理</th><th>优缺点</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>同步双写</b></td>
+            <td>写 MySQL 的同时写 ES</td>
+            <td>简单；但有一致性风险，ES 写失败怎么办</td>
+          </tr>
+          <tr>
+            <td><b>异步消息</b></td>
+            <td>写 MySQL 后发 MQ 消息，消费者写 ES</td>
+            <td>解耦，可重试；有短暂延迟</td>
+          </tr>
+          <tr>
+            <td><b>Canal / Debezium</b></td>
+            <td>监听 MySQL Binlog 变更，实时同步到 ES</td>
+            <td>对业务代码零侵入；需要运维中间件</td>
+          </tr>
+          <tr>
+            <td><b>定时全量/增量</b></td>
+            <td>定时任务扫描变更数据同步</td>
+            <td>最简单；延迟大，适合对实时性要求低的场景</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:16px;">
+      <div>💡</div>
+      <div>
+        <b>实际选择：</b>中小项目用"异步消息"（比如写 MySQL 后发 Kafka/RabbitMQ）就够了；
+        大厂一般用 Canal 监听 Binlog，对业务完全无侵入。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>11 · 性能优化要点</h2>
+    <h3>让 ES 跑得更快的关键手段</h3>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">filter 代替 must</div>
+        <div style="font-size:14px;color:var(--muted);">不需要打分的条件一律用 <code>filter</code>，ES 会缓存 filter 结果，重复查询直接命中缓存。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">合理设置分片数</div>
+        <div style="font-size:14px;color:var(--muted);">每个分片建议 10-50GB。分片太多 = 小文件太多，协调开销大；分片太少 = 无法并行。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">避免深度分页</div>
+        <div style="font-size:14px;color:var(--muted);"><code>from + size</code> 超过 10000 条性能急剧下降，应该用 <code>search_after</code> 或 scroll API。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">keyword vs text</div>
+        <div style="font-size:14px;color:var(--muted);">不需要全文搜索的字段（如 ID、状态码）设成 <code>keyword</code>，不走分词，更快更省存储。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">_source 按需返回</div>
+        <div style="font-size:14px;color:var(--muted);">只 <code>_source: ["title","price"]</code> 返回需要的字段，减少网络传输和序列化开销。</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:650;margin-bottom:6px;">批量写入</div>
+        <div style="font-size:14px;color:var(--muted);">用 <code>_bulk</code> API 批量写入，而不是逐条 index。合理设置 <code>refresh_interval</code>（默认 1s）。</div>
+      </div>
+    </div>
+    <pre style="margin-top:16px;"><span class="cm">// search_after：深度分页的正确方式（游标分页）</span>
+<span class="kw">POST</span> /products/_search
+{
+  <span class="st">"query"</span>: { <span class="st">"match_all"</span>: {} },
+  <span class="st">"sort"</span>: [{ <span class="st">"price"</span>: <span class="st">"asc"</span> }, { <span class="st">"_id"</span>: <span class="st">"asc"</span> }],
+  <span class="st">"size"</span>: 20,
+  <span class="st">"search_after"</span>: [4999, <span class="st">"abc123"</span>]  <span class="cm">// 上一页最后一条的 sort 值</span>
+}</pre>
+  </section>
+
+  <section>
+    <h2>12 · 在 Java 项目里怎么接</h2>
+    <h3>Spring Data Elasticsearch</h3>
+    <p class="sub">Spring 生态里可以用 <b>Spring Data Elasticsearch</b>，写法和 Spring Data JPA 很像；也可以直接用官方 <b>Java Client</b>，用 JSON 拼查询 DSL 更灵活。</p>
+    <pre><span class="cm">// 定义文档 —— 类似前端定义一个 TS interface</span>
+<span class="an">@Document</span>(indexName = <span class="st">"products"</span>)
+<span class="kw">public class</span> Product {
+    <span class="an">@Id</span>
+    <span class="kw">private</span> String id;
+
+    <span class="an">@Field</span>(type = FieldType.Text, analyzer = <span class="st">"ik_max_word"</span>)
+    <span class="kw">private</span> String title;   <span class="cm">// 用中文分词器</span>
+
+    <span class="an">@Field</span>(type = FieldType.Double)
+    <span class="kw">private</span> Double price;
+
+    <span class="an">@Field</span>(type = FieldType.Keyword)
+    <span class="kw">private</span> String brand;
+}
+
+<span class="cm">// Repository —— 方法名约定即查询</span>
+<span class="kw">public interface</span> ProductRepository <span class="kw">extends</span> ElasticsearchRepository&lt;Product, String&gt; {
+    List&lt;Product&gt; <span class="fn">findByTitleContaining</span>(String keyword);
+    List&lt;Product&gt; <span class="fn">findByBrandAndPriceBetween</span>(String brand, Double min, Double max);
+}</pre>
+
+    <h3 style="margin-top:32px;">用 Java Client 写 DSL</h3>
+    <pre><span class="cm">// 等价于手写 bool + match + filter 的 DSL</span>
+SearchResponse&lt;Product&gt; response = client.<span class="fn">search</span>(s -&gt; s
+    .index(<span class="st">"products"</span>)
+    .query(q -&gt; q
+        .bool(b -&gt; b
+            .must(m -&gt; m.match(t -&gt; t.field(<span class="st">"title"</span>).query(<span class="st">"手机"</span>)))
+            .filter(f -&gt; f.term(t -&gt; t.field(<span class="st">"brand"</span>).value(<span class="st">"Apple"</span>)))
+            .filter(f -&gt; f.range(r -&gt; r.field(<span class="st">"price"</span>).gte(JsonData.of(5000)).lte(JsonData.of(10000))))
+        )
+    )
+    .sort(so -&gt; so.field(f -&gt; f.field(<span class="st">"price"</span>).order(SortOrder.Asc)))
+    .from(0).size(20),
+    Product.<span class="kw">class</span>
+);</pre>
+  </section>
+
+  <section>
+    <h2>13 · ES vs MySQL —— 选型对比</h2>
+    <div class="card" style="padding:0;">
+      <table>
+        <thead><tr><th>对比维度</th><th>MySQL</th><th>Elasticsearch</th></tr></thead>
+        <tbody>
+          <tr><td>擅长</td><td>事务、精确查询、关联查询</td><td>全文搜索、模糊匹配、聚合分析</td></tr>
+          <tr><td>一致性</td><td>强一致（ACID 事务）</td><td>近实时（NRT），写入后 ~1s 可搜到</td></tr>
+          <tr><td>写入</td><td>单条写入快，支持事务回滚</td><td>批量写入快，不支持事务</td></tr>
+          <tr><td>关联查询</td><td>JOIN 随意写</td><td>不擅长 JOIN，需提前宽表化（反范式）</td></tr>
+          <tr><td>数据量</td><td>单表千万级后需要分库分表</td><td>天生分布式，TB 级别轻松扩展</td></tr>
+          <tr><td>排序</td><td>按索引列排序快</td><td>按相关度打分排序是强项</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:16px;">
+      <div>💡</div>
+      <div>
+        <b>实际项目中的经典组合：</b>MySQL 作为数据源（Source of Truth），保证事务和数据完整性；
+        ES 作为搜索引擎，处理全文检索、复杂筛选和聚合统计。两者通过消息队列或 Binlog 同步保持数据一致。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>14 · 常见踩坑与注意事项</h2>
+    <ul class="plain">
+      <li><b>text 字段不能用 term 查询：</b><code>text</code> 字段存储时已分词，用 <code>term</code> 精确匹配整个值会查不到。要精确匹配请用 <code>.keyword</code> 子字段或设为 <code>keyword</code> 类型。</li>
+      <li><b>Mapping 不能改只能加：</b>已创建的字段类型无法修改，只能新增字段。要改类型得重建索引 + reindex。</li>
+      <li><b>深度分页性能问题：</b><code>from: 10000, size: 20</code> 意味着 ES 要在每个分片上取 10020 条再合并排序，非常耗内存。超过 10000 条用 <code>search_after</code>。</li>
+      <li><b>不要当主数据库用：</b>ES 没有事务，不保证强一致性，硬删除后无法回滚。关键业务数据一定存在 MySQL，ES 只做搜索副本。</li>
+      <li><b>refresh_interval：</b>默认 1 秒刷新一次，写入后不是立刻能搜到。高频写入场景可以临时调大或关闭 refresh，写完再改回来。</li>
+      <li><b>动态 Mapping 的坑：</b>如果不提前定义 Mapping，ES 会自动推断类型。数字字符串可能被推断为 <code>long</code>，后续插入真正的字符串会报错。建议显式定义关键字段。</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="note">
+      <div>💡</div>
+      <div>
+        <b>一句话记忆：</b>ES 就是"预先建好倒排索引、天生分布式的全文搜索引擎"。
+        数据库解决"精确存取"，ES 解决"从大量文本里搜出相关内容并排序"，两者通常是配合使用而不是互相替代——
+        业务数据存 MySQL，需要搜索的字段再同步一份到 ES。
+      </div>
+    </div>
+  </section>
+
+  <footer>Elasticsearch 全面指南 · 面向前端工程师的类比说明</footer>
+
+</div>
+</body>
+</html>
