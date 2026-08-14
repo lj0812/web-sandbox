@@ -1,0 +1,22 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.29",
+  "base_commit_sha": "33845b704a0679692d163682ac6d5a12d1cb7079",
+  "prompts": {
+    "2d670a6bb67c477e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "d759e4be-41dd-4dd7-868c-53bd90747b72",
+        "model": "claude-opus-4-6",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 487,
+      "total_deletions": 3,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
