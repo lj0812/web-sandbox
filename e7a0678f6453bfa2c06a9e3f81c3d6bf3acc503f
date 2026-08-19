@@ -1,0 +1,40 @@
+fe-java/tsdb-and-influxdb.html
+  77043af103e27a6e 222-642,665-709,716
+fe-java/fe-master-2-be-rookie.html
+  2c15c3c6257d8636 1-1424
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.30",
+  "base_commit_sha": "e7a0678f6453bfa2c06a9e3f81c3d6bf3acc503f",
+  "prompts": {
+    "2c15c3c6257d8636": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "06c1209b-5987-4d39-b486-3ccbb26b1ccb",
+        "model": "claude-opus-4-6",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 1424,
+      "total_deletions": 0,
+      "accepted_lines": 1424,
+      "overriden_lines": 0
+    },
+    "77043af103e27a6e": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "bebfc9b9-f11e-4bbd-bcf3-db04d66f3969",
+        "model": "claude-opus-4-6",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 467,
+      "total_deletions": 1,
+      "accepted_lines": 467,
+      "overriden_lines": 0
+    }
+  }
+}
