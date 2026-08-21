@@ -1,0 +1,68 @@
+command/pwd.html
+  50dfda2a93f01fcd 1-61
+command/cd.html
+  50dfda2a93f01fcd 1-72
+command/mkdir.html
+  50dfda2a93f01fcd 1-66
+command/gzip.html
+  50dfda2a93f01fcd 1-73
+command/ps.html
+  50dfda2a93f01fcd 1-74
+command/chmod.html
+  50dfda2a93f01fcd 1-70
+command/df.html
+  50dfda2a93f01fcd 1-67
+command/du.html
+  50dfda2a93f01fcd 1-69
+command/kill.html
+  50dfda2a93f01fcd 1-68
+command/ssh.html
+  50dfda2a93f01fcd 1-74
+command/tar.html
+  50dfda2a93f01fcd 1-76
+command/git.html
+  50dfda2a93f01fcd 1-84
+command/cat.html
+  50dfda2a93f01fcd 1-71
+command/find.html
+  50dfda2a93f01fcd 1-75
+command/rm.html
+  50dfda2a93f01fcd 1-68
+command/grep.html
+  50dfda2a93f01fcd 1-75
+command/ls.html
+  50dfda2a93f01fcd 1-72
+command/cp.html
+  50dfda2a93f01fcd 1-68
+command/style.css
+  50dfda2a93f01fcd 1-225
+command/curl.html
+  50dfda2a93f01fcd 1-76
+command/top.html
+  50dfda2a93f01fcd 1-68
+command/mv.html
+  50dfda2a93f01fcd 1-66
+command/index.html
+  50dfda2a93f01fcd 1-84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.30",
+  "base_commit_sha": "829abb3c72d81938f2b3b2ca3acae8d3b76a2b3d",
+  "prompts": {
+    "50dfda2a93f01fcd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ee61b35-c6c8-4e69-8c80-5089e372cd5c",
+        "model": "kimi-k2.7-code",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 4249,
+      "total_deletions": 0,
+      "accepted_lines": 1802,
+      "overriden_lines": 0
+    }
+  }
+}
