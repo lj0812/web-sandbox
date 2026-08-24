@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>名词速查表 - 前端加解密知识手册</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">← 返回导航</a>
+  </header>
+
+  <main>
+    <h1>名词速查表</h1>
+    <p class="description">阅读资料 / 对接后端时高频出现的名词，按主题分组</p>
+
+    <section>
+      <h2>向量类：IV / nonce / salt</h2>
+      <div class="note">
+        <p>你问的 <strong>vector（向量）</strong>，在加密语境里特指 <strong>IV（Initialization Vector，初始化向量）</strong>。三者都是「参与计算但需要保密性较弱」的随机数据，作用各不相同，最容易混淆，先讲清楚。</p>
+      </div>
+      <table>
+        <tr><th>名词</th><th>全称 / 含义</th><th>要不要保密</th><th>能不能复用</th><th>典型用途</th></tr>
+        <tr>
+          <td><strong>IV</strong></td>
+          <td>Initialization Vector，初始化向量</td>
+          <td>不保密，随密文一起传输</td>
+          <td><span class="bad">绝不复用</span>，每次加密重新随机</td>
+          <td>CBC/GCM 等模式，让相同明文每次加密出不同密文</td>
+        </tr>
+        <tr>
+          <td><strong>nonce</strong></td>
+          <td>number used once，只用一次的数</td>
+          <td>不保密</td>
+          <td><span class="bad">绝不复用</span></td>
+          <td>接口签名防重放；GCM 模式下 nonce ≈ IV</td>
+        </tr>
+        <tr>
+          <td><strong>salt（盐）</strong></td>
+          <td>哈希密码时混入的随机字符串</td>
+          <td>不保密，与哈希值一起存储</td>
+          <td>每个用户一个，可长期不变</td>
+          <td>防彩虹表，见 <a href="hash.html">哈希与 HMAC</a></td>
+        </tr>
+      </table>
+      <div class="warn">
+        <p><strong>IV 复用 = 灾难</strong>。GCM 模式下，同一个密钥 + 同一个 nonce 加密两条不同明文，攻击者可直接恢复密钥和明文（这是 GCM 最经典的翻车姿势）。所以生成 IV 必须用密码学随机数，不能写死、不能用自增序号。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>随机数</h2>
+      <table>
+        <tr><th>名词</th><th>说明</th></tr>
+        <tr><td><strong>PRNG</strong></td><td>Pseudo-Random Number Generator，伪随机。如 <code>Math.random()</code>，可预测，<span class="bad">不能用于安全场景</span>。</td></tr>
+        <tr><td><strong>CSPRNG</strong></td><td>Cryptographically Secure PRNG，密码学安全伪随机。浏览器用 <code>crypto.getRandomValues()</code>、Node 用 <code>crypto.randomBytes()</code>。生成密钥 / IV / nonce 必须用它。</td></tr>
+        <tr><td><strong>entropy（熵）</strong></td><td>随机性 / 不可预测程度的度量。熵越高越难猜。生成密钥、盐、nonce 都要求高熵来源。</td></tr>
+      </table>
+      <div class="example">
+        <pre><code>// 生成 16 字节随机 IV（密码学安全）
+const iv = crypto.getRandomValues(new Uint8Array(16));
+
+// 生成随机 nonce 字符串
+const nonce = crypto.randomUUID();</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>块与填充</h2>
+      <table>
+        <tr><th>名词</th><th>说明</th></tr>
+        <tr><td><strong>block（分组/块）</strong></td><td>块密码一次处理的固定长度数据。AES 分组长度恒为 128 bit（16 字节），与密钥长度无关。</td></tr>
+        <tr><td><strong>block cipher（块密码）</strong></td><td>按固定块处理的算法，如 AES。明文不足整数块时需要填充。</td></tr>
+        <tr><td><strong>stream cipher（流密码）</strong></td><td>逐字节 / 逐位处理的算法，如 ChaCha20。无需填充。</td></tr>
+        <tr><td><strong>padding（填充）</strong></td><td>把明文补齐到块大小整数倍的方式。常用 <strong>PKCS7</strong>（每字节值 = 填充字节数）。GCM 等流式模式通常 NoPadding。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>密钥相关</h2>
+      <table>
+        <tr><th>名词</th><th>说明</th></tr>
+        <tr><td><strong>key length（密钥长度）</strong></td><td>AES-128 / 192 / 256 指密钥位数，即 16 / 24 / 32 字节。越长越安全，速度略慢。</td></tr>
+        <tr><td><strong>session key（会话密钥）</strong></td><td>一次连接内临时使用的对称密钥，用完即弃。HTTPS 每次连接都会协商新的会话密钥。</td></tr>
+        <tr><td><strong>KDF（Key Derivation Function）</strong></td><td>密钥派生函数：从一个密码 / 主密钥派生出加密密钥。常见 PBKDF2、scrypt、Argon2。存密码和「用口令加密文件」都用它。</td></tr>
+        <tr><td><strong>key wrapping（密钥包装）</strong></td><td>用一把密钥加密另一把密钥（混合加密里 RSA 加密 AES 密钥就是典型）。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>加密模式与完整性</h2>
+      <table>
+        <tr><th>名词</th><th>说明</th></tr>
+        <tr><td><strong>AEAD</strong></td><td>Authenticated Encryption with Associated Data，带认证的加密。加密同时提供完整性校验，GCM、ChaCha20-Poly1305 属此类。新系统首选。</td></tr>
+        <tr><td><strong>Tag（认证标签）</strong></td><td>GCM 等 AEAD 模式输出的校验值，验证密文未被篡改。解密时一并校验。</td></tr>
+        <tr><td><strong>cipher suite（加密套件）</strong></td><td>TLS 握手协商的一组算法组合，如 <code>TLS_AES_256_GCM_SHA384</code> = 对称算法 + 哈希。</td></tr>
+        <tr><td><strong>forward secrecy（前向保密 / PFS）</strong></td><td>即使长期私钥未来泄露，历史会话也无法解密。靠每次会话用临时密钥（ECDHE）实现，现代 TLS 标配。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>证书与信任</h2>
+      <table>
+        <tr><th>名词</th><th>说明</th></tr>
+        <tr><td><strong>CA（Certificate Authority）</strong></td><td>证书颁发机构，用私钥对证书签名，浏览器内置其根证书以建立信任。</td></tr>
+        <tr><td><strong>certificate chain（证书链）</strong></td><td>从服务器证书逐级回溯到受信任根证书的路径。</td></tr>
+        <tr><td><strong>fingerprint（指纹）</strong></td><td>证书内容的哈希值，用于人工核对证书是否被替换。</td></tr>
+        <tr><td><strong>self-signed（自签名）</strong></td><td>用自己给自己签发的证书，不被浏览器默认信任，内网 / 开发环境常见。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>常见攻击名词</h2>
+      <table>
+        <tr><th>攻击</th><th>原理</th><th>防御</th></tr>
+        <tr><td><strong>brute force（暴力破解）</strong></td><td>穷举所有可能的密钥</td><td>加大密钥长度 + 慢哈希</td></tr>
+        <tr><td><strong>dictionary（字典攻击）</strong></td><td>用常见密码列表逐一尝试</td><td>加盐 + 慢哈希 + 锁定策略</td></tr>
+        <tr><td><strong>rainbow table（彩虹表）</strong></td><td>预先算好「密码→哈希」的查找表</td><td>加盐使表失效</td></tr>
+        <tr><td><strong>collision（碰撞攻击）</strong></td><td>构造两个不同输入得到相同哈希</td><td>用抗碰撞算法（弃用 MD5/SHA-1）</td></tr>
+        <tr><td><strong>birthday（生日攻击）</strong></td><td>利用生日悖论降低找碰撞的成本</td><td>加大哈希输出长度</td></tr>
+        <tr><td><strong>timing（计时攻击）</strong></td><td>通过比较耗时差异推断密钥/签名</td><td>恒定时间比较</td></tr>
+        <tr><td><strong>replay（重放攻击）</strong></td><td>原样重发截获的合法请求</td><td>时间戳 + nonce，见 <a href="api-sign.html">接口签名</a></td></tr>
+        <tr><td><strong>MITM（中间人攻击）</strong></td><td>在通信双方之间拦截、篡改流量</td><td>HTTPS + 证书校验 + 证书固定</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>编码 / 格式相关</h2>
+      <table>
+        <tr><th>名词</th><th>说明</th></tr>
+        <tr><td><strong>Base64 / Base64URL</strong></td><td>二进制转可打印文本。Base64URL 用 <code>-_</code> 替代 <code>+/</code>、去掉填充 <code>=</code>，适合放 URL 和 JWT。</td></tr>
+        <tr><td><strong>Hex（十六进制）</strong></td><td>每字节用两个 16 进制字符表示，哈希摘要常以 hex 展示。</td></tr>
+        <tr><td><strong>PEM</strong></td><td>密钥 / 证书的文本封装格式，以 <code>-----BEGIN ...-----</code> 开头。</td></tr>
+        <tr><td><strong>DER</strong></td><td>密钥 / 证书的二进制格式。</td></tr>
+        <tr><td><strong>ArrayBuffer / Uint8Array</strong></td><td>Web Crypto API 处理的二进制数据类型，加密前常需与字符串互转。</td></tr>
+      </table>
+    </section>
+
+    <section class="tips">
+      <h2>一句话速记</h2>
+      <ul>
+        <li><strong>vector = IV</strong>：不保密、不复用、每次随机。</li>
+        <li>IV / nonce 防「相同输入出相同结果」与重放；salt 防彩虹表。</li>
+        <li>密钥、IV、nonce、盐一律用 <code>crypto.getRandomValues()</code> 生成，别用 <code>Math.random()</code>。</li>
+        <li>新系统优先 AEAD（GCM / ChaCha20-Poly1305），自带完整性。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>前端加解密知识手册 · <a href="index.html">返回导航</a></p>
+  </footer>
+</body>
+</html>
