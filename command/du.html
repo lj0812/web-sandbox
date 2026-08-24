@@ -53,6 +53,14 @@
     </section>
 
     <section class="tips">
+      <h2>Linux / macOS 差异</h2>
+      <ul>
+        <li>Linux（GNU）：使用 <code>--max-depth=N</code> 限制递归深度。</li>
+        <li>macOS（BSD）：不支持 <code>--max-depth</code>，应使用 <code>-d N</code>，如 <code>du -h -d 1 /home</code>。</li>
+      </ul>
+    </section>
+
+    <section class="tips">
       <h2>注意事项</h2>
       <ul>
         <li><strong>du -sh</strong> 是查看目录总大小的最常用组合。</li>

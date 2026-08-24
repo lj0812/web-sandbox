@@ -60,6 +60,14 @@
     </section>
 
     <section class="tips">
+      <h2>Linux / macOS 差异</h2>
+      <ul>
+        <li>Linux（GNU tar）：支持 <code>--exclude=pattern</code>、<code>--checkpoint</code> 等长选项。</li>
+        <li>macOS（BSD tar）：短选项 <code>-czvf</code> / <code>-xzvf</code> 兼容；长选项行为可能与 GNU tar 略有差异。</li>
+      </ul>
+    </section>
+
+    <section class="tips">
       <h2>注意事项</h2>
       <ul>
         <li>-f 选项后必须紧跟归档文件名，习惯上放在选项最后。</li>

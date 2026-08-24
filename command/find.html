@@ -59,6 +59,14 @@
     </section>
 
     <section class="tips">
+      <h2>Linux / macOS 差异</h2>
+      <ul>
+        <li>Linux（GNU）：支持 <code>-printf</code>、<code>-delete</code> 等扩展动作。</li>
+        <li>macOS（BSD）：<code>-maxdepth</code> 可用，但无 <code>-printf</code> 和 <code>-delete</code>；删除文件建议用 <code>-exec rm</code>。</li>
+      </ul>
+    </section>
+
+    <section class="tips">
       <h2>注意事项</h2>
       <ul>
         <li>通配符在 find 的 -name 中需要加引号，否则会被 shell 提前展开。</li>

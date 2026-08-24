@@ -59,6 +59,14 @@
     </section>
 
     <section class="tips">
+      <h2>Linux / macOS 差异</h2>
+      <ul>
+        <li>Linux（GNU）：<code>grep -P</code> 支持 PCRE 正则表达式，<code>grep -r</code> 递归搜索。</li>
+        <li>macOS（BSD）：没有 <code>-P</code> 选项；需要 Perl 兼容正则可安装 <code>ggrep</code>，或使用 <code>-E</code> 扩展正则。</li>
+      </ul>
+    </section>
+
+    <section class="tips">
       <h2>注意事项</h2>
       <ul>
         <li>模式包含特殊字符时建议加引号，避免 shell 解释。</li>
