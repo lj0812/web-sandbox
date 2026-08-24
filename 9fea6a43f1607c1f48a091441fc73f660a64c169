@@ -1,0 +1,56 @@
+command/macos-differences.html
+  50dfda2a93f01fcd 1-100
+command/index.html
+  50dfda2a93f01fcd 20
+command/du.html
+  50dfda2a93f01fcd 55-62
+command/top.html
+  50dfda2a93f01fcd 54-61
+command/tar.html
+  50dfda2a93f01fcd 62-69
+command/find.html
+  50dfda2a93f01fcd 61-68
+command/grep.html
+  50dfda2a93f01fcd 61-68
+command/ps.html
+  50dfda2a93f01fcd 60-67
+command/ls.html
+  50dfda2a93f01fcd 58-65
+command/.claude/launch.json
+  50dfda2a93f01fcd 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.31",
+  "base_commit_sha": "9fea6a43f1607c1f48a091441fc73f660a64c169",
+  "prompts": {
+    "50dfda2a93f01fcd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ee61b35-c6c8-4e69-8c80-5089e372cd5c",
+        "model": "kimi-k2.7-code",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 765,
+      "total_deletions": 3,
+      "accepted_lines": 762,
+      "overriden_lines": 0
+    },
+    "c56fc023fc8cd628": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a39985-56e9-497c-b2a4-2ed43e99a272",
+        "model": "kimi-k3",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 1159,
+      "total_deletions": 0,
+      "accepted_lines": 1159,
+      "overriden_lines": 0
+    }
+  }
+}
