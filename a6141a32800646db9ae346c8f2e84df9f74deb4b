@@ -1,0 +1,26 @@
+crypto-guide/glossary.html
+  c56fc023fc8cd628 1-155
+crypto-guide/index.html
+  c56fc023fc8cd628 45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.31",
+  "base_commit_sha": "a6141a32800646db9ae346c8f2e84df9f74deb4b",
+  "prompts": {
+    "c56fc023fc8cd628": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a39985-56e9-497c-b2a4-2ed43e99a272",
+        "model": "kimi-k3",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 159,
+      "total_deletions": 0,
+      "accepted_lines": 159,
+      "overriden_lines": 0
+    }
+  }
+}
