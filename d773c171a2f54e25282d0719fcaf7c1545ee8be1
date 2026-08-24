@@ -1,0 +1,40 @@
+crypto-guide/symmetric.html
+  c56fc023fc8cd628 1-138
+crypto-guide/api-sign.html
+  c56fc023fc8cd628 1-146
+crypto-guide/asymmetric.html
+  c56fc023fc8cd628 1-105
+crypto-guide/style.css
+  c56fc023fc8cd628 1-294
+crypto-guide/frontend.html
+  c56fc023fc8cd628 1-97
+crypto-guide/basics.html
+  c56fc023fc8cd628 1-99
+crypto-guide/index.html
+  c56fc023fc8cd628 1-53
+crypto-guide/jwt.html
+  c56fc023fc8cd628 1-92
+crypto-guide/hash.html
+  c56fc023fc8cd628 1-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.31",
+  "base_commit_sha": "d773c171a2f54e25282d0719fcaf7c1545ee8be1",
+  "prompts": {
+    "c56fc023fc8cd628": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a39985-56e9-497c-b2a4-2ed43e99a272",
+        "model": "kimi-k3",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 1159,
+      "total_deletions": 0,
+      "accepted_lines": 1159,
+      "overriden_lines": 0
+    }
+  }
+}
