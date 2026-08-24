@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>前端加解密知识手册</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">前端加解密知识手册</a>
+  </header>
+
+  <main>
+    <h1>加解密知识导航</h1>
+    <p class="description">面向前端开发工程师的加解密实用指南：概念、算法、API 与常见误区</p>
+
+    <div class="intro">
+      <p>点击下面的卡片查看详细内容。每篇文章尽量用前端工程师熟悉的语言（JavaScript 示例、浏览器 API、真实业务场景）解释清楚一个主题，避免堆砌密码学理论。</p>
+      <p>建议阅读顺序：先读「基础概念」，再按需查阅具体算法，最后看「前端实战与常见误区」。</p>
+    </div>
+
+    <section>
+      <h2>基础</h2>
+      <div class="command-grid">
+        <a class="command-card" href="basics.html"><h3>基础概念</h3><p>编码、哈希、加密的区别；对称与非对称；密钥、IV、盐</p></a>
+        <a class="command-card" href="hash.html"><h3>哈希与 HMAC</h3><p>MD5、SHA 系列、加盐、密码存储、消息认证</p></a>
+      </div>
+    </section>
+
+    <section>
+      <h2>加密算法</h2>
+      <div class="command-grid">
+        <a class="command-card" href="symmetric.html"><h3>对称加密 AES</h3><p>ECB / CBC / GCM 工作模式、crypto-js 与 Web Crypto 示例</p></a>
+        <a class="command-card" href="asymmetric.html"><h3>非对称加密 RSA</h3><p>公钥私钥、混合加密、ECC 与国密 SM2</p></a>
+        <a class="command-card" href="jwt.html"><h3>JWT 与数字签名</h3><p>签名不是加密、JWT 结构解析、验签流程</p></a>
+      </div>
+    </section>
+
+    <section>
+      <h2>实战</h2>
+      <div class="command-grid">
+        <a class="command-card" href="api-sign.html"><h3>典型场景：接口签名</h3><p>客户端请求后端接口时防篡改、防重放的签名方案与双方分工</p></a>
+        <a class="command-card" href="frontend.html"><h3>前端实战与误区</h3><p>密钥硬编码、前端加密的边界、HTTPS、高频面试题</p></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>前端加解密知识手册</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>非对称加密 RSA - 前端加解密知识手册</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">← 返回导航</a>
+  </header>
+
+  <main>
+    <h1>非对称加密 RSA</h1>
+    <p class="description">公钥加密私钥解密：为什么它解决了对称加密最大的痛点</p>
+
+    <section>
+      <h2>核心思想</h2>
+      <p>对称加密的死穴是「密钥怎么安全地给到对方」。非对称加密用一对数学上关联的密钥解决：</p>
+      <ul>
+        <li><strong>公钥</strong>：可以公开给任何人</li>
+        <li><strong>私钥</strong>：自己保管，绝不外泄</li>
+      </ul>
+      <table>
+        <tr><th>方向</th><th>用途</th><th>效果</th></tr>
+        <tr><td>公钥加密 → 私钥解密</td><td>保密传输</td><td>只有私钥持有者能读懂内容</td></tr>
+        <tr><td>私钥签名 → 公钥验签</td><td>身份认证 / 防抵赖</td><td>证明内容确实来自私钥持有者且未被篡改</td></tr>
+      </table>
+      <div class="note">
+        <p>记忆口诀：<strong>公钥加密、私钥签名</strong>。加密是为了「只让你看」，签名是为了「证明是我发的」。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>常见算法</h2>
+      <table>
+        <tr><th>算法</th><th>基础</th><th>说明</th></tr>
+        <tr><td>RSA</td><td>大数分解难题</td><td>最成熟通用；密钥较长（2048 bit 起步，1024 已不安全），加解密慢</td></tr>
+        <tr><td>ECC / ECDSA / Ed25519</td><td>椭圆曲线离散对数</td><td>同等安全强度下密钥短得多（256 bit ≈ RSA 3072 bit），区块链、现代系统常用</td></tr>
+        <tr><td>SM2</td><td>椭圆曲线（国密）</td><td>国家密码标准，政企、金融国产化项目必用</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>前端典型场景：RSA 加密敏感字段</h2>
+      <p>很多登录接口要求「密码用 RSA 公钥加密后再提交」——即使 HTTPS 被代理抓包，抓到的也是密文：</p>
+      <div class="example">
+        <pre><code>import { JSEncrypt } from 'jsencrypt';
+
+// 公钥由后端接口下发（可以公开），不要写死在代码里
+const publicKey = await fetch('/api/public-key').then(r =&gt; r.text());
+
+const encryptor = new JSEncrypt();
+encryptor.setPublicKey(publicKey);
+
+const encrypted = encryptor.encrypt(password); // Base64 密文
+// 服务端用私钥解密得到原始密码</code></pre>
+        <p>注意 RSA 加密的明文长度上限：2048 bit 密钥 + PKCS#1 v1.5 填充时，最多加密 <strong>245 字节</strong>。长数据要先截断、分段，或改用混合加密。</p>
+      </div>
+      <div class="example">
+        <pre><code>// 国密场景：sm-crypto（SM2 加密 / SM3 哈希 / SM4 对称加密）
+import { sm2 } from 'sm-crypto';
+
+const cipherText = sm2.doEncrypt(password, publicKey, 1); // 1 = C1C3C2 模式
+const plainText  = sm2.doDecrypt(cipherText, privateKey, 1);</code></pre>
+        <p>对接 SM2 时同样要确认 C1C3C2 / C1C2C3 顺序，这是国密对接最常见的坑。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>混合加密：实战中的标准姿势</h2>
+      <p>RSA 又慢又有长度限制，所以真实系统这样组合两种算法：</p>
+      <div class="syntax">
+        <code>1. 前端随机生成一把 AES 会话密钥<br>2. 用 AES 加密业务数据<br>3. 用 RSA 公钥加密这把 AES 密钥<br>4. 一起发送：{ rsa加密的aes密钥, aes加密的业务数据 }</code>
+      </div>
+      <p>服务器用私钥解出 AES 密钥，再用它解密业务数据。这样兼得 RSA 的密钥分发能力和 AES 的速度。HTTPS/TLS 的握手也是同样思路。</p>
+    </section>
+
+    <section>
+      <h2>公钥可信吗？证书体系</h2>
+      <p>非对称加密还留了一个问题：你拿到的公钥怎么确定是对方的，而不是中间人替换的？答案是 <strong>数字证书</strong>：</p>
+      <ul>
+        <li>权威机构（CA）用自己的私钥对「域名 + 公钥」签名，生成证书</li>
+        <li>浏览器内置 CA 的根证书（公钥），逐级验证证书链</li>
+        <li>验证通过 → 公钥确实属于这个域名 → 建立安全连接</li>
+      </ul>
+      <p>这就是为什么 Charles/Fiddler 抓 HTTPS 包需要手动安装并信任它的根证书——你在授权它扮演中间人。</p>
+    </section>
+
+    <section class="tips">
+      <h2>速记</h2>
+      <ul>
+        <li>公钥加密、私钥签名；RSA 只能加密很短的数据，长数据走混合加密。</li>
+        <li>RSA 至少 2048 bit；追求短密钥用 ECC；国产化项目用 SM2。</li>
+        <li>公钥本身可以公开，但要靠证书体系防止被调包。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>前端加解密知识手册 · <a href="index.html">返回导航</a></p>
+  </footer>
+</body>
+</html>

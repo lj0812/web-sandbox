@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>前端实战与常见误区 - 前端加解密知识手册</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">← 返回导航</a>
+  </header>
+
+  <main>
+    <h1>前端实战与常见误区</h1>
+    <p class="description">密钥放哪、前端加密到底有没有用、HTTPS 与高频面试题</p>
+
+    <section>
+      <h2>最大的误区：把密钥写在前端代码里</h2>
+      <div class="danger-box">
+        <p>前端代码对用户完全透明——查看源码、抓包、断点调试都能拿到。<strong>任何硬编码在前端的密钥，都等同于公开</strong>。代码混淆、打包压缩只能增加几分钟的阅读成本，不构成安全。</p>
+      </div>
+      <p>那么「前端 AES 加密请求参数」这类需求还有没有意义？分场景看：</p>
+      <table>
+        <tr><th>场景</th><th>是否有意义</th></tr>
+        <tr><td>防普通抓包工具的直接阅读（运营、测试同学）</td><td>有一定意义，属于「防君子不防小人」的遮挡</td></tr>
+        <tr><td>防中间人窃取敏感信息</td><td>没有意义——密钥和密文一起在网络里，也一起在源码里</td></tr>
+        <tr><td>防恶意攻击者</td><td>基本无效，攻击者会逆向、会 hook 加密函数</td></tr>
+      </table>
+      <p>结论：前端加密是<strong>提高攻击成本的辅助手段</strong>，真正的机密性必须依靠 HTTPS，真正的敏感逻辑必须放在服务端。</p>
+    </section>
+
+    <section>
+      <h2>密钥的正确来源</h2>
+      <ul>
+        <li><strong>RSA 公钥</strong>：由后端接口下发，本来就可以公开，放前端没问题</li>
+        <li><strong>AES 会话密钥</strong>：前端随机生成 → 用 RSA 公钥加密后传给服务端（混合加密，见 <a href="asymmetric.html">非对称加密</a>）</li>
+        <li><strong>HMAC secretKey</strong>：登录后由服务端按用户下发，与登录态绑定、可过期</li>
+        <li><strong>永远不该出现在前端的</strong>：RSA 私钥、固定的 AES 密钥、接口签名用的全局 secret</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>HTTPS 才是地基</h2>
+      <p>前端加解密的一切讨论都建立在 HTTPS 之上。TLS 握手（简化版）：</p>
+      <div class="syntax">
+        <code>1. 浏览器验证服务器证书（确认公钥归属）<br>2. 双方协商生成会话密钥（非对称加密 / DH 交换）<br>3. 之后所有数据用会话密钥做对称加密传输</code>
+      </div>
+      <p>有了 HTTPS，请求体在传输层已经是密文。业务层再加密的收益主要是：防内网明文日志、防代理层（网关）看到明文、满足合规要求——而不是防中间人。</p>
+      <div class="note">
+        <p>Charles / Fiddler 能抓 HTTPS，是因为你主动安装并信任了它的根证书，授权它做中间人。普通用户不装证书，第三方就无法解密流量。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>前端能用 / 常用的库</h2>
+      <table>
+        <tr><th>库 / API</th><th>用途</th><th>说明</th></tr>
+        <tr><td>Web Crypto API</td><td>SHA、HMAC、AES-GCM、RSA、ECDSA</td><td>浏览器原生，性能最好，需安全上下文（HTTPS/localhost）</td></tr>
+        <tr><td>crypto-js</td><td>MD5 / SHA / AES(ECB/CBC)</td><td>老项目常用；<span class="bad">已停止维护</span>，新项目建议 Web Crypto 或 noble 系</td></tr>
+        <tr><td>jsencrypt</td><td>RSA 加密</td><td>登录密码加密场景最常见</td></tr>
+        <tr><td>sm-crypto</td><td>SM2 / SM3 / SM4</td><td>国密改造必备</td></tr>
+        <tr><td>@noble/hashes、@noble/ciphers</td><td>哈希 / 加密</td><td>现代、可审计、体积小的新选择</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>高频面试题速答</h2>
+      <h3>1. MD5 是加密吗？</h3>
+      <p>不是。MD5 是哈希（摘要）算法，单向不可逆。它只是常被口语误称为「MD5 加密」。</p>
+      <h3>2. 前后端交互怎么保证数据安全？</h3>
+      <p>传输层靠 HTTPS；业务层敏感字段可用 RSA/混合加密；接口用 HMAC 签名 + 时间戳 + nonce 防篡改和重放；密码前端可先做哈希但服务端必须加盐慢哈希存储。</p>
+      <h3>3. JWT 安全吗？</h3>
+      <p>JWT 只有签名没有加密，payload 明文可见。安全与否取决于：HTTPS 传输、不放敏感数据、服务端正确验签（固定算法白名单）、合理设置过期时间。</p>
+      <h3>4. AES 的 ECB 和 CBC 有什么区别？</h3>
+      <p>ECB 每个块独立加密，相同明文块产生相同密文块，会泄露模式，禁止使用；CBC 引入 IV 和链式异或，相同明文每次加密结果不同。</p>
+      <h3>5. 为什么有了 HTTPS 还要对密码 RSA 加密？</h3>
+      <p>HTTPS 保护「浏览器到服务器」的链路；但请求会经过网关、日志系统、反向代理等环节，明文密码可能落盘。应用层加密确保只有持有私钥的业务服务能看到明文。</p>
+    </section>
+
+    <section class="tips">
+      <h2>一页纸总结</h2>
+      <ul>
+        <li><strong>机密性</strong>：HTTPS 是地基；应用层加密防的是链路上游环节，密钥绝不能硬编码。</li>
+        <li><strong>完整性 + 来源认证</strong>：HMAC 签名（对称）或 RSA/ECDSA 签名（非对称）。</li>
+        <li><strong>密码</strong>：前端顶多预哈希，存储必须是服务端加盐慢哈希。</li>
+        <li><strong>选型</strong>：哈希用 SHA-256，加密用 AES-256-GCM，非对称用 RSA-2048 / ECC，国密场景 SM2/SM3/SM4。</li>
+        <li>记住三件事不能混：编码（Base64）、哈希（SHA）、加密（AES/RSA）。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>前端加解密知识手册 · <a href="index.html">返回导航</a></p>
+  </footer>
+</body>
+</html>

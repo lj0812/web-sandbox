@@ -1,0 +1,294 @@
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #2563eb;
+  --accent-light: #eff6ff;
+  --code-bg: #f1f5f9;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --success: #16a34a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+}
+
+header, footer {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+header a, footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+header a:hover, footer a:hover {
+  text-decoration: underline;
+}
+
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+h1 {
+  font-size: 2.25rem;
+  margin: 0 0 0.25rem;
+}
+
+.description {
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin: 0 0 2rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--border);
+}
+
+h3 {
+  font-size: 1.05rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+section h2:first-child {
+  margin-top: 0;
+}
+
+code, pre {
+  font-family: "SF Mono", Monaco, Inconsolata, "Fira Code", "Source Code Pro", monospace;
+  font-size: 0.9rem;
+}
+
+code {
+  background: var(--code-bg);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  color: #0f172a;
+}
+
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.syntax code {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  background: var(--code-bg);
+  font-weight: 600;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.example {
+  margin-bottom: 1.25rem;
+}
+
+.example:last-child {
+  margin-bottom: 0;
+}
+
+.example pre {
+  margin-bottom: 0.4rem;
+}
+
+.example p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.note {
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+
+.note p {
+  margin: 0;
+}
+
+.warn {
+  background: #fffbeb;
+  border-left: 4px solid var(--warning);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+
+.warn p {
+  margin: 0;
+}
+
+.danger-box {
+  background: #fef2f2;
+  border-left: 4px solid var(--danger);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+
+.danger-box p {
+  margin: 0;
+}
+
+.good {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.bad {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.tips ul, .examples ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.tips li {
+  margin-bottom: 0.5rem;
+}
+
+.tips strong {
+  color: var(--warning);
+}
+
+.tips .danger {
+  color: var(--danger);
+}
+
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.command-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.command-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.command-card h3 {
+  margin: 0 0 0.25rem;
+  color: var(--accent);
+  font-size: 1.15rem;
+}
+
+.command-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.intro {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.intro p {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+}
+
+.intro p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  .command-grid {
+    grid-template-columns: 1fr;
+  }
+}

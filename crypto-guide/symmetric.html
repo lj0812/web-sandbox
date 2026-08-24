@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>对称加密 AES - 前端加解密知识手册</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">← 返回导航</a>
+  </header>
+
+  <main>
+    <h1>对称加密 AES</h1>
+    <p class="description">加密解密同一把密钥：工作模式、IV 与前端常用写法</p>
+
+    <section>
+      <h2>AES 是什么</h2>
+      <p>AES（Advanced Encryption Standard）是目前事实标准的对称加密算法，分组长度 128 bit，密钥长度可选 128 / 192 / 256 bit（即 AES-128 / AES-256）。</p>
+      <ul>
+        <li>DES：56 bit 密钥，已被暴力破解，<span class="bad">淘汰</span></li>
+        <li>3DES：DES 的加强版，速度慢，<span class="bad">淘汰</span></li>
+        <li>SM4：国密对称算法，政企项目使用</li>
+      </ul>
+      <p>一次 AES 加密需要四个要素：<strong>密钥、工作模式、IV、填充方式</strong>。前后端对接时这四个必须完全一致，否则解不开。</p>
+    </section>
+
+    <section>
+      <h2>工作模式：ECB / CBC / GCM</h2>
+      <p>明文长度超过一个分组（16 字节）时，需要决定多个分组如何串联加密，这就是工作模式。</p>
+      <table>
+        <tr><th>模式</th><th>特点</th><th>结论</th></tr>
+        <tr><td>ECB</td><td>每个分组独立加密，相同明文块 → 相同密文块，会泄露数据规律（著名的「企鹅图」）</td><td><span class="bad">禁止使用</span>，但很多老接口还在用</td></tr>
+        <tr><td>CBC</td><td>每个分组先与前一个密文块异或再加密，需要 IV</td><td>可用，但只有机密性没有完整性校验，新系统建议 GCM</td></tr>
+        <tr><td>GCM</td><td>加密同时生成认证标签（Tag），能发现密文被篡改（AEAD）</td><td><span class="good">推荐</span>，TLS 1.3 唯一保留的模式类型</td></tr>
+      </table>
+      <div class="warn">
+        <p><strong>IV 的正确用法</strong>：每次加密用<strong>密码学随机数</strong>生成新 IV，然后把 IV 和密文一起传输（IV 不需要保密）。绝对不要固定 IV、不要在 CBC 里复用 IV——这会让模式的优势荡然无存。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>前端写法一：crypto-js（CBC 示例）</h2>
+      <div class="example">
+        <pre><code>import CryptoJS from 'crypto-js';
+
+// 密钥和 IV 都是 16 字节（AES-128）；实际项目密钥由后端下发，不能硬编码
+const key = CryptoJS.enc.Utf8.parse('0123456789abcdef');
+const iv  = CryptoJS.enc.Utf8.parse('abcdef0123456789');
+
+function encrypt(text) {
+  const encrypted = CryptoJS.AES.encrypt(text, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+}
+
+function decrypt(base64) {
+  const cipherParams = CryptoJS.lib.CipherParams.create({
+    ciphertext: CryptoJS.enc.Base64.parse(base64),
+  });
+  const decrypted = CryptoJS.AES.decrypt(cipherParams, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  return decrypted.toString(CryptoJS.enc.Utf8);
+}</code></pre>
+        <p>对接后端时最常见的坑：crypto-js 直接传字符串密钥时会被当作 passphrase 走 PBKDF2 派生，结果和后端对不上。<strong>要么前后端都用 parse 后的 WordArray，要么都用 passphrase 模式</strong>。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>前端写法二：Web Crypto API（GCM 示例）</h2>
+      <div class="example">
+        <pre><code>// AES-256-GCM：浏览器原生，无需第三方库
+async function aesGcmEncrypt(text, rawKey) {
+  const key = await crypto.subtle.importKey(
+    'raw', rawKey, { name: 'AES-GCM' }, false, ['encrypt']
+  );
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // GCM 推荐 12 字节 IV
+  const cipherBuf = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    new TextEncoder().encode(text)
+  );
+  // 输出：iv + 密文，打包后 Base64
+  const packed = new Uint8Array(iv.length + cipherBuf.byteLength);
+  packed.set(iv, 0);
+  packed.set(new Uint8Array(cipherBuf), iv.length);
+  return btoa(String.fromCharCode(...packed));
+}
+
+async function aesGcmDecrypt(base64, rawKey) {
+  const packed = Uint8Array.from(atob(base64), c =&gt; c.charCodeAt(0));
+  const iv = packed.slice(0, 12);
+  const data = packed.slice(12);
+  const key = await crypto.subtle.importKey(
+    'raw', rawKey, { name: 'AES-GCM' }, false, ['decrypt']
+  );
+  const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+  return new TextDecoder().decode(plainBuf);
+}</code></pre>
+        <p>密文被篡改时 <code>decrypt</code> 会直接抛错——这就是 GCM 的完整性保护。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>前后端对接清单</h2>
+      <p>解密对不上时，按这个顺序排查：</p>
+      <table>
+        <tr><th>检查项</th><th>常见不一致</th></tr>
+        <tr><td>密钥长度</td><td>16 / 24 / 32 字节对应 AES-128 / 192 / 256；密钥是原始字节还是 Base64/Hex 后的</td></tr>
+        <tr><td>工作模式</td><td>ECB / CBC / GCM；GCM 还要确认 Tag 长度和 IV 长度</td></tr>
+        <tr><td>IV</td><td>固定还是每次随机；传输时拼在密文头部还是单独字段</td></tr>
+        <tr><td>填充</td><td>Pkcs7 / NoPadding（NoPadding 要求明文长度对齐）</td></tr>
+        <tr><td>编码</td><td>密文输出是 Base64 还是 Hex；明文输入的字符集（UTF-8）</td></tr>
+      </table>
+    </section>
+
+    <section class="tips">
+      <h2>速记</h2>
+      <ul>
+        <li>新项目用 <strong>AES-256-GCM</strong>；维护老接口遇到 ECB 时知道它不安全，但对接时该用还得用。</li>
+        <li>IV 每次随机、随密文传输；密钥才是要保密的部分。</li>
+        <li><span class="danger">密钥硬编码在前端 = 没有加密</span>，详见 <a href="frontend.html">前端实战与误区</a>。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>前端加解密知识手册 · <a href="index.html">返回导航</a></p>
+  </footer>
+</body>
+</html>

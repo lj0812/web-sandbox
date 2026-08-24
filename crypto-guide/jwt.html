@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JWT 与数字签名 - 前端加解密知识手册</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">← 返回导航</a>
+  </header>
+
+  <main>
+    <h1>JWT 与数字签名</h1>
+    <p class="description">签名不是加密：看懂 JWT 的结构，明白它防什么、不防什么</p>
+
+    <section>
+      <h2>数字签名：先哈希，再用私钥「加密」</h2>
+      <p>数字签名解决两个问题：<strong>消息是谁发的</strong>（认证）和<strong>消息有没有被改</strong>（完整性）。流程：</p>
+      <div class="syntax">
+        <code>签名 = 私钥加密( Hash(原始消息) )<br>验签 = 公钥解密(签名) 的结果 与 Hash(收到的消息) 比对</code>
+      </div>
+      <p>只要比对一致，就说明消息确实由私钥持有者签发、且传输中未被篡改。常见签名算法：RSA（RS256）、ECDSA（ES256）、HMAC（HS256，对称签名）。</p>
+    </section>
+
+    <section>
+      <h2>JWT 的结构：三段式</h2>
+      <div class="example">
+        <pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+.
+eyJ1c2VySWQiOjEwMDEsImV4cCI6MTcyMDAwMDAwMH0
+.
+SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+        <p>Header（算法声明） . Payload（业务数据） . Signature（签名），每段都是 <strong>Base64URL 编码</strong>。</p>
+      </div>
+      <div class="example">
+        <pre><code>// 前端解析 JWT 的 payload（不需要任何库）
+function parseJwt(token) {
+  const payload = token.split('.')[1];
+  // Base64URL → Base64：补回 - _ / + 和填充
+  const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(decodeURIComponent(escape(atob(base64))));
+}
+
+parseJwt(token); // { userId: 1001, exp: 1720000000 }</code></pre>
+        <p>常用于前端判断 token 是否过期（<code>exp</code>）、读取用户角色做界面展示。</p>
+      </div>
+      <div class="danger-box">
+        <p><strong>最重要的一条认知：JWT 没有加密！</strong>Header 和 Payload 只是 Base64 编码，任何人都能解码看到内容（在 jwt.io 粘贴即可）。签名保证的是「不能伪造、不能篡改」，<em>不是</em>「别人看不到」。所以 <strong>JWT 里永远不要放密码、身份证号等敏感信息</strong>。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>签名算法怎么选</h2>
+      <table>
+        <tr><th>算法</th><th>类型</th><th>适用场景</th></tr>
+        <tr><td>HS256（HMAC-SHA256）</td><td>对称：签发和验签用同一个 secret</td><td>单体应用，只有自己的服务端验签</td></tr>
+        <tr><td>RS256（RSA）</td><td>非对称：私钥签发，公钥验签</td><td>微服务 / 第三方验签：公钥可以随便发，私钥只有认证中心持有</td></tr>
+        <tr><td>ES256（ECDSA）</td><td>非对称，椭圆曲线</td><td>同 RS256，但签名更短、更快</td></tr>
+      </table>
+      <div class="warn">
+        <p><strong>alg: none 攻击</strong>：早期一些 JWT 库允许算法声明为 <code>none</code>（不验签），攻击者改算法头即可伪造 token。现代库已默认拒绝，但服务端必须<strong>白名单指定算法</strong>，不能信任 token 头里的 alg 字段——这也是 RS256 token 被降级篡改成 HS256（用公钥当 HMAC 密钥）攻击的防御方式。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>前端使用 JWT 的注意事项</h2>
+      <table>
+        <tr><th>问题</th><th>说明</th></tr>
+        <tr><td>存哪</td><td>localStorage 方便但怕 XSS（JS 可读取即被盗）；HttpOnly Cookie 防 XSS 但要防 CSRF。没有银弹，配合 XSS/CSRF 防护整体考虑</td></tr>
+        <tr><td>怎么带</td><td>通常放在请求头：<code>Authorization: Bearer &lt;token&gt;</code></td></tr>
+        <tr><td>过期怎么办</td><td>短时效 access token + 长时效 refresh token；前端在 401 时用 refresh token 静默换新</td></tr>
+        <tr><td>能撤销吗</td><td>JWT 本身无状态、签发后无法撤回；需要「退出登录立即失效」时要靠服务端黑名单或缩短有效期</td></tr>
+      </table>
+    </section>
+
+    <section class="tips">
+      <h2>速记</h2>
+      <ul>
+        <li>签名验「真伪与完整」，不管「保密」；JWT 是编码 + 签名，<span class="danger">不是加密</span>。</li>
+        <li>Payload 任何人可读，别放敏感数据；过期判断可以前端读 <code>exp</code> 做。</li>
+        <li>验签密钥永远在服务端，前端只负责存储、携带和解析。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>前端加解密知识手册 · <a href="index.html">返回导航</a></p>
+  </footer>
+</body>
+</html>

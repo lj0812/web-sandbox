@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>基础概念 - 前端加解密知识手册</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">← 返回导航</a>
+  </header>
+
+  <main>
+    <h1>基础概念</h1>
+    <p class="description">先分清编码、哈希、加密这三件经常被混为一谈的事</p>
+
+    <section>
+      <h2>编码 ≠ 哈希 ≠ 加密</h2>
+      <p>日常开发里说的「加密」，很多时候其实不是加密。三者的本质区别在于：<strong>是否可逆、是否需要密钥</strong>。</p>
+      <table>
+        <tr><th></th><th>编码（Encoding）</th><th>哈希（Hash）</th><th>加密（Encryption）</th></tr>
+        <tr><td>目的</td><td>数据格式转换，便于传输/存储</td><td>生成数据指纹，校验完整性</td><td>保护数据机密性</td></tr>
+        <tr><td>是否可逆</td><td>可逆（解码）</td><td>不可逆（理论上）</td><td>可逆（解密）</td></tr>
+        <tr><td>是否需要密钥</td><td>不需要</td><td>不需要（HMAC 需要）</td><td>需要</td></tr>
+        <tr><td>常见例子</td><td>Base64、URL 编码、Unicode</td><td>MD5、SHA-256</td><td>AES、RSA</td></tr>
+      </table>
+      <div class="danger-box">
+        <p><strong>常见误区：</strong>Base64 <em>不是</em>加密！它只是把二进制数据转成可打印字符，任何人都能解码。把 Base64 后的密码当作「加密后的密码」是严重的安全问题。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>编码（Encoding）</h2>
+      <p>编码解决的是「数据怎么表示」的问题，不涉及任何安全性。</p>
+      <div class="example">
+        <pre><code>// Base64：浏览器原生 API
+btoa('你好');              // 报错！btoa 只支持 Latin1 字符
+btoa(unescape(encodeURIComponent('你好'))); // '5L2g5aW9' 中文要先转 UTF-8
+atob('aGVsbG8=');         // 'hello'
+
+// URL 编码：用于 query string
+encodeURIComponent('a b&c'); // 'a%20b%26c'</code></pre>
+        <p>Base64 常用于：在 JSON 中传输二进制（如图片 DataURL）、Basic Auth 的 <code>Authorization</code> 头、JWT 的各段编码（Base64URL）。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>哈希（Hash）</h2>
+      <p>哈希是单向函数：任意长度的输入 → 固定长度的输出（摘要/指纹）。理想特性：</p>
+      <ul>
+        <li><strong>单向性</strong>：无法从摘要反推原文</li>
+        <li><strong>雪崩效应</strong>：输入改一个 bit，输出天差地别</li>
+        <li><strong>抗碰撞</strong>：极难找到两个不同输入得到相同输出</li>
+      </ul>
+      <p>典型用途：密码存储（加盐哈希）、文件完整性校验（下载页给的 SHA-256）、接口签名、ETag。详见 <a href="hash.html">哈希与 HMAC</a>。</p>
+    </section>
+
+    <section>
+      <h2>加密（Encryption）：对称 vs 非对称</h2>
+      <table>
+        <tr><th></th><th>对称加密</th><th>非对称加密</th></tr>
+        <tr><td>密钥</td><td>加密解密用<strong>同一把</strong>密钥</td><td>公钥加密、私钥解密（或私钥签名、公钥验签）</td></tr>
+        <tr><td>速度</td><td>快，适合大数据量</td><td>慢（约慢 100~1000 倍），适合小数据</td></tr>
+        <tr><td>代表算法</td><td>AES、（废弃的 DES/3DES）、SM4</td><td>RSA、ECC、SM2</td></tr>
+        <tr><td>核心难题</td><td>密钥如何安全地交给对方</td><td>公钥如何确认是对方的（证书体系）</td></tr>
+      </table>
+      <div class="note">
+        <p><strong>实际系统几乎都是「混合加密」</strong>：用非对称加密交换一把临时的对称密钥，之后的数据全部用对称加密传输。HTTPS/TLS 就是这样工作的。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>必须认识的术语</h2>
+      <table>
+        <tr><th>术语</th><th>说明</th></tr>
+        <tr><td>密钥（Key）</td><td>加密/解密的核心参数。AES-256 指密钥长度 256 bit。密钥强度决定安全性，算法本身都是公开的。</td></tr>
+        <tr><td>IV（初始化向量）</td><td>让「相同明文 + 相同密钥」每次加密出不同密文的随机数。不需要保密，但必须每次随机生成、不可复用。</td></tr>
+        <tr><td>盐（Salt）</td><td>哈希密码时混入的随机字符串，防止彩虹表攻击。与哈希结果一起存储，不需要保密。</td></tr>
+        <tr><td>填充（Padding）</td><td>块加密要求明文长度是块大小的整数倍，不足部分按规则补齐，如 PKCS7。</td></tr>
+        <tr><td>摘要 / 指纹（Digest）</td><td>哈希函数的输出结果。</td></tr>
+        <tr><td>签名（Signature）</td><td>用私钥对摘要加密得到的结果，用于证明「消息来自私钥持有者且未被篡改」。详见 <a href="jwt.html">JWT 与数字签名</a>。</td></tr>
+      </table>
+    </section>
+
+    <section class="tips">
+      <h2>一句话总结</h2>
+      <ul>
+        <li>编码是<strong>翻译</strong>，谁都能看懂；哈希是<strong>指纹</strong>，只能比对不能还原；加密是<strong>保险箱</strong>，有钥匙才能打开。</li>
+        <li>「可逆的哈希」「用 Base64 加密」这类说法，都是面试和 code review 中的危险信号。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>前端加解密知识手册 · <a href="index.html">返回导航</a></p>
+  </footer>
+</body>
+</html>
