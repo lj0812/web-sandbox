@@ -7,48 +7,817 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <a href="index.html">前端加解密知识手册</a>
+  <header class="site-header">
+    <a class="brand" href="#top">前端加解密知识手册</a>
+    <span class="subtitle">基础概念 · 算法 · 接口签名 · 实战误区 · 名词速查</span>
+    <button class="menu-btn" id="menuBtn" type="button">☰ 目录</button>
   </header>
 
-  <main>
-    <h1>加解密知识导航</h1>
-    <p class="description">面向前端开发工程师的加解密实用指南：概念、算法、API 与常见误区</p>
+  <div class="layout">
+    <div class="sidebar-overlay" id="overlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="toc-title">目录</div>
+      <nav>
+        <a class="chapter" href="#basics">1. 基础概念</a>
+        <a class="sub" href="#enc-hash-enc">编码 ≠ 哈希 ≠ 加密</a>
+        <a class="sub" href="#encoding">编码</a>
+        <a class="sub" href="#hash-concept">哈希</a>
+        <a class="sub" href="#sym-vs-asym">对称与非对称</a>
+        <a class="sub" href="#core-terms">核心术语</a>
 
-    <div class="intro">
-      <p>点击下面的卡片查看详细内容。每篇文章尽量用前端工程师熟悉的语言（JavaScript 示例、浏览器 API、真实业务场景）解释清楚一个主题，避免堆砌密码学理论。</p>
-      <p>建议阅读顺序：先读「基础概念」，再按需查阅具体算法，最后看「前端实战与常见误区」。</p>
-    </div>
+        <a class="chapter" href="#hash">2. 哈希与 HMAC</a>
+        <a class="sub" href="#hash-algos">常见算法对比</a>
+        <a class="sub" href="#webcrypto-hash">Web Crypto 计算哈希</a>
+        <a class="sub" href="#password-storage">密码存储</a>
+        <a class="sub" href="#hmac">HMAC 接口签名</a>
 
-    <section>
-      <h2>基础</h2>
-      <div class="command-grid">
-        <a class="command-card" href="basics.html"><h3>基础概念</h3><p>编码、哈希、加密的区别；对称与非对称；密钥、IV、盐</p></a>
-        <a class="command-card" href="hash.html"><h3>哈希与 HMAC</h3><p>MD5、SHA 系列、加盐、密码存储、消息认证</p></a>
+        <a class="chapter" href="#symmetric">3. 对称加密 AES</a>
+        <a class="sub" href="#aes-intro">AES 是什么</a>
+        <a class="sub" href="#aes-modes">工作模式 ECB/CBC/GCM</a>
+        <a class="sub" href="#aes-cryptojs">crypto-js 写法</a>
+        <a class="sub" href="#aes-webcrypto">Web Crypto 写法</a>
+        <a class="sub" href="#aes-checklist">前后端对接清单</a>
+
+        <a class="chapter" href="#asymmetric">4. 非对称加密 RSA</a>
+        <a class="sub" href="#rsa-core">核心思想</a>
+        <a class="sub" href="#rsa-algos">常见算法</a>
+        <a class="sub" href="#rsa-practice">前端典型场景</a>
+        <a class="sub" href="#hybrid">混合加密</a>
+        <a class="sub" href="#cert">证书体系</a>
+
+        <a class="chapter" href="#jwt">5. JWT 与数字签名</a>
+        <a class="sub" href="#signature">数字签名</a>
+        <a class="sub" href="#jwt-structure">JWT 三段式结构</a>
+        <a class="sub" href="#jwt-algos">签名算法选择</a>
+        <a class="sub" href="#jwt-notes">前端使用注意</a>
+
+        <a class="chapter" href="#api-sign">6. 典型场景：接口签名</a>
+        <a class="sub" href="#threat-model">场景与威胁模型</a>
+        <a class="sub" href="#sign-flow">整体流程</a>
+        <a class="sub" href="#client-side">客户端要做的</a>
+        <a class="sub" href="#server-side">服务端要做的</a>
+        <a class="sub" href="#sign-variants">常见变体与升级</a>
+
+        <a class="chapter" href="#frontend">7. 前端实战与误区</a>
+        <a class="sub" href="#key-hardcode">最大误区：密钥硬编码</a>
+        <a class="sub" href="#key-source">密钥的正确来源</a>
+        <a class="sub" href="#https">HTTPS 才是地基</a>
+        <a class="sub" href="#crypto-libs">常用库</a>
+        <a class="sub" href="#interview">高频面试题</a>
+
+        <a class="chapter" href="#glossary">8. 名词速查表</a>
+        <a class="sub" href="#vectors">IV / nonce / salt</a>
+        <a class="sub" href="#randomness">随机数</a>
+        <a class="sub" href="#blocks">块与填充</a>
+        <a class="sub" href="#keys">密钥相关</a>
+        <a class="sub" href="#aead">模式与完整性</a>
+        <a class="sub" href="#cert-trust">证书与信任</a>
+        <a class="sub" href="#attacks">常见攻击名词</a>
+        <a class="sub" href="#encodings">编码与格式</a>
+      </nav>
+    </aside>
+
+    <main class="main" id="top">
+      <div class="doc-head">
+        <h1>前端加解密知识手册</h1>
+        <p class="description">面向前端开发工程师的加解密实用指南：用 JavaScript 示例和真实业务场景，讲清概念、算法与常见误区。</p>
+        <p class="meta">单页手册 · 使用左侧目录直接跳转到任意章节，无需翻页</p>
       </div>
-    </section>
 
-    <section>
-      <h2>加密算法</h2>
-      <div class="command-grid">
-        <a class="command-card" href="symmetric.html"><h3>对称加密 AES</h3><p>ECB / CBC / GCM 工作模式、crypto-js 与 Web Crypto 示例</p></a>
-        <a class="command-card" href="asymmetric.html"><h3>非对称加密 RSA</h3><p>公钥私钥、混合加密、ECC 与国密 SM2</p></a>
-        <a class="command-card" href="jwt.html"><h3>JWT 与数字签名</h3><p>签名不是加密、JWT 结构解析、验签流程</p></a>
-      </div>
-    </section>
+      <!-- ============ 1. 基础概念 ============ -->
+      <section id="basics">
+        <h2><span class="num">1.</span>基础概念</h2>
+        <p>先分清编码、哈希、加密这三件经常被混为一谈的事。</p>
 
-    <section>
-      <h2>实战</h2>
-      <div class="command-grid">
-        <a class="command-card" href="api-sign.html"><h3>典型场景：接口签名</h3><p>客户端请求后端接口时防篡改、防重放的签名方案与双方分工</p></a>
-        <a class="command-card" href="frontend.html"><h3>前端实战与误区</h3><p>密钥硬编码、前端加密的边界、HTTPS、高频面试题</p></a>
-        <a class="command-card" href="glossary.html"><h3>名词速查表</h3><p>IV/nonce/盐、KDF、AEAD、各类攻击与编码格式速查</p></a>
-      </div>
-    </section>
-  </main>
+        <h3 id="enc-hash-enc">编码 ≠ 哈希 ≠ 加密</h3>
+        <p>日常开发里说的「加密」，很多时候其实不是加密。三者的本质区别在于：<strong>是否可逆、是否需要密钥</strong>。</p>
+        <table>
+          <tr><th></th><th>编码（Encoding）</th><th>哈希（Hash）</th><th>加密（Encryption）</th></tr>
+          <tr><td>目的</td><td>数据格式转换，便于传输/存储</td><td>生成数据指纹，校验完整性</td><td>保护数据机密性</td></tr>
+          <tr><td>是否可逆</td><td>可逆（解码）</td><td>不可逆（理论上）</td><td>可逆（解密）</td></tr>
+          <tr><td>是否需要密钥</td><td>不需要</td><td>不需要（HMAC 需要）</td><td>需要</td></tr>
+          <tr><td>常见例子</td><td>Base64、URL 编码、Unicode</td><td>MD5、SHA-256</td><td>AES、RSA</td></tr>
+        </table>
+        <div class="danger-box">
+          <p><strong>常见误区：</strong>Base64 <em>不是</em>加密！它只是把二进制数据转成可打印字符，任何人都能解码。把 Base64 后的密码当作「加密后的密码」是严重的安全问题。</p>
+        </div>
 
-  <footer>
-    <p>前端加解密知识手册</p>
-  </footer>
+        <h3 id="encoding">编码（Encoding）</h3>
+        <p>编码解决的是「数据怎么表示」的问题，不涉及任何安全性。</p>
+        <div class="example">
+          <pre><code>// Base64：浏览器原生 API
+btoa('你好');              // 报错！btoa 只支持 Latin1 字符
+btoa(unescape(encodeURIComponent('你好'))); // '5L2g5aW9' 中文要先转 UTF-8
+atob('aGVsbG8=');         // 'hello'
+
+// URL 编码：用于 query string
+encodeURIComponent('a b&amp;c'); // 'a%20b%26c'</code></pre>
+          <p>Base64 常用于：在 JSON 中传输二进制（如图片 DataURL）、Basic Auth 的 <code>Authorization</code> 头、JWT 的各段编码（Base64URL）。</p>
+        </div>
+
+        <h3 id="hash-concept">哈希（Hash）</h3>
+        <p>哈希是单向函数：任意长度的输入 → 固定长度的输出（摘要/指纹）。理想特性：</p>
+        <ul>
+          <li><strong>单向性</strong>：无法从摘要反推原文</li>
+          <li><strong>雪崩效应</strong>：输入改一个 bit，输出天差地别</li>
+          <li><strong>抗碰撞</strong>：极难找到两个不同输入得到相同输出</li>
+        </ul>
+        <p>典型用途：密码存储（加盐哈希）、文件完整性校验（下载页给的 SHA-256）、接口签名、ETag。详见 <a href="#hash">哈希与 HMAC</a> 一章。</p>
+
+        <h3 id="sym-vs-asym">加密：对称与非对称</h3>
+        <table>
+          <tr><th></th><th>对称加密</th><th>非对称加密</th></tr>
+          <tr><td>密钥</td><td>加密解密用<strong>同一把</strong>密钥</td><td>公钥加密、私钥解密（或私钥签名、公钥验签）</td></tr>
+          <tr><td>速度</td><td>快，适合大数据量</td><td>慢（约慢 100~1000 倍），适合小数据</td></tr>
+          <tr><td>代表算法</td><td>AES、（废弃的 DES/3DES）、SM4</td><td>RSA、ECC、SM2</td></tr>
+          <tr><td>核心难题</td><td>密钥如何安全地交给对方</td><td>公钥如何确认是对方的（证书体系）</td></tr>
+        </table>
+        <div class="note">
+          <p><strong>实际系统几乎都是「混合加密」</strong>：用非对称加密交换一把临时的对称密钥，之后的数据全部用对称加密传输。HTTPS/TLS 就是这样工作的。详见 <a href="#hybrid">混合加密</a>。</p>
+        </div>
+
+        <h3 id="core-terms">核心术语</h3>
+        <table>
+          <tr><th>术语</th><th>说明</th></tr>
+          <tr><td>密钥（Key）</td><td>加密/解密的核心参数。AES-256 指密钥长度 256 bit。密钥强度决定安全性，算法本身都是公开的。</td></tr>
+          <tr><td>IV（初始化向量）</td><td>让「相同明文 + 相同密钥」每次加密出不同密文的随机数。不需要保密，但必须每次随机生成、不可复用。详见 <a href="#vectors">名词速查</a>。</td></tr>
+          <tr><td>盐（Salt）</td><td>哈希密码时混入的随机字符串，防止彩虹表攻击。与哈希结果一起存储，不需要保密。</td></tr>
+          <tr><td>填充（Padding）</td><td>块加密要求明文长度是块大小的整数倍，不足部分按规则补齐，如 PKCS7。</td></tr>
+          <tr><td>摘要 / 指纹（Digest）</td><td>哈希函数的输出结果。</td></tr>
+          <tr><td>签名（Signature）</td><td>用私钥对摘要加密得到的结果，用于证明「消息来自私钥持有者且未被篡改」。详见 <a href="#signature">数字签名</a>。</td></tr>
+        </table>
+        <div class="card">
+          <p><strong>一句话总结</strong>：编码是<em>翻译</em>，谁都能看懂；哈希是<em>指纹</em>，只能比对不能还原；加密是<em>保险箱</em>，有钥匙才能打开。「可逆的哈希」「用 Base64 加密」这类说法，都是面试和 code review 中的危险信号。</p>
+        </div>
+      </section>
+
+      <!-- ============ 2. 哈希与 HMAC ============ -->
+      <section id="hash">
+        <h2><span class="num">2.</span>哈希与 HMAC</h2>
+
+        <h3 id="hash-algos">常见哈希算法对比</h3>
+        <table>
+          <tr><th>算法</th><th>输出长度</th><th>现状</th><th>前端还能不能用</th></tr>
+          <tr><td>MD5</td><td>128 bit（32 位十六进制）</td><td><span class="bad">已破解</span>，存在碰撞攻击</td><td>不能用于安全场景；做文件去重/缓存标识等非安全用途勉强可以</td></tr>
+          <tr><td>SHA-1</td><td>160 bit</td><td><span class="bad">已破解</span>（Google 2017 年演示碰撞）</td><td>同上，不要用于签名</td></tr>
+          <tr><td>SHA-256</td><td>256 bit</td><td><span class="good">安全</span>，当前主流</td><td>可以，浏览器 Web Crypto 原生支持</td></tr>
+          <tr><td>SHA-512</td><td>512 bit</td><td><span class="good">安全</span></td><td>可以，同 SHA-256</td></tr>
+          <tr><td>SM3</td><td>256 bit</td><td><span class="good">安全</span>，国密标准</td><td>政企/金融国产化项目使用</td></tr>
+        </table>
+
+        <h3 id="webcrypto-hash">前端计算哈希：Web Crypto API</h3>
+        <div class="example">
+          <pre><code>// 计算字符串的 SHA-256（浏览器原生，无需任何库）
+async function sha256(text) {
+  const data = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  // ArrayBuffer → 十六进制字符串
+  return [...new Uint8Array(digest)]
+    .map(b =&gt; b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+sha256('hello').then(console.log);
+// 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824</code></pre>
+          <p>注意：<code>crypto.subtle</code> 只在<strong>安全上下文</strong>（HTTPS 或 localhost）下可用。</p>
+        </div>
+        <div class="example">
+          <pre><code>// 计算文件的 SHA-256（如上传前秒传校验）
+async function fileHash(file) {
+  const buf = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  return [...new Uint8Array(digest)]
+    .map(b =&gt; b.toString(16).padStart(2, '0'))
+    .join('');
+}</code></pre>
+          <p>大文件配合分片读取计算，可以实现「秒传」：先传哈希，服务端发现已有相同内容就直接返回。</p>
+        </div>
+
+        <h3 id="password-storage">密码存储：为什么不能只用 SHA-256</h3>
+        <p>密码不能加密存储（可逆 = 会泄露），只能存哈希。但直接 <code>sha256(password)</code> 仍然不安全：</p>
+        <ul>
+          <li><strong>彩虹表</strong>：常见密码的哈希早已被人预先算好，查表即破</li>
+          <li><strong>相同密码哈希相同</strong>：泄露后能一眼看出哪些用户密码一样</li>
+          <li><strong>SHA 太快</strong>：GPU 每秒可尝试数十亿次，暴力破解成本低</li>
+        </ul>
+        <p>正确做法是<strong>加盐 + 慢哈希</strong>：</p>
+        <table>
+          <tr><th>算法</th><th>说明</th></tr>
+          <tr><td>bcrypt</td><td>内置随机盐 + 可调计算成本，最常用</td></tr>
+          <tr><td>scrypt</td><td>同时消耗 CPU 和内存，抗专用硬件</td></tr>
+          <tr><td>Argon2</td><td>2015 年密码哈希竞赛冠军，目前最推荐</td></tr>
+        </table>
+        <div class="note">
+          <p><strong>前端的责任边界</strong>：密码哈希由<em>服务端</em>完成。前端可以做一层哈希再传输（避免明文出现在日志里），但这只是锦上添花，绝不能替代服务端哈希——否则哈希本身就变成了「密码」。</p>
+        </div>
+
+        <h3 id="hmac">HMAC：带密钥的哈希</h3>
+        <p>普通哈希只能校验「数据没被改」，但无法证明「数据是谁发的」——任何人都能重新算一个哈希。HMAC 把密钥混入哈希过程：</p>
+        <div class="syntax">
+          <code>HMAC(key, message) = Hash( (key ⊕ opad) + Hash( (key ⊕ ipad) + message ) )</code>
+        </div>
+        <p>不知道密钥的人无法伪造合法的 HMAC，因此常用于<strong>接口签名</strong>（完整方案见 <a href="#api-sign">第 6 章</a>）：</p>
+        <div class="example">
+          <pre><code>// 典型的开放接口签名流程
+// 1. 拼接待签名串：参数排序 + 时间戳 + nonce
+const signStr = 'appId=xxx&amp;timestamp=1720000000&amp;nonce=abc';
+
+// 2. 用分配的 secretKey 计算 HMAC-SHA256 作为签名
+sign = HMAC_SHA256(secretKey, signStr);
+
+// 3. 服务端用同样的规则验签；时间戳防重放，nonce 防重复提交</code></pre>
+          <p>微信支付、阿里云等开放平台的 API 签名都是这个套路。</p>
+        </div>
+        <div class="example">
+          <pre><code>// Web Crypto 计算 HMAC-SHA256
+async function hmacSha256(keyText, message) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', enc.encode(keyText),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+  return [...new Uint8Array(sig)]
+    .map(b =&gt; b.toString(16).padStart(2, '0'))
+    .join('');
+}</code></pre>
+        </div>
+        <div class="warn">
+          <p><strong>注意</strong>：HMAC 的密钥写在前端代码里等于公开。前端做 HMAC 签名的场景，secretKey 必须由后端动态下发（且通常与登录态绑定），不能硬编码。详见 <a href="#key-hardcode">密钥硬编码误区</a>。</p>
+        </div>
+        <div class="card">
+          <p><strong>速记</strong>：校验完整性 → SHA-256；接口签名 → HMAC-SHA256；存密码 → bcrypt / Argon2（服务端的事）。<span class="bad">MD5、SHA-1 已不安全</span>，新代码不要再用于任何安全用途。哈希验「没被改」，HMAC 验「没被改 + 是自家人发的」。</p>
+        </div>
+      </section>
+
+      <!-- ============ 3. 对称加密 AES ============ -->
+      <section id="symmetric">
+        <h2><span class="num">3.</span>对称加密 AES</h2>
+
+        <h3 id="aes-intro">AES 是什么</h3>
+        <p>AES（Advanced Encryption Standard）是目前事实标准的对称加密算法，分组长度 128 bit，密钥长度可选 128 / 192 / 256 bit（即 AES-128 / AES-256）。</p>
+        <ul>
+          <li>DES：56 bit 密钥，已被暴力破解，<span class="bad">淘汰</span></li>
+          <li>3DES：DES 的加强版，速度慢，<span class="bad">淘汰</span></li>
+          <li>SM4：国密对称算法，政企项目使用</li>
+        </ul>
+        <p>一次 AES 加密需要四个要素：<strong>密钥、工作模式、IV、填充方式</strong>。前后端对接时这四个必须完全一致，否则解不开。</p>
+
+        <h3 id="aes-modes">工作模式：ECB / CBC / GCM</h3>
+        <p>明文长度超过一个分组（16 字节）时，需要决定多个分组如何串联加密，这就是工作模式。</p>
+        <table>
+          <tr><th>模式</th><th>特点</th><th>结论</th></tr>
+          <tr><td>ECB</td><td>每个分组独立加密，相同明文块 → 相同密文块，会泄露数据规律（著名的「企鹅图」）</td><td><span class="bad">禁止使用</span>，但很多老接口还在用</td></tr>
+          <tr><td>CBC</td><td>每个分组先与前一个密文块异或再加密，需要 IV</td><td>可用，但只有机密性没有完整性校验，新系统建议 GCM</td></tr>
+          <tr><td>GCM</td><td>加密同时生成认证标签（Tag），能发现密文被篡改（AEAD）</td><td><span class="good">推荐</span>，TLS 1.3 唯一保留的模式类型</td></tr>
+        </table>
+        <div class="warn">
+          <p><strong>IV 的正确用法</strong>：每次加密用<em>密码学随机数</em>生成新 IV，然后把 IV 和密文一起传输（IV 不需要保密）。绝对不要固定 IV、不要在 CBC 里复用 IV——这会让模式的优势荡然无存。</p>
+        </div>
+
+        <h3 id="aes-cryptojs">前端写法一：crypto-js（CBC 示例）</h3>
+        <div class="example">
+          <pre><code>import CryptoJS from 'crypto-js';
+
+// 密钥和 IV 都是 16 字节（AES-128）；实际项目密钥由后端下发，不能硬编码
+const key = CryptoJS.enc.Utf8.parse('0123456789abcdef');
+const iv  = CryptoJS.enc.Utf8.parse('abcdef0123456789');
+
+function encrypt(text) {
+  const encrypted = CryptoJS.AES.encrypt(text, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  return encrypted.ciphertext.toString(CryptoJS.enc.Base64);
+}
+
+function decrypt(base64) {
+  const cipherParams = CryptoJS.lib.CipherParams.create({
+    ciphertext: CryptoJS.enc.Base64.parse(base64),
+  });
+  const decrypted = CryptoJS.AES.decrypt(cipherParams, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+  return decrypted.toString(CryptoJS.enc.Utf8);
+}</code></pre>
+          <p>对接后端时最常见的坑：crypto-js 直接传字符串密钥时会被当作 passphrase 走 PBKDF2 派生，结果和后端对不上。<strong>要么前后端都用 parse 后的 WordArray，要么都用 passphrase 模式</strong>。</p>
+        </div>
+
+        <h3 id="aes-webcrypto">前端写法二：Web Crypto API（GCM 示例）</h3>
+        <div class="example">
+          <pre><code>// AES-256-GCM：浏览器原生，无需第三方库
+async function aesGcmEncrypt(text, rawKey) {
+  const key = await crypto.subtle.importKey(
+    'raw', rawKey, { name: 'AES-GCM' }, false, ['encrypt']
+  );
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // GCM 推荐 12 字节 IV
+  const cipherBuf = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    new TextEncoder().encode(text)
+  );
+  // 输出：iv + 密文，打包后 Base64
+  const packed = new Uint8Array(iv.length + cipherBuf.byteLength);
+  packed.set(iv, 0);
+  packed.set(new Uint8Array(cipherBuf), iv.length);
+  return btoa(String.fromCharCode(...packed));
+}
+
+async function aesGcmDecrypt(base64, rawKey) {
+  const packed = Uint8Array.from(atob(base64), c =&gt; c.charCodeAt(0));
+  const iv = packed.slice(0, 12);
+  const data = packed.slice(12);
+  const key = await crypto.subtle.importKey(
+    'raw', rawKey, { name: 'AES-GCM' }, false, ['decrypt']
+  );
+  const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+  return new TextDecoder().decode(plainBuf);
+}</code></pre>
+          <p>密文被篡改时 <code>decrypt</code> 会直接抛错——这就是 GCM 的完整性保护。</p>
+        </div>
+
+        <h3 id="aes-checklist">前后端对接清单</h3>
+        <p>解密对不上时，按这个顺序排查：</p>
+        <table>
+          <tr><th>检查项</th><th>常见不一致</th></tr>
+          <tr><td>密钥长度</td><td>16 / 24 / 32 字节对应 AES-128 / 192 / 256；密钥是原始字节还是 Base64/Hex 后的</td></tr>
+          <tr><td>工作模式</td><td>ECB / CBC / GCM；GCM 还要确认 Tag 长度和 IV 长度</td></tr>
+          <tr><td>IV</td><td>固定还是每次随机；传输时拼在密文头部还是单独字段</td></tr>
+          <tr><td>填充</td><td>Pkcs7 / NoPadding（NoPadding 要求明文长度对齐）</td></tr>
+          <tr><td>编码</td><td>密文输出是 Base64 还是 Hex；明文输入的字符集（UTF-8）</td></tr>
+        </table>
+        <div class="card">
+          <p><strong>速记</strong>：新项目用 <strong>AES-256-GCM</strong>；维护老接口遇到 ECB 时知道它不安全，但对接时该用还得用。IV 每次随机、随密文传输；密钥才是要保密的部分。<span class="bad">密钥硬编码在前端 = 没有加密</span>。</p>
+        </div>
+      </section>
+
+      <!-- ============ 4. 非对称加密 RSA ============ -->
+      <section id="asymmetric">
+        <h2><span class="num">4.</span>非对称加密 RSA</h2>
+
+        <h3 id="rsa-core">核心思想</h3>
+        <p>对称加密的死穴是「密钥怎么安全地给到对方」。非对称加密用一对数学上关联的密钥解决：</p>
+        <ul>
+          <li><strong>公钥</strong>：可以公开给任何人</li>
+          <li><strong>私钥</strong>：自己保管，绝不外泄</li>
+        </ul>
+        <table>
+          <tr><th>方向</th><th>用途</th><th>效果</th></tr>
+          <tr><td>公钥加密 → 私钥解密</td><td>保密传输</td><td>只有私钥持有者能读懂内容</td></tr>
+          <tr><td>私钥签名 → 公钥验签</td><td>身份认证 / 防抵赖</td><td>证明内容确实来自私钥持有者且未被篡改</td></tr>
+        </table>
+        <div class="note">
+          <p>记忆口诀：<strong>公钥加密、私钥签名</strong>。加密是为了「只让你看」，签名是为了「证明是我发的」。</p>
+        </div>
+
+        <h3 id="rsa-algos">常见算法</h3>
+        <table>
+          <tr><th>算法</th><th>基础</th><th>说明</th></tr>
+          <tr><td>RSA</td><td>大数分解难题</td><td>最成熟通用；密钥较长（2048 bit 起步，1024 已不安全），加解密慢</td></tr>
+          <tr><td>ECC / ECDSA / Ed25519</td><td>椭圆曲线离散对数</td><td>同等安全强度下密钥短得多（256 bit ≈ RSA 3072 bit），区块链、现代系统常用</td></tr>
+          <tr><td>SM2</td><td>椭圆曲线（国密）</td><td>国家密码标准，政企、金融国产化项目必用</td></tr>
+        </table>
+
+        <h3 id="rsa-practice">前端典型场景：RSA 加密敏感字段</h3>
+        <p>很多登录接口要求「密码用 RSA 公钥加密后再提交」——即使 HTTPS 被代理抓包，抓到的也是密文：</p>
+        <div class="example">
+          <pre><code>import { JSEncrypt } from 'jsencrypt';
+
+// 公钥由后端接口下发（可以公开），不要写死在代码里
+const publicKey = await fetch('/api/public-key').then(r =&gt; r.text());
+
+const encryptor = new JSEncrypt();
+encryptor.setPublicKey(publicKey);
+
+const encrypted = encryptor.encrypt(password); // Base64 密文
+// 服务端用私钥解密得到原始密码</code></pre>
+          <p>注意 RSA 加密的明文长度上限：2048 bit 密钥 + PKCS#1 v1.5 填充时，最多加密 <strong>245 字节</strong>。长数据要先截断、分段，或改用混合加密。</p>
+        </div>
+        <div class="example">
+          <pre><code>// 国密场景：sm-crypto（SM2 加密 / SM3 哈希 / SM4 对称加密）
+import { sm2 } from 'sm-crypto';
+
+const cipherText = sm2.doEncrypt(password, publicKey, 1); // 1 = C1C3C2 模式
+const plainText  = sm2.doDecrypt(cipherText, privateKey, 1);</code></pre>
+          <p>对接 SM2 时同样要确认 C1C3C2 / C1C2C3 顺序，这是国密对接最常见的坑。</p>
+        </div>
+
+        <h3 id="hybrid">混合加密：实战中的标准姿势</h3>
+        <p>RSA 又慢又有长度限制，所以真实系统这样组合两种算法：</p>
+        <div class="syntax">
+          <code>1. 前端随机生成一把 AES 会话密钥<br>2. 用 AES 加密业务数据<br>3. 用 RSA 公钥加密这把 AES 密钥<br>4. 一起发送：{ rsa加密的aes密钥, aes加密的业务数据 }</code>
+        </div>
+        <p>服务器用私钥解出 AES 密钥，再用它解密业务数据。这样兼得 RSA 的密钥分发能力和 AES 的速度。HTTPS/TLS 的握手也是同样思路。</p>
+
+        <h3 id="cert">公钥可信吗？证书体系</h3>
+        <p>非对称加密还留了一个问题：你拿到的公钥怎么确定是对方的，而不是中间人替换的？答案是 <strong>数字证书</strong>：</p>
+        <ul>
+          <li>权威机构（CA）用自己的私钥对「域名 + 公钥」签名，生成证书</li>
+          <li>浏览器内置 CA 的根证书（公钥），逐级验证证书链</li>
+          <li>验证通过 → 公钥确实属于这个域名 → 建立安全连接</li>
+        </ul>
+        <p>这就是为什么 Charles/Fiddler 抓 HTTPS 包需要手动安装并信任它的根证书——你在授权它扮演中间人。</p>
+        <div class="card">
+          <p><strong>速记</strong>：公钥加密、私钥签名；RSA 只能加密很短的数据，长数据走混合加密。RSA 至少 2048 bit；追求短密钥用 ECC；国产化项目用 SM2。公钥本身可以公开，但要靠证书体系防止被调包。</p>
+        </div>
+      </section>
+
+      <!-- ============ 5. JWT 与数字签名 ============ -->
+      <section id="jwt">
+        <h2><span class="num">5.</span>JWT 与数字签名</h2>
+        <p>签名不是加密：看懂 JWT 的结构，明白它防什么、不防什么。</p>
+
+        <h3 id="signature">数字签名：先哈希，再用私钥「加密」</h3>
+        <p>数字签名解决两个问题：<strong>消息是谁发的</strong>（认证）和<em>消息有没有被改</em>（完整性）。流程：</p>
+        <div class="syntax">
+          <code>签名 = 私钥加密( Hash(原始消息) )<br>验签 = 公钥解密(签名) 的结果 与 Hash(收到的消息) 比对</code>
+        </div>
+        <p>只要比对一致，就说明消息确实由私钥持有者签发、且传输中未被篡改。常见签名算法：RSA（RS256）、ECDSA（ES256）、HMAC（HS256，对称签名）。</p>
+
+        <h3 id="jwt-structure">JWT 的结构：三段式</h3>
+        <div class="example">
+          <pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+.
+eyJ1c2VySWQiOjEwMDEsImV4cCI6MTcyMDAwMDAwMH0
+.
+SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+          <p>Header（算法声明） . Payload（业务数据） . Signature（签名），每段都是 <strong>Base64URL 编码</strong>。</p>
+        </div>
+        <div class="example">
+          <pre><code>// 前端解析 JWT 的 payload（不需要任何库）
+function parseJwt(token) {
+  const payload = token.split('.')[1];
+  // Base64URL → Base64：补回 - _ / + 和填充
+  const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(decodeURIComponent(escape(atob(base64))));
+}
+
+parseJwt(token); // { userId: 1001, exp: 1720000000 }</code></pre>
+          <p>常用于前端判断 token 是否过期（<code>exp</code>）、读取用户角色做界面展示。</p>
+        </div>
+        <div class="danger-box">
+          <p><strong>最重要的一条认知：JWT 没有加密！</strong>Header 和 Payload 只是 Base64 编码，任何人都能解码看到内容（在 jwt.io 粘贴即可）。签名保证的是「不能伪造、不能篡改」，<em>不是</em>「别人看不到」。所以 <strong>JWT 里永远不要放密码、身份证号等敏感信息</strong>。</p>
+        </div>
+
+        <h3 id="jwt-algos">签名算法怎么选</h3>
+        <table>
+          <tr><th>算法</th><th>类型</th><th>适用场景</th></tr>
+          <tr><td>HS256（HMAC-SHA256）</td><td>对称：签发和验签用同一个 secret</td><td>单体应用，只有自己的服务端验签</td></tr>
+          <tr><td>RS256（RSA）</td><td>非对称：私钥签发，公钥验签</td><td>微服务 / 第三方验签：公钥可以随便发，私钥只有认证中心持有</td></tr>
+          <tr><td>ES256（ECDSA）</td><td>非对称，椭圆曲线</td><td>同 RS256，但签名更短、更快</td></tr>
+        </table>
+        <div class="warn">
+          <p><strong>alg: none 攻击</strong>：早期一些 JWT 库允许算法声明为 <code>none</code>（不验签），攻击者改算法头即可伪造 token。现代库已默认拒绝，但服务端必须<em>白名单指定算法</em>，不能信任 token 头里的 alg 字段——这也是 RS256 token 被降级篡改成 HS256（用公钥当 HMAC 密钥）攻击的防御方式。</p>
+        </div>
+
+        <h3 id="jwt-notes">前端使用 JWT 的注意事项</h3>
+        <table>
+          <tr><th>问题</th><th>说明</th></tr>
+          <tr><td>存哪</td><td>localStorage 方便但怕 XSS（JS 可读取即被盗）；HttpOnly Cookie 防 XSS 但要防 CSRF。没有银弹，配合 XSS/CSRF 防护整体考虑</td></tr>
+          <tr><td>怎么带</td><td>通常放在请求头：<code>Authorization: Bearer &lt;token&gt;</code></td></tr>
+          <tr><td>过期怎么办</td><td>短时效 access token + 长时效 refresh token；前端在 401 时用 refresh token 静默换新</td></tr>
+          <tr><td>能撤销吗</td><td>JWT 本身无状态、签发后无法撤回；需要「退出登录立即失效」时要靠服务端黑名单或缩短有效期</td></tr>
+        </table>
+        <div class="card">
+          <p><strong>速记</strong>：签名验「真伪与完整」，不管「保密」；JWT 是编码 + 签名，<span class="bad">不是加密</span>。Payload 任何人可读，别放敏感数据。验签密钥永远在服务端，前端只负责存储、携带和解析。</p>
+        </div>
+      </section>
+
+      <!-- ============ 6. 典型场景：接口签名 ============ -->
+      <section id="api-sign">
+        <h2><span class="num">6.</span>典型场景：接口签名方案</h2>
+        <p>客户端（Web / 安卓 / iOS）请求后端接口时，如何防止接口被黑客随意调用。</p>
+
+        <h3 id="threat-model">场景与威胁模型</h3>
+        <p>App 上线后，接口地址是公开的（抓包即可拿到）。后端需要回答一个问题：<strong>这个请求是不是我们官方客户端发的？有没有被改过？</strong>典型的攻击手段有：</p>
+        <table>
+          <tr><th>攻击</th><th>说明</th><th>签名如何防御</th></tr>
+          <tr><td>参数篡改</td><td>抓包后把 <code>amount=1</code> 改成 <code>amount=0.01</code> 再发出</td><td>签名覆盖所有参数，改任何一个值签名就不匹配</td></tr>
+          <tr><td>重放攻击</td><td>把抓到的合法请求原样再发一次（如重复下单、重复领券）</td><td>签名中加入时间戳 + 随机数（nonce），同一签名只能用一次</td></tr>
+          <tr><td>脚本批量调用</td><td>脱离客户端用脚本刷接口（薅羊毛、爬数据）</td><td>签名密钥只存在于客户端与服务端，拿不到密钥就伪造不出合法签名</td></tr>
+        </table>
+        <div class="note">
+          <p><strong>先想清楚防谁</strong>：签名能防「没有密钥的第三方」，防不了「逆向了 App 拿到密钥的黑客」。它的定位是<em>大幅提高攻击成本 + 保证传输完整性</em>，配合风控、限流、人机验证形成纵深防御，而不是银弹。</p>
+        </div>
+
+        <h3 id="sign-flow">整体流程</h3>
+        <div class="syntax">
+          <code>客户端：参数 + timestamp + nonce ──排序拼接──&gt; 待签名串 ──HMAC(secretKey)──&gt; sign<br>请求：参数 + timestamp + nonce + sign ──────────────&gt; 服务端<br>服务端：用同样规则重算签名 ──比对──&gt; 一致放行 / 不一致拒绝</code>
+        </div>
+        <p>核心思想：<strong>密钥（secretKey）不参与网络传输，传输的只有签名结果</strong>。黑客抓包只能看到 sign，没有密钥就改不了参数、也造不出新签名。</p>
+
+        <h3 id="client-side">客户端要做的工作</h3>
+        <p><strong>1. 获取并保管密钥</strong></p>
+        <ul>
+          <li>每个客户端（或每个用户）分配一对 <code>appKey / secretKey</code>：<code>appKey</code> 标识身份、随请求明文传输；<code>secretKey</code> 用于签名、<strong>绝不出现在网络上</strong></li>
+          <li>Web 端：secretKey 不能硬编码，通常登录后由服务端按用户下发，与登录态绑定并可过期</li>
+          <li>安卓 / iOS：密钥可内置（配合混淆、so 库存储提高逆向成本），更稳妥的方案也是登录后动态下发</li>
+        </ul>
+        <p><strong>2. 构造待签名串</strong></p>
+        <div class="example">
+          <pre><code>// 1. 收集所有业务参数（不含 sign 本身、通常不含文件二进制）
+const params = {
+  appKey: 'app_001',
+  orderId: '20260824001',
+  amount: '100',
+  timestamp: String(Date.now()),          // 毫秒时间戳，防重放
+  nonce: crypto.randomUUID(),             // 随机串，防重放
+};
+
+// 2. 按参数名 ASCII 排序后拼接成 k=v&amp;k=v 形式（规则前后端必须逐字一致）
+const signStr = Object.keys(params)
+  .sort()
+  .map(k =&gt; `${k}=${params[k]}`)
+  .join('&amp;');
+// amount=100&amp;appKey=app_001&amp;nonce=xxx&amp;orderId=...&amp;timestamp=...</code></pre>
+          <p>排序是为了让两端对同一组参数得到<em>唯一确定</em>的字符串，不受字段顺序影响。</p>
+        </div>
+        <p><strong>3. 计算签名并发起请求</strong></p>
+        <div class="example">
+          <pre><code>// 3. 用 secretKey 对待签名串计算 HMAC-SHA256（算法见第 2 章）
+const sign = await hmacSha256(secretKey, signStr);
+
+// 4. 签名放入请求头（或请求参数），连同时间戳、nonce 一起发出
+fetch('/api/order', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-App-Key': 'app_001',
+    'X-Timestamp': params.timestamp,
+    'X-Nonce': params.nonce,
+    'X-Sign': sign,
+  },
+  body: JSON.stringify({ orderId: '20260824001', amount: '100' }),
+});</code></pre>
+          <p>实际项目通常把以上逻辑封装在请求拦截器（如 axios interceptor）里，业务代码无感知。</p>
+        </div>
+        <div class="warn">
+          <p><strong>细节决定成败</strong>：URL 编码与否、空值参数是否参与、value 是否统一转字符串、GET 的 query 和 POST 的 body 是否都参与签名——任何一处与后端不一致都会验签失败。规则必须写进联调文档并逐条对齐。</p>
+        </div>
+
+        <h3 id="server-side">服务端要做的工作</h3>
+        <p><strong>1. 重算签名并比对</strong></p>
+        <ul>
+          <li>从请求中取出 <code>appKey</code>，查出对应的 <code>secretKey</code></li>
+          <li>按与客户端<em>完全相同</em>的规则重构待签名串，重算 HMAC</li>
+          <li>用<em>恒定时间比较</em>（防计时攻击）比对两个签名，不一致直接拒绝</li>
+        </ul>
+        <p><strong>2. 防重放校验</strong></p>
+        <ul>
+          <li><strong>时间戳</strong>：与服务器时间偏差超过窗口（如 ±5 分钟）即拒绝，防止旧请求被延迟重放</li>
+          <li><strong>nonce</strong>：把窗口期内已使用的 nonce 存入 Redis（过期时间 = 时间窗口），重复出现即拒绝，保证同一签名只能用一次</li>
+        </ul>
+        <p><strong>3. 配套管理</strong></p>
+        <ul>
+          <li>密钥管理：secretKey 的生成、存储（服务端加密存储）、按 appKey 轮换、泄露后的吊销</li>
+          <li>通道隔离：Web / Android / iOS 可用不同 appKey，某一端密钥泄露时单独吊销</li>
+          <li>灰度与兼容：签名算法升级（如 MD5 → HMAC-SHA256）时，按版本号并行支持新旧规则</li>
+          <li>审计日志：验签失败打点告警，大量失败通常意味着攻击或客户端 bug</li>
+        </ul>
+
+        <div class="syntax">
+          <code><strong>完整时序</strong><br>① 登录/启动：客户端从服务端获取 secretKey（与登录态绑定）<br>② 每次请求：参数 + timestamp + nonce → 排序拼接 → HMAC → sign<br>③ 传输：明文参数 + sign（走 HTTPS）<br>④ 服务端：校验时间戳窗口 → 校验 nonce 未用 → 重算签名比对 → 记录 nonce → 执行业务</code>
+        </div>
+
+        <h3 id="sign-variants">常见变体与升级</h3>
+        <table>
+          <tr><th>方案</th><th>说明</th><th>适用</th></tr>
+          <tr><td>HMAC 对称签名</td><td>本文主方案，实现简单</td><td>自家客户端 ↔ 自家服务端，绝大多数业务</td></tr>
+          <tr><td>RSA/ECDSA 非对称签名</td><td>客户端持私钥签名，服务端持公钥验签；私钥泄露影响面更可控</td><td>开放平台、对安全性要求更高的金融场景</td></tr>
+          <tr><td>签名串加入 body 摘要</td><td>大 body 不参与拼接，改为拼入 <code>sha256(body)</code></td><td>请求体较大或含复杂 JSON 的接口</td></tr>
+          <tr><td>设备指纹 + 风控</td><td>签名之外叠加设备标识、行为风控、滑块验证</td><td>被薅羊毛严重的营销、领券类接口</td></tr>
+        </table>
+        <div class="card">
+          <p><strong>速记</strong>：签名 = <em>排序拼接（参数 + 时间戳 + nonce）→ HMAC(secretKey)</em>；密钥不上网，传输的只有结果。时间戳防「延迟重放」，nonce 防「窗口内重放」，两者缺一不可。<span class="bad">签名防不了已逆向客户端的攻击者</span>，它是抬高成本的闸门，要和 HTTPS、风控配合使用。</p>
+        </div>
+      </section>
+
+      <!-- ============ 7. 前端实战与误区 ============ -->
+      <section id="frontend">
+        <h2><span class="num">7.</span>前端实战与常见误区</h2>
+
+        <h3 id="key-hardcode">最大的误区：把密钥写在前端代码里</h3>
+        <div class="danger-box">
+          <p>前端代码对用户完全透明——查看源码、抓包、断点调试都能拿到。<strong>任何硬编码在前端的密钥，都等同于公开</strong>。代码混淆、打包压缩只能增加几分钟的阅读成本，不构成安全。</p>
+        </div>
+        <p>那么「前端 AES 加密请求参数」这类需求还有没有意义？分场景看：</p>
+        <table>
+          <tr><th>场景</th><th>是否有意义</th></tr>
+          <tr><td>防普通抓包工具的直接阅读（运营、测试同学）</td><td>有一定意义，属于「防君子不防小人」的遮挡</td></tr>
+          <tr><td>防中间人窃取敏感信息</td><td>没有意义——密钥和密文一起在网络里，也一起在源码里</td></tr>
+          <tr><td>防恶意攻击者</td><td>基本无效，攻击者会逆向、会 hook 加密函数</td></tr>
+        </table>
+        <p>结论：前端加密是<em>提高攻击成本的辅助手段</em>，真正的机密性必须依靠 HTTPS，真正的敏感逻辑必须放在服务端。</p>
+
+        <h3 id="key-source">密钥的正确来源</h3>
+        <ul>
+          <li><strong>RSA 公钥</strong>：由后端接口下发，本来就可以公开，放前端没问题</li>
+          <li><strong>AES 会话密钥</strong>：前端随机生成 → 用 RSA 公钥加密后传给服务端（混合加密，见 <a href="#hybrid">第 4 章</a>）</li>
+          <li><strong>HMAC secretKey</strong>：登录后由服务端按用户下发，与登录态绑定、可过期</li>
+          <li><strong>永远不该出现在前端的</strong>：RSA 私钥、固定的 AES 密钥、接口签名用的全局 secret</li>
+        </ul>
+
+        <h3 id="https">HTTPS 才是地基</h3>
+        <p>前端加解密的一切讨论都建立在 HTTPS 之上。TLS 握手（简化版）：</p>
+        <div class="syntax">
+          <code>1. 浏览器验证服务器证书（确认公钥归属）<br>2. 双方协商生成会话密钥（非对称加密 / DH 交换）<br>3. 之后所有数据用会话密钥做对称加密传输</code>
+        </div>
+        <p>有了 HTTPS，请求体在传输层已经是密文。业务层再加密的收益主要是：防内网明文日志、防代理层（网关）看到明文、满足合规要求——而不是防中间人。</p>
+        <div class="note">
+          <p>Charles / Fiddler 能抓 HTTPS，是因为你主动安装并信任了它的根证书，授权它做中间人。普通用户不装证书，第三方就无法解密流量。</p>
+        </div>
+
+        <h3 id="crypto-libs">前端能用的库</h3>
+        <table>
+          <tr><th>库 / API</th><th>用途</th><th>说明</th></tr>
+          <tr><td>Web Crypto API</td><td>SHA、HMAC、AES-GCM、RSA、ECDSA</td><td>浏览器原生，性能最好，需安全上下文（HTTPS/localhost）</td></tr>
+          <tr><td>crypto-js</td><td>MD5 / SHA / AES(ECB/CBC)</td><td>老项目常用；<span class="bad">已停止维护</span>，新项目建议 Web Crypto 或 noble 系</td></tr>
+          <tr><td>jsencrypt</td><td>RSA 加密</td><td>登录密码加密场景最常见</td></tr>
+          <tr><td>sm-crypto</td><td>SM2 / SM3 / SM4</td><td>国密改造必备</td></tr>
+          <tr><td>@noble/hashes、@noble/ciphers</td><td>哈希 / 加密</td><td>现代、可审计、体积小的新选择</td></tr>
+        </table>
+
+        <h3 id="interview">高频面试题速答</h3>
+        <p><strong>1. MD5 是加密吗？</strong>不是。MD5 是哈希（摘要）算法，单向不可逆。它只是常被口语误称为「MD5 加密」。</p>
+        <p><strong>2. 前后端交互怎么保证数据安全？</strong>传输层靠 HTTPS；业务层敏感字段可用 RSA/混合加密；接口用 HMAC 签名 + 时间戳 + nonce 防篡改和重放；密码前端可先做哈希但服务端必须加盐慢哈希存储。</p>
+        <p><strong>3. JWT 安全吗？</strong>JWT 只有签名没有加密，payload 明文可见。安全与否取决于：HTTPS 传输、不放敏感数据、服务端正确验签（固定算法白名单）、合理设置过期时间。</p>
+        <p><strong>4. AES 的 ECB 和 CBC 有什么区别？</strong>ECB 每个块独立加密，相同明文块产生相同密文块，会泄露模式，禁止使用；CBC 引入 IV 和链式异或，相同明文每次加密结果不同。</p>
+        <p><strong>5. 为什么有了 HTTPS 还要对密码 RSA 加密？</strong>HTTPS 保护「浏览器到服务器」的链路；但请求会经过网关、日志系统、反向代理等环节，明文密码可能落盘。应用层加密确保只有持有私钥的业务服务能看到明文。</p>
+        <div class="card">
+          <p><strong>一页纸总结</strong>：<em>机密性</em>——HTTPS 是地基，应用层加密防的是链路上游环节，密钥绝不能硬编码；<em>完整性 + 来源认证</em>——HMAC 签名或 RSA/ECDSA 签名；<em>密码</em>——前端顶多预哈希，存储必须是服务端加盐慢哈希；<em>选型</em>——哈希用 SHA-256，加密用 AES-256-GCM，非对称用 RSA-2048 / ECC，国密场景 SM2/SM3/SM4。记住三件事不能混：编码（Base64）、哈希（SHA）、加密（AES/RSA）。</p>
+        </div>
+      </section>
+
+      <!-- ============ 8. 名词速查表 ============ -->
+      <section id="glossary">
+        <h2><span class="num">8.</span>名词速查表</h2>
+        <p>阅读资料 / 对接后端时高频出现的名词，按主题分组。</p>
+
+        <h3 id="vectors">向量类：IV / nonce / salt</h3>
+        <div class="note">
+          <p>加密语境里的 <strong>vector（向量）</strong>，特指 <strong>IV（Initialization Vector，初始化向量）</strong>。三者都是「参与计算但保密性要求较弱」的随机数据，作用各不相同，最容易混淆。</p>
+        </div>
+        <table>
+          <tr><th>名词</th><th>全称 / 含义</th><th>要不要保密</th><th>能不能复用</th><th>典型用途</th></tr>
+          <tr>
+            <td><strong>IV</strong></td>
+            <td>Initialization Vector，初始化向量</td>
+            <td>不保密，随密文一起传输</td>
+            <td><span class="bad">绝不复用</span>，每次加密重新随机</td>
+            <td>CBC/GCM 等模式，让相同明文每次加密出不同密文</td>
+          </tr>
+          <tr>
+            <td><strong>nonce</strong></td>
+            <td>number used once，只用一次的数</td>
+            <td>不保密</td>
+            <td><span class="bad">绝不复用</span></td>
+            <td>接口签名防重放；GCM 模式下 nonce ≈ IV</td>
+          </tr>
+          <tr>
+            <td><strong>salt（盐）</strong></td>
+            <td>哈希密码时混入的随机字符串</td>
+            <td>不保密，与哈希值一起存储</td>
+            <td>每个用户一个，可长期不变</td>
+            <td>防彩虹表，见 <a href="#password-storage">密码存储</a></td>
+          </tr>
+        </table>
+        <div class="warn">
+          <p><strong>IV 复用 = 灾难</strong>。GCM 模式下，同一个密钥 + 同一个 nonce 加密两条不同明文，攻击者可直接恢复密钥和明文（这是 GCM 最经典的翻车姿势）。所以生成 IV 必须用密码学随机数，不能写死、不能用自增序号。</p>
+        </div>
+
+        <h3 id="randomness">随机数</h3>
+        <table>
+          <tr><th>名词</th><th>说明</th></tr>
+          <tr><td><strong>PRNG</strong></td><td>Pseudo-Random Number Generator，伪随机。如 <code>Math.random()</code>，可预测，<span class="bad">不能用于安全场景</span>。</td></tr>
+          <tr><td><strong>CSPRNG</strong></td><td>Cryptographically Secure PRNG，密码学安全伪随机。浏览器用 <code>crypto.getRandomValues()</code>、Node 用 <code>crypto.randomBytes()</code>。生成密钥 / IV / nonce 必须用它。</td></tr>
+          <tr><td><strong>entropy（熵）</strong></td><td>随机性 / 不可预测程度的度量。熵越高越难猜。生成密钥、盐、nonce 都要求高熵来源。</td></tr>
+        </table>
+        <div class="example">
+          <pre><code>// 生成 16 字节随机 IV（密码学安全）
+const iv = crypto.getRandomValues(new Uint8Array(16));
+
+// 生成随机 nonce 字符串
+const nonce = crypto.randomUUID();</code></pre>
+        </div>
+
+        <h3 id="blocks">块与填充</h3>
+        <table>
+          <tr><th>名词</th><th>说明</th></tr>
+          <tr><td><strong>block（分组/块）</strong></td><td>块密码一次处理的固定长度数据。AES 分组长度恒为 128 bit（16 字节），与密钥长度无关。</td></tr>
+          <tr><td><strong>block cipher（块密码）</strong></td><td>按固定块处理的算法，如 AES。明文不足整数块时需要填充。</td></tr>
+          <tr><td><strong>stream cipher（流密码）</strong></td><td>逐字节 / 逐位处理的算法，如 ChaCha20。无需填充。</td></tr>
+          <tr><td><strong>padding（填充）</strong></td><td>把明文补齐到块大小整数倍的方式。常用 <strong>PKCS7</strong>（每字节值 = 填充字节数）。GCM 等流式模式通常 NoPadding。</td></tr>
+        </table>
+
+        <h3 id="keys">密钥相关</h3>
+        <table>
+          <tr><th>名词</th><th>说明</th></tr>
+          <tr><td><strong>key length（密钥长度）</strong></td><td>AES-128 / 192 / 256 指密钥位数，即 16 / 24 / 32 字节。越长越安全，速度略慢。</td></tr>
+          <tr><td><strong>session key（会话密钥）</strong></td><td>一次连接内临时使用的对称密钥，用完即弃。HTTPS 每次连接都会协商新的会话密钥。</td></tr>
+          <tr><td><strong>KDF（Key Derivation Function）</strong></td><td>密钥派生函数：从一个密码 / 主密钥派生出加密密钥。常见 PBKDF2、scrypt、Argon2。存密码和「用口令加密文件」都用它。</td></tr>
+          <tr><td><strong>key wrapping（密钥包装）</strong></td><td>用一把密钥加密另一把密钥（混合加密里 RSA 加密 AES 密钥就是典型）。</td></tr>
+        </table>
+
+        <h3 id="aead">加密模式与完整性</h3>
+        <table>
+          <tr><th>名词</th><th>说明</th></tr>
+          <tr><td><strong>AEAD</strong></td><td>Authenticated Encryption with Associated Data，带认证的加密。加密同时提供完整性校验，GCM、ChaCha20-Poly1305 属此类。新系统首选。</td></tr>
+          <tr><td><strong>Tag（认证标签）</strong></td><td>GCM 等 AEAD 模式输出的校验值，验证密文未被篡改。解密时一并校验。</td></tr>
+          <tr><td><strong>cipher suite（加密套件）</strong></td><td>TLS 握手协商的一组算法组合，如 <code>TLS_AES_256_GCM_SHA384</code> = 对称算法 + 哈希。</td></tr>
+          <tr><td><strong>forward secrecy（前向保密 / PFS）</strong></td><td>即使长期私钥未来泄露，历史会话也无法解密。靠每次会话用临时密钥（ECDHE）实现，现代 TLS 标配。</td></tr>
+        </table>
+
+        <h3 id="cert-trust">证书与信任</h3>
+        <table>
+          <tr><th>名词</th><th>说明</th></tr>
+          <tr><td><strong>CA（Certificate Authority）</strong></td><td>证书颁发机构，用私钥对证书签名，浏览器内置其根证书以建立信任。</td></tr>
+          <tr><td><strong>certificate chain（证书链）</strong></td><td>从服务器证书逐级回溯到受信任根证书的路径。</td></tr>
+          <tr><td><strong>fingerprint（指纹）</strong></td><td>证书内容的哈希值，用于人工核对证书是否被替换。</td></tr>
+          <tr><td><strong>self-signed（自签名）</strong></td><td>用自己给自己签发的证书，不被浏览器默认信任，内网 / 开发环境常见。</td></tr>
+        </table>
+
+        <h3 id="attacks">常见攻击名词</h3>
+        <table>
+          <tr><th>攻击</th><th>原理</th><th>防御</th></tr>
+          <tr><td><strong>brute force（暴力破解）</strong></td><td>穷举所有可能的密钥</td><td>加大密钥长度 + 慢哈希</td></tr>
+          <tr><td><strong>dictionary（字典攻击）</strong></td><td>用常见密码列表逐一尝试</td><td>加盐 + 慢哈希 + 锁定策略</td></tr>
+          <tr><td><strong>rainbow table（彩虹表）</strong></td><td>预先算好「密码→哈希」的查找表</td><td>加盐使表失效</td></tr>
+          <tr><td><strong>collision（碰撞攻击）</strong></td><td>构造两个不同输入得到相同哈希</td><td>用抗碰撞算法（弃用 MD5/SHA-1）</td></tr>
+          <tr><td><strong>birthday（生日攻击）</strong></td><td>利用生日悖论降低找碰撞的成本</td><td>加大哈希输出长度</td></tr>
+          <tr><td><strong>timing（计时攻击）</strong></td><td>通过比较耗时差异推断密钥/签名</td><td>恒定时间比较</td></tr>
+          <tr><td><strong>replay（重放攻击）</strong></td><td>原样重发截获的合法请求</td><td>时间戳 + nonce，见 <a href="#api-sign">接口签名</a></td></tr>
+          <tr><td><strong>MITM（中间人攻击）</strong></td><td>在通信双方之间拦截、篡改流量</td><td>HTTPS + 证书校验 + 证书固定</td></tr>
+        </table>
+
+        <h3 id="encodings">编码 / 格式相关</h3>
+        <table>
+          <tr><th>名词</th><th>说明</th></tr>
+          <tr><td><strong>Base64 / Base64URL</strong></td><td>二进制转可打印文本。Base64URL 用 <code>-_</code> 替代 <code>+/</code>、去掉填充 <code>=</code>，适合放 URL 和 JWT。</td></tr>
+          <tr><td><strong>Hex（十六进制）</strong></td><td>每字节用两个 16 进制字符表示，哈希摘要常以 hex 展示。</td></tr>
+          <tr><td><strong>PEM</strong></td><td>密钥 / 证书的文本封装格式，以 <code>-----BEGIN ...-----</code> 开头。</td></tr>
+          <tr><td><strong>DER</strong></td><td>密钥 / 证书的二进制格式。</td></tr>
+          <tr><td><strong>ArrayBuffer / Uint8Array</strong></td><td>Web Crypto API 处理的二进制数据类型，加密前常需与字符串互转。</td></tr>
+        </table>
+        <div class="card">
+          <p><strong>一句话速记</strong>：<strong>vector = IV</strong>——不保密、不复用、每次随机。IV / nonce 防「相同输入出相同结果」与重放；salt 防彩虹表。密钥、IV、nonce、盐一律用 <code>crypto.getRandomValues()</code> 生成，别用 <code>Math.random()</code>。新系统优先 AEAD（GCM / ChaCha20-Poly1305），自带完整性。</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <button class="to-top" id="toTop" type="button" title="回到顶部">↑</button>
+
+  <script>
+    (function () {
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('overlay');
+      var menuBtn = document.getElementById('menuBtn');
+
+      function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+      }
+      menuBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+      });
+      overlay.addEventListener('click', closeMenu);
+      sidebar.addEventListener('click', function (e) {
+        if (e.target.tagName === 'A') closeMenu();
+      });
+
+      var toTop = document.getElementById('toTop');
+      toTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      var links = Array.prototype.slice.call(sidebar.querySelectorAll('a[href^="#"]'));
+      var map = new Map();
+      links.forEach(function (a) {
+        var el = document.getElementById(a.getAttribute('href').slice(1));
+        if (el) map.set(el, a);
+      });
+      var targets = Array.from(map.keys());
+
+      function onScroll() {
+        toTop.classList.toggle('show', window.scrollY > 600);
+        var fromTop = window.scrollY + 90;
+        var current = targets[0];
+        for (var i = 0; i < targets.length; i++) {
+          if (targets[i].offsetTop <= fromTop) current = targets[i];
+          else break;
+        }
+        links.forEach(function (a) { a.classList.remove('active'); });
+        var link = map.get(current);
+        if (link) link.classList.add('active');
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
 </body>
 </html>
