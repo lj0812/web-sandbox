@@ -1,0 +1,22 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.31",
+  "base_commit_sha": "e7aa20811dae4d61dcf6a32f6ecc1f3771846e7e",
+  "prompts": {
+    "c56fc023fc8cd628": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01a39985-56e9-497c-b2a4-2ed43e99a272",
+        "model": "kimi-k3",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
