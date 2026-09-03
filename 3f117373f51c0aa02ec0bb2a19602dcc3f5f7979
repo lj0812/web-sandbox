@@ -1,0 +1,24 @@
+fe-java/index.html
+  a830c50f1d225acf 169-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.32",
+  "base_commit_sha": "3f117373f51c0aa02ec0bb2a19602dcc3f5f7979",
+  "prompts": {
+    "a830c50f1d225acf": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "6c987d60-f30e-4d0c-bbc3-a0d9f6b879ae",
+        "model": "default",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 14,
+      "total_deletions": 0,
+      "accepted_lines": 14,
+      "overriden_lines": 0
+    }
+  }
+}
