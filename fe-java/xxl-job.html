@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XXL-JOB 运行机制详解 · 分布式任务调度知识图</title>
+<style>
+  :root {
+    --paper: #F4F6F7;
+    --panel: #FFFFFF;
+    --grid-line: rgba(23, 48, 74, 0.06);
+    --ink: #17304A;
+    --body-ink: #3A4C60;
+    --faint: #7C8CA0;
+    --line: #CDD9E4;
+    --blueprint: #26619C;
+    --blueprint-soft: #E3ECF6;
+    --signal: #D9480F;
+    --signal-soft: #FDEEE5;
+    --teal: #0B7285;
+    --teal-soft: #E0F1F3;
+    --code-bg: #10233A;
+    --code-ink: #D7E4F5;
+    --display: "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", Georgia, serif;
+    --body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --mono: "SF Mono", SFMono-Regular, "JetBrains Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--body);
+    color: var(--body-ink);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  ::selection { background: rgba(38, 97, 156, 0.22); }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: 72px 0 56px;
+    border-bottom: 2px solid var(--ink);
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 48px;
+    align-items: center;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blueprint);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 26px; height: 2px;
+    background: var(--signal);
+    flex: none;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(34px, 4.6vw, 52px);
+    line-height: 1.18;
+    color: var(--ink);
+    margin: 18px 0 20px;
+    letter-spacing: 0.01em;
+  }
+  .thesis {
+    font-size: 17px;
+    color: var(--body-ink);
+  }
+  .thesis strong { color: var(--ink); }
+  .thesis .key {
+    color: var(--signal);
+    font-weight: 700;
+  }
+  .fact-strip {
+    margin-top: 30px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .fact {
+    padding: 12px 14px 12px 0;
+    border-right: 1px dashed var(--line);
+  }
+  .fact:last-child { border-right: none; }
+  .fact .k {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--faint);
+    text-transform: uppercase;
+  }
+  .fact .v { font-size: 13.5px; color: var(--ink); font-weight: 600; margin-top: 2px; }
+
+  .hero-figure { border: 1.5px solid var(--ink); background: var(--panel); }
+  .hero-figure figcaption {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--faint);
+    padding: 8px 14px;
+    border-top: 1px dashed var(--line);
+    letter-spacing: 0.06em;
+  }
+
+  /* ---------- layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 56px;
+    padding: 56px 0 96px;
+  }
+  nav.toc { position: sticky; top: 32px; align-self: start; }
+  nav.toc .toc-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--faint);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  nav.toc a {
+    display: block;
+    font-size: 13.5px;
+    color: var(--body-ink);
+    text-decoration: none;
+    padding: 6px 0 6px 14px;
+    border-left: 2px solid var(--line);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  nav.toc a:hover { color: var(--ink); }
+  nav.toc a.active {
+    border-left-color: var(--signal);
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  section { margin-bottom: 88px; }
+  section:last-child { margin-bottom: 0; }
+
+  .sec-head { margin-bottom: 30px; }
+  h2 {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 30px;
+    color: var(--ink);
+    margin-top: 10px;
+    line-height: 1.3;
+  }
+  h3 {
+    font-size: 17.5px;
+    color: var(--ink);
+    margin: 34px 0 12px;
+    font-weight: 700;
+  }
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--ink); }
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--blueprint-soft);
+    color: var(--blueprint);
+    padding: 1.5px 6px;
+    border-radius: 3px;
+  }
+
+  /* ---------- blocks ---------- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 22px 24px;
+  }
+
+  .figure {
+    background: var(--panel);
+    border: 1.5px solid var(--ink);
+    margin: 22px 0;
+  }
+  .figure svg { display: block; width: 100%; height: auto; }
+  .figure figcaption {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--faint);
+    padding: 9px 14px;
+    border-top: 1px dashed var(--line);
+    letter-spacing: 0.05em;
+  }
+
+  .analogy {
+    border-left: 3px solid var(--teal);
+    background: var(--teal-soft);
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14.5px;
+  }
+  .analogy .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--teal);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .warning {
+    border: 1.5px solid var(--signal);
+    background: var(--signal-soft);
+    padding: 18px 22px;
+    border-radius: 6px;
+    margin: 22px 0;
+    font-size: 14.5px;
+  }
+  .warning .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--signal);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .warning strong { color: var(--signal); }
+
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 6px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 16px 0;
+  }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+  pre .cm { color: #6E87A6; }
+  pre .kw { color: #8FC7FF; }
+  pre .st { color: #9AD6B4; }
+
+  /* ---------- steps ---------- */
+  ol.steps { list-style: none; counter-reset: step; margin: 8px 0; }
+  ol.steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 0 0 26px 58px;
+  }
+  ol.steps li::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: 0; top: -2px;
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--panel);
+    background: var(--blueprint);
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border-radius: 4px;
+  }
+  ol.steps li::after {
+    content: "";
+    position: absolute;
+    left: 18px; top: 40px; bottom: 4px;
+    width: 1.5px;
+    background: repeating-linear-gradient(var(--blueprint) 0 4px, transparent 4px 9px);
+  }
+  ol.steps li:last-child { padding-bottom: 0; }
+  ol.steps li:last-child::after { display: none; }
+  ol.steps .st-title { font-weight: 700; color: var(--ink); font-size: 15.5px; }
+  ol.steps p { font-size: 14.5px; margin-top: 4px; }
+
+  /* ---------- cards ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin: 18px 0; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 16px 18px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .card:hover { border-color: var(--blueprint); transform: translateY(-2px); }
+  .card .name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--ink); }
+  .card .cn { font-size: 13px; color: var(--blueprint); margin-left: 6px; }
+  .card p { font-size: 13.5px; margin-top: 8px; color: var(--body-ink); }
+  .card.hot { border-color: var(--signal); }
+  .card.hot .name { color: var(--signal); }
+
+  .group-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 26px 0 4px;
+  }
+
+  /* ---------- table ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; background: var(--panel); font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 10px 14px; text-align: left; vertical-align: top; }
+  th {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    background: var(--blueprint-soft);
+    color: var(--ink);
+  }
+  td code { white-space: nowrap; }
+
+  ul.checks { list-style: none; margin: 14px 0; }
+  ul.checks li {
+    padding: 10px 0 10px 32px;
+    position: relative;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14.5px;
+  }
+  ul.checks li::before {
+    content: "✓";
+    position: absolute; left: 2px;
+    font-weight: 700;
+    color: var(--teal);
+    font-family: var(--mono);
+  }
+  ul.checks li:last-child { border-bottom: none; }
+
+  footer {
+    border-top: 2px solid var(--ink);
+    padding: 26px 0 60px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--faint);
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* ---------- reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .card { transition: none; }
+  }
+
+  a:focus-visible, nav.toc a:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 1080px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static; display: flex; flex-wrap: wrap; gap: 4px 14px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+    nav.toc .toc-title { width: 100%; margin-bottom: 4px; }
+    nav.toc a { border-left: none; padding: 2px 0; }
+  }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding-top: 48px; }
+    .fact-strip { grid-template-columns: 1fr; }
+    .fact { border-right: none; border-bottom: 1px dashed var(--line); }
+    .fact:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ================= HERO ================= -->
+  <header class="hero">
+    <div>
+      <div class="eyebrow">Distributed Task Scheduling · 知识图</div>
+      <h1>XXL-JOB<br>运行机制详解</h1>
+      <p class="thesis">
+        理解 xxl-job 只需要先接受一条心智模型：<strong>调度和执行是分离的两个平面</strong>。
+        调度中心按 cron <span class="key">只发令一次</span>，执行器是「被选中的那一个」——
+        注册进同一个执行器组的进程（无论几个、在哪），都是在竞争这一次派发。
+      </p>
+      <div class="fact-strip">
+        <div class="fact">
+          <div class="k">Control Plane</div>
+          <div class="v">调度中心 admin（可集群）</div>
+        </div>
+        <div class="fact">
+          <div class="k">Data Plane</div>
+          <div class="v">执行器，嵌入业务应用</div>
+        </div>
+        <div class="fact">
+          <div class="k">Shared State</div>
+          <div class="v">MySQL：任务 / 注册表 / 日志</div>
+        </div>
+      </div>
+    </div>
+
+    <figure class="hero-figure">
+      <svg viewBox="0 0 560 300" role="img" aria-label="派发瞬间：调度中心触发一次，路由到一台执行器">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#26619C"/>
+          </marker>
+          <marker id="arrSig" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#D9480F"/>
+          </marker>
+        </defs>
+        <!-- admin -->
+        <rect x="24" y="112" width="132" height="76" fill="#FFFFFF" stroke="#17304A" stroke-width="2"/>
+        <text x="90" y="142" text-anchor="middle" font-size="14" font-weight="700" fill="#17304A" font-family="sans-serif">调度中心</text>
+        <text x="90" y="162" text-anchor="middle" font-size="11" fill="#7C8CA0" font-family="monospace">xxl-job-admin</text>
+        <text x="90" y="216" text-anchor="middle" font-size="11" fill="#7C8CA0" font-family="monospace">cron: 0 */1 * * * ?</text>
+        <!-- arrow to router -->
+        <line x1="156" y1="150" x2="226" y2="150" stroke="#26619C" stroke-width="2" marker-end="url(#arr)"/>
+        <text x="191" y="138" text-anchor="middle" font-size="11" fill="#26619C" font-family="monospace">触发 ×1</text>
+        <!-- router -->
+        <polygon points="268,118 312,150 268,182 224,150" fill="#E3ECF6" stroke="#26619C" stroke-width="2"/>
+        <text x="268" y="147" text-anchor="middle" font-size="11.5" fill="#17304A" font-family="sans-serif" font-weight="700">路由</text>
+        <text x="268" y="161" text-anchor="middle" font-size="9.5" fill="#26619C" font-family="monospace">ROUND</text>
+        <!-- executors -->
+        <line x1="312" y1="150" x2="392" y2="70"  stroke="#CDD9E4" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <line x1="312" y1="150" x2="392" y2="150" stroke="#D9480F" stroke-width="2.5" marker-end="url(#arrSig)"/>
+        <line x1="312" y1="150" x2="392" y2="230" stroke="#CDD9E4" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <rect x="396" y="42" width="140" height="56" fill="#FFFFFF" stroke="#CDD9E4" stroke-width="1.5"/>
+        <text x="466" y="66" text-anchor="middle" font-size="11.5" fill="#7C8CA0" font-family="monospace">10.0.1.5</text>
+        <text x="466" y="84" text-anchor="middle" font-size="10.5" fill="#A8B4C2" font-family="sans-serif">本次轮空</text>
+        <rect x="396" y="122" width="140" height="56" fill="#FDEEE5" stroke="#D9480F" stroke-width="2"/>
+        <text x="466" y="146" text-anchor="middle" font-size="11.5" fill="#17304A" font-family="monospace" font-weight="700">10.0.1.7</text>
+        <text x="466" y="164" text-anchor="middle" font-size="10.5" fill="#D9480F" font-family="sans-serif" font-weight="700">本次执行</text>
+        <rect x="396" y="202" width="140" height="56" fill="#FFFFFF" stroke="#CDD9E4" stroke-width="1.5"/>
+        <text x="466" y="226" text-anchor="middle" font-size="11.5" fill="#7C8CA0" font-family="monospace">10.0.1.9</text>
+        <text x="466" y="244" text-anchor="middle" font-size="10.5" fill="#A8B4C2" font-family="sans-serif">本次轮空</text>
+        <text x="466" y="286" text-anchor="middle" font-size="11" fill="#7C8CA0" font-family="sans-serif">执行器组（同一 AppName 自动聚合）</text>
+      </svg>
+      <figcaption>图 0 · 派发瞬间：一次触发，路由选中一台——不是每台各跑一遍</figcaption>
+    </figure>
+  </header>
+
+  <!-- ================= BODY ================= -->
+  <div class="layout">
+    <nav class="toc" aria-label="目录">
+      <div class="toc-title">目录</div>
+      <a href="#architecture">架构解剖</a>
+      <a href="#registry">注册与心跳</a>
+      <a href="#trigger">触发链路</a>
+      <a href="#routing">路由策略</a>
+      <a href="#execution">执行与容错</a>
+      <a href="#multipod">多 Pod 部署</a>
+      <a href="#practice">最佳实践</a>
+    </nav>
+
+    <main>
+
+      <!-- ========== ARCHITECTURE ========== -->
+      <section id="architecture" class="reveal">
+        <div class="sec-head">
+          <div class="eyebrow">Architecture</div>
+          <h2>架构解剖：控制面与执行面</h2>
+        </div>
+        <p>
+          xxl-job 是「调度中心 + 执行器」两层架构，中间用 MySQL 做共享状态。这个拆分是整个系统一切行为的前提：
+          <strong>谁来决定「何时跑」和「谁来跑」，与真正干活的进程，是两套东西。</strong>
+        </p>
+
+        <div class="cards">
+          <div class="card">
+            <span class="name">xxl-job-admin</span><span class="cn">调度中心</span>
+            <p>一个独立的 Spring Boot Web 应用。负责：任务的增删改查、cron 解析、到点触发、路由选机、失败重试与告警、调度日志。自身无状态，状态全在 MySQL。</p>
+          </div>
+          <div class="card">
+            <span class="name">Executor</span><span class="cn">执行器</span>
+            <p>以 SDK 形式<strong>嵌入业务应用</strong>（一个 <code>XxlJobSpringExecutor</code> Bean）。启动时自带一个 HTTP server（默认端口 9999），被动接收调度中心的触发请求并执行 JobHandler。</p>
+          </div>
+          <div class="card">
+            <span class="name">MySQL</span><span class="cn">共享状态</span>
+            <p>存任务定义（<code>xxl_job_info</code>）、执行器注册表（<code>xxl_job_registry</code>）、调度与执行日志、分布式锁（<code>xxl_job_lock</code>）。是集群之间唯一的「事实来源」。</p>
+          </div>
+        </div>
+
+        <div class="analogy">
+          <span class="tag">前端类比</span>
+          就像 CI/CD：admin 是 GitHub Actions 的控制台与调度服务，执行器是你挂在机房里的 <strong>self-hosted runner</strong>——平台决定哪个 runner 接单，runner 只管干活并回报结果。你的业务应用 = runner 所在的机器。
+        </div>
+
+        <p>
+          两者之间的通信是<strong>短连接 HTTP</strong>，方向有两条：
+        </p>
+        <ul class="checks">
+          <li><strong>admin → 执行器</strong>：触发请求（携带 jobId、任务参数、分片序号等），打到执行器内嵌 server 的 <code>/run</code> 接口。</li>
+          <li><strong>执行器 → admin</strong>：执行结果回调（成功/失败、耗时），由执行器内的回调线程批量上报，失败会本地暂存并重试。</li>
+        </ul>
+      </section>
+
+      <!-- ========== REGISTRY ========== -->
+      <section id="registry" class="reveal">
+        <div class="sec-head">
+          <div class="eyebrow">Registry</div>
+          <h2>注册与心跳：谁有资格接单</h2>
+        </div>
+        <p>
+          执行器不需要手工配置地址。启动后，执行器内置的注册线程每 <strong>30 秒</strong>向 MySQL 的
+          <code>xxl_job_registry</code> 表写一次「我还活着」（按 AppName + IP:Port 维度）。
+          调度中心侧有一个监控线程，把 <strong>90 秒</strong>没更新心跳的记录直接删除。
+          任务配置里选「自动注册」时，路由可用的机器列表就是这张表的实时快照。
+        </p>
+
+        <div class="warning">
+          <span class="tag">关键推论 · 幽灵执行器</span>
+          注册只看「能不能连上同一个 admin + 同一套 MySQL」，<strong>不看进程部署在哪</strong>。
+          一台开发机、一个本地起的老版本服务、一台忘了下线的旧主机——只要连上了，它就合法进入路由列表参与接单，
+          且 k8s 里根本看不到它。心跳停 90 秒才消失。这就是「代码是对的，行为见鬼」这类事故的经典来源。
+        </div>
+
+        <div class="analogy">
+          <span class="tag">前端类比</span>
+          等价于服务注册中心的心跳机制（Nacos / Eureka）：实例上线注册、周期续约、超时摘除。
+          也像 WebSocket 的 keep-alive——连接在不在，靠心跳说了算，不靠你这边的「设备列表」页面。
+        </div>
+      </section>
+
+      <!-- ========== TRIGGER ========== -->
+      <section id="trigger" class="reveal">
+        <div class="sec-head">
+          <div class="eyebrow">Trigger Pipeline</div>
+          <h2>触发链路：一次调度引发的完整旅程</h2>
+        </div>
+        <p>
+          从秒针跳到整点，到业务代码真正执行，中间经过下面这条链。这是理解「为什么只发一份通知」的核心。
+        </p>
+
+        <ol class="steps">
+          <li>
+            <div class="st-title">抢锁 · 全局唯一调度权</div>
+            <p>调度中心的调度线程每秒醒来一次，先对 <code>xxl_job_lock</code> 行锁做 <code>SELECT ... FOR UPDATE</code>。集群多个 admin 实例同时抢，<strong>只有一个抢到</strong>——这保证同一时刻全集群只有一套调度逻辑在跑。</p>
+          </li>
+          <li>
+            <div class="st-title">预读 · 未来 5 秒的到期任务</div>
+            <p>抢到锁的实例扫描 <code>xxl_job_info</code>，把「下次触发时间 ≤ 当前 + 5s」的任务捞出并立即推进它们的下次触发时间（落库），然后释放锁。预读窗口让调度精度不受单次扫表耗时影响。</p>
+          </li>
+          <li>
+            <div class="st-title">入时间环 · 按秒挂起</div>
+            <p>任务被挂到一个 0–59 格的「时间环」（环形缓冲）上，格子的下标就是触发秒。另一个环线程逐秒消费当前格——相当于把「未来 5 秒」摊平成逐秒派发。</p>
+          </li>
+          <li>
+            <div class="st-title">路由 · 选出一台执行器</div>
+            <p>按任务配置的路由策略，从该执行器组的注册地址列表里选出目标地址（详见下一节）。<strong>非广播策略下，这一步只产出一个地址。</strong></p>
+          </li>
+          <li>
+            <div class="st-title">触发 · 线程池投递</div>
+            <p>触发请求进入触发线程池，以 HTTP 打向执行器。线程池分快慢两条：近 10 秒平均触发耗时超 500ms 的任务被隔离进慢池，防止慢任务把触发线程占满、拖垮其他任务的准点率。</p>
+          </li>
+          <li>
+            <div class="st-title">执行 · 每任务一条专属线程</div>
+            <p>执行器收到请求后，把任务丢进该 jobId 专属的 <code>JobThread</code>（一线程一任务 + 阻塞队列），运行你的 <code>@XxlJob</code> 方法。执行日志同步写入执行器本地磁盘（<code>logpath/日期/jobId.log</code>），admin 页面看日志其实是反向调用执行器的日志查询接口。</p>
+          </li>
+          <li>
+            <div class="st-title">回调 · 结果归集</div>
+            <p>执行结果由回调线程批量推回 admin，写入调度日志。回调失败会本地暂存不断重试，所以 admin 端看到的成功/失败是最终一致的。</p>
+          </li>
+        </ol>
+
+        <div class="analogy">
+          <span class="tag">前端类比</span>
+          时间环很像浏览器的事件循环：每一帧（每一秒）只处理「这一帧到期」的任务队列；
+          预读 5 秒相当于提前把下一批 <code>setTimeout</code> 的回调登记好，避免主线程抖动导致整批迟到。
+          快慢线程池隔离则等价于前端把「长任务」丢进单独的 Worker，别堵住渲染主线程。
+        </div>
+
+        <h3>错过触发（Misfire）会怎样</h3>
+        <p>
+          如果 admin 宕机或锁被长时间占用，任务错过了预定触发时间：恢复后调度线程会发现「下次触发时间已过期」，
+          <strong>立即补触发一次</strong>（只补一次，不是把错过的每次补齐），然后恢复正常节奏。
+          所以 admin 短暂不可用后的第一分钟，任务可能晚几秒到——业务代码应按「可能迟到、但不会凭空多跑」来设计。
+        </p>
+      </section>
+
+      <!-- ========== ROUTING ========== -->
+      <section id="routing" class="reveal">
+        <div class="sec-head">
+          <div class="eyebrow">Routing Strategy</div>
+          <h2>路由策略：多台机器时谁来跑</h2>
+        </div>
+        <p>
+          执行器组里有多台机器时，路由策略决定每次触发挑哪一台。可以完全按负载均衡的术语理解——
+          这些名字和 Nginx upstream 的算法几乎一一对应。
+        </p>
+
+        <div class="group-label">顺序类 · 确定性选择</div>
+        <div class="cards">
+          <div class="card"><span class="name">FIRST</span><span class="cn">第一个</span><p>固定选列表第一台。列表按注册顺序，实际约等于「最早注册的那台」。</p></div>
+          <div class="card"><span class="name">LAST</span><span class="cn">最后一个</span><p>固定选列表最后一台，与 FIRST 相反。</p></div>
+        </div>
+
+        <div class="group-label">负载类 · 打散流量</div>
+        <div class="cards">
+          <div class="card hot"><span class="name">ROUND</span><span class="cn">轮询</span><p>依次轮流。多台机器时最常见的策略——<strong>每次触发仍只有一台执行</strong>，只是执行者在机器间交替。</p></div>
+          <div class="card"><span class="name">RANDOM</span><span class="cn">随机</span><p>每次随机一台，长期看近似均匀。</p></div>
+          <div class="card"><span class="name">CONSISTENT_HASH</span><span class="cn">一致性HASH</span><p>按 jobId 做一致性哈希，同一任务固定落在同一台（机器增减时只迁移少量任务），利于命中本地缓存。</p></div>
+          <div class="card"><span class="name">LFU / LRU</span><span class="cn">最不经常 / 最近最久</span><p>分别挑「调用频次最低」和「最久没被调用」的机器，追求长期均匀。</p></div>
+        </div>
+
+        <div class="group-label">健康类 · 派发前先探活</div>
+        <div class="cards">
+          <div class="card"><span class="name">FAILOVER</span><span class="cn">故障转移</span><p>按顺序逐台发心跳探测，选第一台存活的。等价于带健康检查的负载均衡。</p></div>
+          <div class="card"><span class="name">BUSYOVER</span><span class="cn">忙碌转移</span><p>逐台探测且检查对方是否空闲（有无执行中线程），选第一台「活着且空闲」的。</p></div>
+        </div>
+
+        <div class="group-label">全体类 · 每台都收到</div>
+        <div class="cards">
+          <div class="card hot"><span class="name">SHARDING_BROADCAST</span><span class="cn">分片广播</span><p>触发组内<strong>所有</strong>机器，每台携带不同的 <code>shardIndex</code> 与共同的 <code>shardTotal</code>。这是让多机「并行分摊」的唯一正规姿势。</p></div>
+        </div>
+
+        <div class="warning">
+          <span class="tag">高发事故点 · 分片广播 ≠ 天然安全</span>
+          分片广播会把触发发给每台机器，<strong>是否重复执行取决于你的代码是否消费分片参数</strong>。
+          如果 JobHandler 里从不读 <code>shardIndex</code>，那每台机器都会完整跑一遍全量逻辑——
+          效果等于「广播重复执行」：通知发 N 份、数据算 N 遍。广播类策略必须配合分片编码使用。
+        </div>
+
+<pre><code><span class="cm">// 分片广播的正确打开方式：每台只处理自己那片</span>
+<span class="kw">@XxlJob</span>(<span class="st">"demoShardingJob"</span>)
+<span class="kw">public void</span> demoShardingJob() {
+    <span class="kw">int</span> shardIndex = XxlJobHelper.getShardIndex();  <span class="cm">// 本机分片序号</span>
+    <span class="kw">int</span> shardTotal = XxlJobHelper.getShardTotal();  <span class="cm">// 分片总数 = 机器数</span>
+    <span class="kw">for</span> (Item item : allItems) {
+        <span class="kw">if</span> (item.getId() % shardTotal == shardIndex) {  <span class="cm">// 取模分片</span>
+            handle(item);
+        }
+    }
+}</code></pre>
+
+        <div class="analogy">
+          <span class="tag">前端类比</span>
+          分片广播就像把一个数组手动切片分给多个 Worker：<code>arr.filter((_, i) =&gt; i % N === myIndex)</code>。
+          每个 Worker 都拿到完整数组（触发到达所有人），但只处理下标属于自己的那份；
+          忘了写过滤条件，就是 N 个 Worker 把整个数组各算一遍。
+        </div>
+      </section>
+
+      <!-- ========== EXECUTION ========== -->
+      <section id="execution" class="reveal">
+        <div class="sec-head">
+          <div class="eyebrow">Execution &amp; Fault Tolerance</div>
+          <h2>执行与容错：任务跑起来之后</h2>
+        </div>
+
+        <h3>阻塞策略：上一次还没跑完，下一次又来了</h3>
+        <p>任务执行时间超过调度间隔时（比如每分钟调度、但一次要跑 3 分钟），新触发到达时旧任务仍在执行。阻塞策略决定怎么处理排队的新触发：</p>
+        <table>
+          <thead><tr><th style="width:24%">策略</th><th style="width:38%">行为</th><th>前端类比</th></tr></thead>
+          <tbody>
+            <tr><td><code>SERIAL_EXECUTION</code><br>串行排队</td><td>新触发进入该任务的阻塞队列，等前一次结束后依次执行。</td><td>并发数为 1 的请求队列，FIFO 消化。</td></tr>
+            <tr><td><code>DISCARD_LATER</code><br>丢弃后续</td><td>有任务在执行，就直接丢弃本次触发。</td><td>SWR / React Query 的请求去重：同样的请求在途就忽略新的。</td></tr>
+            <tr><td><code>COVER_EARLY</code><br>覆盖之前</td><td>中断正在执行的旧任务，立即执行新触发。</td><td><code>AbortController.abort()</code> 掉旧请求，发出新请求。</td></tr>
+          </tbody>
+        </table>
+
+        <h3>失败与超时</h3>
+        <ul class="checks">
+          <li><strong>失败重试</strong>：任务可配置重试次数，触发失败（执行器不可达、执行返回失败）时由调度中心重新派发。</li>
+          <li><strong>任务超时</strong>：配置超时时间后，超时会被调度中心主动 kill（中断执行线程）。</li>
+          <li><strong>失败告警</strong>：失败会向任务配置的告警邮件发送通知。</li>
+        </ul>
+
+        <div class="warning">
+          <span class="tag">语义底线 · 至少一次投递</span>
+          重试、misfire 补触发、回调重发加在一起，xxl-job 的投递语义是 <strong>at-least-once</strong>：
+          同一次业务触发，代码有可能被执行不止一次。<strong>任务必须幂等</strong>——
+          发通知前查去重表、写数据用唯一键、状态机先查后改。
+        </div>
+
+        <div class="analogy">
+          <span class="tag">前端类比</span>
+          和前端处理「按钮连点」是同一个问题：网络慢时用户双击提交，服务端可能收到两次请求。
+          前端的解法（防抖、提交中禁用按钮、服务端幂等键）里，只有「幂等」这一层在分布式调度下永远无法省略——
+          也类似 React StrictMode 会故意双调用 effect，你的清理逻辑必须经得起重复执行。
+        </div>
+      </section>
+
+      <!-- ========== MULTI-POD ========== -->
+      <section id="multipod" class="reveal">
+        <div class="sec-head">
+          <div class="eyebrow">Multi-Pod Deployment</div>
+          <h2>多 Pod 部署：集群下的两种「多」</h2>
+        </div>
+        <p>「多 Pod」要拆成两个独立问题：调度中心多副本怎么办，执行器多副本怎么办。答案完全不同。</p>
+
+        <h3>调度中心集群：多副本，但调度权只有一个</h3>
+        <p>
+          admin 可以部署多副本做高可用。每个副本的调度线程每秒都在抢 <code>xxl_job_lock</code> 行锁，
+          <strong>同一时刻只有持锁实例在调度</strong>；持锁实例挂了，锁在事务超时后释放，其他副本秒级接管。
+          所以 admin 集群不会导致任务被触发多次——数据库锁是最终仲裁者。
+        </p>
+
+        <figure class="figure">
+          <svg viewBox="0 0 640 210" role="img" aria-label="调度中心集群：数据库行锁仲裁，只有一个实例在触发">
+            <rect x="30" y="40" width="150" height="64" fill="#FFFFFF" stroke="#17304A" stroke-width="2"/>
+            <text x="105" y="66" text-anchor="middle" font-size="13" font-weight="700" fill="#17304A" font-family="sans-serif">admin 副本 A</text>
+            <text x="105" y="86" text-anchor="middle" font-size="10.5" fill="#D9480F" font-family="monospace" font-weight="700">持锁 · 触发中</text>
+            <rect x="30" y="130" width="150" height="64" fill="#FFFFFF" stroke="#CDD9E4" stroke-width="1.5"/>
+            <text x="105" y="156" text-anchor="middle" font-size="13" fill="#7C8CA0" font-family="sans-serif">admin 副本 B</text>
+            <text x="105" y="176" text-anchor="middle" font-size="10.5" fill="#A8B4C2" font-family="monospace">抢锁中 · 待命</text>
+            <line x1="180" y1="72" x2="330" y2="105" stroke="#D9480F" stroke-width="2"/>
+            <line x1="180" y1="162" x2="330" y2="118" stroke="#CDD9E4" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <rect x="330" y="70" width="200" height="80" fill="#E3ECF6" stroke="#26619C" stroke-width="2"/>
+            <text x="430" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#17304A" font-family="sans-serif">MySQL</text>
+            <text x="430" y="121" text-anchor="middle" font-size="10.5" fill="#26619C" font-family="monospace">xxl_job_lock · FOR UPDATE</text>
+            <text x="430" y="138" text-anchor="middle" font-size="10.5" fill="#26619C" font-family="monospace">同一时刻仅一个持锁者</text>
+            <text x="105" y="20" text-anchor="middle" font-size="11" fill="#7C8CA0" font-family="sans-serif">副本 A 挂掉 → 锁释放 → 副本 B 接管</text>
+          </svg>
+          <figcaption>图 1 · admin 集群：DB 行锁保证全集群只有一套调度在工作</figcaption>
+        </figure>
+
+        <h3>执行器集群：同一 AppName 自动聚合，路由负责分活</h3>
+        <p>
+          业务应用多副本部署时，每个 Pod 里的执行器都以相同 AppName 注册，自动聚成一个执行器组。
+          此后每次触发按路由策略选一台——<strong>这层天然就是水平扩展</strong>：Pod 越多，任务被摊得越薄。
+          需要全量并行时用分片广播 + 分片编码（见上节）。
+        </p>
+
+        <div class="warning">
+          <span class="tag">真实事故复盘 · 本地进程混入路由</span>
+          <strong>现象</strong>：数据库渠道配置已改为仅 BossHi，QA 的 Pod 日志也证实只发了 BossHi，但邮件照旧收到。<br>
+          <strong>根因</strong>：同事在本地跑着旧版本 schedule 服务，同样注册进了 QA 的 xxl-job。
+          轮询路由下触发在「QA Pod（新代码）」和「本地机器（旧代码）」之间交替——
+          轮到旧代码时按老逻辑邮件 + BossHi 双发。<br>
+          <strong>教训</strong>：执行器组是一个「看不见的集群」，k8s 的 Pod 列表不是它的完整成员名单。
+          判断「谁在跑任务」的唯一权威来源，是 admin 里该执行器组的<strong>注册地址列表</strong>与调度日志中的触发地址。
+        </div>
+
+        <div class="analogy">
+          <span class="tag">前端类比</span>
+          执行器组类似一个 Service Worker 的「作用域」：你以为只有线上那份脚本在生效，
+          但如果有人往同一个 scope 注册了另一份（本地代理、旧版本缓存），请求就会被两者随机接管。
+          排查方式也一样——别看你「以为」注册了什么，去看浏览器（这里是 admin）里实际注册了什么。
+        </div>
+      </section>
+
+      <!-- ========== PRACTICE ========== -->
+      <section id="practice" class="reveal">
+        <div class="sec-head">
+          <div class="eyebrow">Practice</div>
+          <h2>最佳实践清单</h2>
+        </div>
+        <ul class="checks">
+          <li><strong>任务幂等是硬要求</strong>：at-least-once 语义下，重试与补触发都可能让代码多跑一次；通知类任务加去重键。</li>
+          <li><strong>环境彻底隔离</strong>：QA / 预发 / 生产使用各自独立的 admin、MySQL 与执行器 AppName（或至少不同的 accessToken）；本地开发不连共享环境的调度中心。</li>
+          <li><strong>开启通信鉴权</strong>：配置 <code>accessToken</code>，拒绝裸跑的执行器端口。</li>
+          <li><strong>Bean 模式优先</strong>：用 <code>@XxlJob</code> 注解管理任务代码，随应用版本发布；慎用 GLUE 线上编辑模式（代码脱离版本控制）。</li>
+          <li><strong>广播必配分片</strong>：使用分片广播的任务，代码必须消费 <code>shardIndex / shardTotal</code>，否则每台机器重复全量执行。</li>
+          <li><strong>阻塞策略按任务性质选</strong>：可丢弃的统计类任务用「丢弃后续」；必须每轮都算的用「串行排队」；只关心最新一轮的用「覆盖之前」。</li>
+          <li><strong>执行器端口规划</strong>：默认 9999，同机多执行器实例必须显式配置不同端口。</li>
+          <li><strong>排查「谁在跑」三件套</strong>：执行器管理看注册地址、任务调度日志看每次触发打到哪个地址、执行器侧应用日志交叉验证。</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <span>XXL-JOB 运行机制详解 · 内部知识整理</span>
+    <span>控制面发令一次 · 执行面被选中者执行</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduced && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+  }
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+
+  function onScroll() {
+    var pos = window.scrollY + 120;
+    var current = 0;
+    sections.forEach(function (sec, i) {
+      if (sec && sec.offsetTop <= pos) { current = i; }
+    });
+    links.forEach(function (a, i) {
+      a.classList.toggle('active', i === current);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+</body>
+</html>
