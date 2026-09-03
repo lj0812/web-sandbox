@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后端基础设施认知地图 · 前端团队技术分享</title>
+<style>
+  :root{
+    --background:#fafafa;
+    --card:#ffffff;
+    --foreground:#09090b;
+    --muted:#71717a;
+    --muted-bg:#f4f4f5;
+    --border:#e4e4e7;
+    --primary:#18181b;
+    --primary-fg:#fafafa;
+    --radius:0.75rem;
+    --mono:"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+    --sidebar-w:252px;
+    --danger:#be123c;
+    --danger-bg:#fff1f2;
+    --danger-border:#fecdd3;
+    --ok:#047857;
+    --ok-bg:#ecfdf5;
+    --ok-border:#a7f3d0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;scroll-padding-top:24px;}
+  body{
+    background:var(--background);color:var(--foreground);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased;
+  }
+  code{background:var(--muted-bg);padding:1px 6px;border-radius:5px;font-family:var(--mono);font-size:.88em;}
+
+  /* ── Sidebar ── */
+  .sidebar{
+    position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
+    background:var(--card);border-right:1px solid var(--border);
+    overflow-y:auto;padding:20px 0;z-index:100;
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  }
+  .sidebar::-webkit-scrollbar{width:4px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .sidebar-logo{padding:0 20px 16px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+  .sidebar-logo a{text-decoration:none;color:var(--foreground);font-size:14.5px;font-weight:700;letter-spacing:-0.01em;}
+  .sidebar-logo .sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .nav-group{padding:0 12px;margin-bottom:8px;}
+  .nav-group-title{
+    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);padding:8px 8px 5px;user-select:none;
+  }
+  .nav-link{
+    display:flex;align-items:center;gap:8px;text-decoration:none;font-size:13px;color:var(--muted);
+    padding:5px 8px;border-radius:6px;transition:all .12s;line-height:1.5;
+  }
+  .nav-link:hover{color:var(--foreground);background:var(--muted-bg);}
+  .nav-link.active{color:var(--foreground);background:var(--muted-bg);font-weight:650;}
+  .nav-link.sub{padding-left:26px;font-size:12.5px;}
+  .nav-link .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+
+  /* ── Mobile topbar ── */
+  .topbar{
+    display:none;position:sticky;top:0;z-index:100;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+    padding:10px 16px;overflow-x:auto;white-space:nowrap;
+  }
+  .topbar a{
+    display:inline-block;text-decoration:none;font-size:12.5px;font-weight:600;color:var(--muted);
+    border:1px solid var(--border);background:var(--card);border-radius:999px;
+    padding:4px 12px;margin-right:8px;transition:all .12s;
+  }
+  .topbar a:hover{color:var(--foreground);}
+  .topbar a.active{background:var(--primary);border-color:var(--primary);color:var(--primary-fg);}
+
+  /* ── Main ── */
+  .main{margin-left:var(--sidebar-w);min-height:100vh;}
+  .content{max-width:860px;margin:0 auto;padding:0 32px;}
+
+  /* ── Hero ── */
+  .hero{padding:56px 0 40px;border-bottom:1px solid var(--border);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;
+    color:#4f46e5;background:#eef2ff;padding:4px 10px;border-radius:999px;
+    letter-spacing:.02em;margin-bottom:16px;border:1px solid #c7d2fe;
+  }
+  .hero h1{font-size:36px;font-weight:700;letter-spacing:-0.025em;margin-bottom:12px;}
+  .hero .hl{color:#4f46e5;}
+  .hero .lead{font-size:15.5px;color:var(--muted);max-width:660px;margin-bottom:18px;}
+  .hero .lead b{color:var(--foreground);}
+  .meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+  .meta-chip{
+    font-size:12px;font-weight:600;color:var(--muted);background:var(--card);
+    border:1px solid var(--border);border-radius:999px;padding:4px 12px;
+  }
+  .agenda{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .agenda-card{
+    display:block;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--border);border-top:3px solid var(--m-border,var(--border));
+    border-radius:var(--radius);padding:14px 16px;
+    transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+  }
+  .agenda-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(9,9,11,.07);}
+  .agenda-card .no{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em;}
+  .agenda-card .nm{font-size:15px;font-weight:700;margin:4px 0 2px;}
+  .agenda-card .rl{font-size:12.5px;color:var(--muted);}
+  .agenda-card .tm{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:8px;display:block;}
+
+  /* ── Section ── */
+  section{padding:48px 0;border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head h2{font-size:26px;font-weight:700;letter-spacing:-0.015em;margin-bottom:8px;}
+  .sec-head .sec-sub{font-size:14.5px;color:var(--muted);max-width:660px;}
+  .sec-kicker{
+    font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;
+  }
+
+  h3{font-size:17px;font-weight:650;margin:26px 0 10px;}
+  p.body{font-size:14.5px;margin-bottom:12px;}
+  p.body b{font-weight:650;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--muted-bg);}
+  tr:last-child td{border-bottom:none;}
+  td code{white-space:nowrap;}
+
+  .note{
+    display:flex;gap:10px;background:var(--muted-bg);border:1px solid var(--border);
+    border-radius:var(--radius);padding:14px 16px;font-size:13.5px;color:var(--foreground);margin:14px 0;
+  }
+  .note .ico{flex:none;font-weight:700;color:var(--muted);}
+  .note b{font-weight:650;}
+
+  /* ── Module sections ── */
+  .mod-xxl{--acc:#2563eb;--acc-soft:#eff6ff;--acc-border:#bfdbfe;}
+  .mod-es{--acc:#b45309;--acc-soft:#fffbeb;--acc-border:#fde68a;}
+  .mod-kafka{--acc:#7c3aed;--acc-soft:#f5f3ff;--acc-border:#ddd6fe;}
+  .mod-influx{--acc:#0d9488;--acc-soft:#f0fdfa;--acc-border:#99f6e4;}
+
+  .mod-head{
+    background:var(--card);border:1px solid var(--border);border-left:4px solid var(--acc);
+    border-radius:var(--radius);padding:22px 24px;margin-bottom:26px;
+    display:flex;gap:18px;align-items:flex-start;
+  }
+  .mod-head .idx{
+    font-family:var(--mono);font-size:26px;font-weight:700;color:var(--acc);
+    background:var(--acc-soft);border:1px solid var(--acc-border);
+    border-radius:10px;width:52px;height:52px;display:grid;place-items:center;flex:none;
+  }
+  .mod-head .role{
+    display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+    letter-spacing:.05em;color:var(--acc);background:var(--acc-soft);
+    border:1px solid var(--acc-border);border-radius:999px;padding:2px 10px;margin-bottom:8px;
+  }
+  .mod-head h2{font-size:23px;font-weight:700;letter-spacing:-0.015em;margin-bottom:6px;}
+  .mod-head .one{font-size:14px;color:var(--muted);}
+  .mod-head .one b{color:var(--foreground);}
+  .mod-head .time{
+    flex:none;font-family:var(--mono);font-size:11.5px;color:var(--muted);
+    border:1px dashed var(--border);border-radius:999px;padding:3px 10px;white-space:nowrap;
+  }
+
+  .part{margin-bottom:30px;}
+  .part:last-child{margin-bottom:0;}
+  .part-label{
+    display:flex;align-items:center;gap:10px;margin-bottom:12px;
+  }
+  .part-label .p-no{
+    font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:var(--acc);
+    border-radius:6px;width:24px;height:24px;display:grid;place-items:center;flex:none;
+  }
+  .part-label .p-name{font-size:14px;font-weight:700;letter-spacing:.01em;}
+  .part-label .p-time{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);}
+
+  /* part 1 · definition */
+  .definition{
+    background:var(--card);border:1px solid var(--border);border-left:3px solid var(--acc);
+    border-radius:0 var(--radius) var(--radius) 0;padding:16px 20px;font-size:15px;margin-bottom:12px;
+  }
+  .definition b{color:var(--acc);}
+  .definition .sub{display:block;font-size:13.5px;color:var(--muted);margin-top:6px;}
+
+  /* part 2 · concepts */
+  .concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;}
+  .concept-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+  .concept-card .cc-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .concept-card .cc-no{
+    font-family:var(--mono);font-size:11px;font-weight:700;color:var(--acc);
+    background:var(--acc-soft);border:1px solid var(--acc-border);border-radius:999px;padding:1px 9px;
+  }
+  .concept-card .cc-name{font-size:14.5px;font-weight:700;}
+  .concept-card .cc-name span{font-weight:500;color:var(--muted);font-size:12.5px;margin-left:4px;}
+  .concept-card p{font-size:13.5px;color:var(--muted);}
+  .concept-card p b{color:var(--foreground);font-weight:650;}
+
+  /* part 3 · analogy (emphasized) */
+  .analogy-block{
+    background:var(--acc-soft);border:1px solid var(--acc-border);border-radius:var(--radius);
+    padding:20px 22px;
+  }
+  .ab-tag{
+    display:inline-flex;align-items:center;gap:6px;background:var(--acc);color:#fff;
+    font-size:12px;font-weight:700;letter-spacing:.04em;border-radius:999px;padding:3px 12px;margin-bottom:14px;
+  }
+  .analogy-row{
+    display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:stretch;
+    background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:12px 14px;margin-bottom:10px;
+  }
+  .analogy-row .side .who{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px;}
+  .analogy-row .side.be .who{color:var(--acc);}
+  .analogy-row .side .what{font-family:var(--mono);font-size:12.5px;font-weight:650;line-height:1.5;}
+  .analogy-row .side .desc{font-size:12.5px;color:var(--muted);margin-top:3px;}
+  .analogy-row .mid{align-self:center;color:var(--acc);font-weight:700;font-size:16px;padding:0 2px;}
+  .analogy-row .row-note{grid-column:1/-1;font-size:12.5px;color:var(--muted);border-top:1px dashed var(--border);padding-top:8px;margin-top:2px;}
+  .break-box{
+    background:var(--card);border:1px dashed var(--danger-border);border-radius:10px;
+    padding:14px 16px;margin-top:4px;
+  }
+  .break-box .bb-title{
+    font-size:12px;font-weight:700;letter-spacing:.05em;color:var(--danger);
+    display:flex;align-items:center;gap:6px;margin-bottom:8px;
+  }
+  .break-box ul{margin:0;padding-left:18px;}
+  .break-box li{font-size:13.5px;margin-bottom:6px;color:var(--foreground);}
+  .break-box li:last-child{margin-bottom:0;}
+  .break-box li b{font-weight:650;color:var(--danger);}
+
+  /* part 4 · scene & pitfalls */
+  .scenario{background:var(--ok-bg);border:1px solid var(--ok-border);border-radius:var(--radius);padding:15px 18px;margin-bottom:12px;font-size:14px;}
+  .scenario .sc-tag,.pitfall .pf-tag{
+    display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.05em;
+    border-radius:999px;padding:2px 10px;margin-bottom:8px;
+  }
+  .scenario .sc-tag{color:var(--ok);background:#d1fae5;border:1px solid var(--ok-border);}
+  .pitfall{background:var(--danger-bg);border:1px solid var(--danger-border);border-radius:var(--radius);padding:15px 18px;margin-bottom:12px;font-size:14px;}
+  .pitfall .pf-tag{color:var(--danger);background:#ffe4e6;border:1px solid var(--danger-border);}
+  .scenario b,.pitfall b{font-weight:650;}
+
+  /* ── diagrams ── */
+  .diagram-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin:14px 0;}
+  .diagram-cap{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px;font-family:var(--mono);}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .flow-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;text-align:center;}
+  .flow-box .t{font-weight:650;}
+  .flow-box .d{color:var(--muted);font-size:11.5px;font-family:var(--mono);margin-top:2px;}
+  .flow-arrow{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:16px;padding:0 2px;}
+  .flow-arrow .lbl{font-size:10.5px;font-family:var(--mono);color:var(--acc,var(--muted));white-space:nowrap;}
+  .exec-col{display:flex;flex-direction:column;gap:6px;}
+  .exec{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-family:var(--mono);color:var(--muted);text-align:center;}
+  .exec.hit{background:var(--acc-soft);border:1.5px solid var(--acc);color:var(--foreground);font-weight:700;}
+  .exec .st{font-size:10.5px;display:block;}
+  .exec.hit .st{color:var(--acc);}
+
+  /* inverted index */
+  .idx-demo{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:0;align-items:center;}
+  .idx-col .h{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+  .doc-row{background:var(--muted-bg);border-radius:8px;padding:8px 12px;font-size:12.5px;margin-bottom:8px;font-family:var(--mono);}
+  .term-row{display:flex;justify-content:space-between;gap:10px;background:var(--acc-soft);border:1px solid var(--acc-border);border-radius:8px;padding:8px 12px;font-size:12.5px;margin-bottom:8px;}
+  .term-row b{font-family:var(--mono);color:var(--acc);}
+  .term-row span{color:var(--muted);font-family:var(--mono);font-size:11.5px;}
+  .idx-arrow{padding:0 16px;color:var(--muted);font-size:20px;}
+
+  /* kafka */
+  .kf-topic{background:var(--acc-soft);border:1px solid var(--acc-border);border-radius:12px;padding:12px 14px;min-width:200px;}
+  .kf-topic .tt{font-size:11.5px;font-weight:700;color:var(--acc);font-family:var(--mono);margin-bottom:8px;}
+  .partition{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--acc-border);border-radius:8px;padding:6px 10px;margin-bottom:6px;font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .partition:last-child{margin-bottom:0;}
+  .partition .msgs{display:flex;gap:3px;}
+  .partition .msg{width:14px;height:14px;border-radius:3px;background:var(--acc-border);}
+  .partition .msg.new{background:var(--acc);}
+  .kf-groups{display:flex;flex-direction:column;gap:8px;}
+
+  /* influx point anatomy */
+  .anatomy{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+  .anatomy .seg{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+  .anatomy .seg .k{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+  .anatomy .seg .v{font-family:var(--mono);font-size:12.5px;font-weight:650;margin:4px 0 2px;color:var(--acc);}
+  .anatomy .seg .m{font-size:12px;color:var(--muted);}
+  .anatomy .seg.hot{border-color:var(--acc);background:var(--acc-soft);}
+
+  /* outro story */
+  .story{list-style:none;margin:6px 0 0;}
+  .story li{position:relative;padding:0 0 24px 50px;}
+  .story li::before{
+    content:attr(data-n);position:absolute;left:0;top:0;
+    font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;background:var(--primary);
+    width:34px;height:34px;border-radius:8px;display:grid;place-items:center;
+  }
+  .story li::after{
+    content:"";position:absolute;left:16px;top:38px;bottom:4px;width:1.5px;
+    background:repeating-linear-gradient(var(--border) 0 4px,transparent 4px 8px);
+  }
+  .story li:last-child{padding-bottom:0;}
+  .story li:last-child::after{display:none;}
+  .story .s-title{font-weight:650;font-size:14.5px;margin-bottom:3px;}
+  .story p{font-size:13.5px;color:var(--muted);}
+  .mod-chip{
+    display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;
+    margin-right:6px;vertical-align:1px;
+  }
+  .c-xxl{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;}
+  .c-es{background:#fffbeb;color:#b45309;border:1px solid #fde68a;}
+  .c-kafka{background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;}
+  .c-influx{background:#f0fdfa;color:#0d9488;border:1px solid #99f6e4;}
+
+  .take-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:6px;}
+  .take-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;font-size:13.5px;}
+  .take-card .tk{font-weight:700;font-size:14px;margin-bottom:6px;}
+  .take-card p{color:var(--muted);}
+
+  .path-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+  a.path-card{
+    display:block;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:15px 18px;transition:border-color .15s ease,transform .15s ease;
+  }
+  a.path-card:hover{border-color:#a5b4fc;transform:translateY(-1px);}
+  a.path-card .pt{font-size:14px;font-weight:650;margin-bottom:4px;display:flex;justify-content:space-between;gap:8px;}
+  a.path-card .pt .ar{color:var(--muted);transition:transform .15s;}
+  a.path-card:hover .pt .ar{transform:translateX(3px);color:#4f46e5;}
+  a.path-card .pd{font-size:12.5px;color:var(--muted);}
+
+  footer{padding:36px 0 70px;color:var(--muted);font-size:12.5px;}
+  footer code{font-size:.92em;}
+
+  a:focus-visible,.nav-link:focus-visible,.topbar a:focus-visible{outline:2px solid #4f46e5;outline-offset:2px;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{transition:none!important;}
+  }
+  @media (max-width:1000px){
+    .sidebar{display:none;}
+    .topbar{display:block;}
+    .main{margin-left:0;}
+    .content{padding:0 20px;}
+    html{scroll-padding-top:64px;}
+    .agenda{grid-template-columns:repeat(2,1fr);}
+    .mod-head{flex-wrap:wrap;}
+    .mod-head .time{order:-1;margin-left:auto;}
+  }
+  @media (max-width:640px){
+    .hero h1{font-size:27px;}
+    .agenda{grid-template-columns:1fr;}
+    .analogy-row{grid-template-columns:1fr;}
+    .analogy-row .mid{display:none;}
+    .idx-demo{grid-template-columns:1fr;}
+    .idx-arrow{transform:rotate(90deg);padding:8px 0;text-align:center;}
+    .flow{flex-direction:column;align-items:stretch;}
+    .flow-arrow{flex-direction:row;justify-content:center;}
+    .flow-arrow .lbl{white-space:normal;}
+  }
+</style>
+</head>
+<body id="top">
+
+<!-- ═══════════ Sidebar TOC ═══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="#top">后端基础设施认知地图</a>
+    <div class="sub">前端团队技术分享 · 20–30 分钟</div>
+  </div>
+  <nav aria-label="目录">
+    <div class="nav-group">
+      <a class="nav-link" href="#intro">开场 · 为什么是这四个</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">四个模块</div>
+      <a class="nav-link" href="#xxl-job"><span class="dot" style="background:#2563eb"></span>01 xxl-job · 调度</a>
+      <a class="nav-link sub" href="#xxl-what">是什么</a>
+      <a class="nav-link sub" href="#xxl-concepts">核心概念</a>
+      <a class="nav-link sub" href="#xxl-analogy">前端类比</a>
+      <a class="nav-link sub" href="#xxl-scene">场景 · 踩坑</a>
+
+      <a class="nav-link" href="#es" style="margin-top:6px;"><span class="dot" style="background:#b45309"></span>02 Elasticsearch · 搜索</a>
+      <a class="nav-link sub" href="#es-what">是什么</a>
+      <a class="nav-link sub" href="#es-concepts">核心概念</a>
+      <a class="nav-link sub" href="#es-analogy">前端类比</a>
+      <a class="nav-link sub" href="#es-scene">场景 · 踩坑</a>
+
+      <a class="nav-link" href="#kafka" style="margin-top:6px;"><span class="dot" style="background:#7c3aed"></span>03 Kafka · 消息</a>
+      <a class="nav-link sub" href="#kafka-what">是什么</a>
+      <a class="nav-link sub" href="#kafka-concepts">核心概念</a>
+      <a class="nav-link sub" href="#kafka-analogy">前端类比</a>
+      <a class="nav-link sub" href="#kafka-scene">场景 · 踩坑</a>
+
+      <a class="nav-link" href="#influxdb" style="margin-top:6px;"><span class="dot" style="background:#0d9488"></span>04 InfluxDB · 时序</a>
+      <a class="nav-link sub" href="#influx-what">是什么</a>
+      <a class="nav-link sub" href="#influx-concepts">核心概念</a>
+      <a class="nav-link sub" href="#influx-analogy">前端类比</a>
+      <a class="nav-link sub" href="#influx-scene">场景 · 踩坑</a>
+    </div>
+    <div class="nav-group">
+      <a class="nav-link" href="#outro">收尾 · 一条链路串讲</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ═══════════ Mobile topbar ═══════════ -->
+<nav class="topbar" aria-label="快速跳转">
+  <a href="#intro">开场</a>
+  <a href="#xxl-job">01 xxl-job</a>
+  <a href="#es">02 ES</a>
+  <a href="#kafka">03 Kafka</a>
+  <a href="#influxdb">04 InfluxDB</a>
+  <a href="#outro">收尾</a>
+</nav>
+
+<div class="main">
+<div class="content">
+
+  <!-- ═══════════ Hero ═══════════ -->
+  <header class="hero">
+    <span class="eyebrow">● 技术分享 · 前端 → 全栈</span>
+    <h1>后端基础设施<span class="hl">认知地图</span></h1>
+    <p class="lead">
+      用 <b>调度、搜索、消息、时序数据</b> 四类基础设施，回答一个问题：后端工程师日常在接触什么？
+      以及——这四样东西，你在前端其实早就用过它们的「单进程原型」。
+    </p>
+    <div class="meta-row">
+      <span class="meta-chip">时长 20–30 分钟</span>
+      <span class="meta-chip">听众：Vue3 / JS → Java</span>
+      <span class="meta-chip">4 模块 × 四段式结构</span>
+      <span class="meta-chip">素材：fe-java 目录深度长文</span>
+    </div>
+    <div class="agenda">
+      <a class="agenda-card" href="#xxl-job" style="--m-border:#2563eb;">
+        <span class="no">MODULE 01 · 调度</span>
+        <div class="nm">xxl-job</div>
+        <div class="rl">到点的事，哪台机器跑</div>
+        <span class="tm">≈ 6 min</span>
+      </a>
+      <a class="agenda-card" href="#es" style="--m-border:#b45309;">
+        <span class="no">MODULE 02 · 搜索</span>
+        <div class="nm">Elasticsearch</div>
+        <div class="rl">海量文本里按内容找</div>
+        <span class="tm">≈ 6 min</span>
+      </a>
+      <a class="agenda-card" href="#kafka" style="--m-border:#7c3aed;">
+        <span class="no">MODULE 03 · 消息</span>
+        <div class="nm">Kafka</div>
+        <div class="rl">服务之间怎么说话</div>
+        <span class="tm">≈ 6 min</span>
+      </a>
+      <a class="agenda-card" href="#influxdb" style="--m-border:#0d9488;">
+        <span class="no">MODULE 04 · 时序</span>
+        <div class="nm">InfluxDB</div>
+        <div class="rl">随时间变化的数字存哪</div>
+        <span class="tm">≈ 6 min</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════════ 开场 ═══════════ -->
+  <section id="intro">
+    <div class="sec-head">
+      <div class="sec-kicker">开场 · 1–2 分钟</div>
+      <h2>为什么是这四个放在一起讲</h2>
+      <p class="sec-sub">它们不是随机拼盘——每一个都站在后端系统的一个基础位置上。先记住这张骨架图，后面的细节都往这四个格子里放。</p>
+    </div>
+
+    <h3>后端系统的四个基础位置</h3>
+    <table>
+      <thead><tr><th style="width:17%">后端位置</th><th style="width:24%">回答的问题</th><th style="width:24%">基础设施</th><th>你的前端原型</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="mod-chip c-xxl">调度</span></td>
+          <td>有些事要「到点自动做」——对账、过期清理、数据同步</td>
+          <td><b>xxl-job</b> · 分布式任务调度</td>
+          <td><code>setInterval</code> / cron</td>
+        </tr>
+        <tr>
+          <td><span class="mod-chip c-es">搜索</span></td>
+          <td>有些数据要「按内容找」——商品搜索、日志检索</td>
+          <td><b>Elasticsearch</b> · 全文搜索引擎</td>
+          <td>搜索框 + <code>Array.filter</code></td>
+        </tr>
+        <tr>
+          <td><span class="mod-chip c-kafka">消息</span></td>
+          <td>有些服务要「通知别人但不等回复」——下单后发短信、加积分</td>
+          <td><b>Kafka</b> · 分布式消息系统</td>
+          <td><code>mitt</code> / EventBus</td>
+        </tr>
+        <tr>
+          <td><span class="mod-chip c-influx">时序</span></td>
+          <td>有些数字在「不停产生」——CPU、QPS、接口耗时</td>
+          <td><b>InfluxDB</b> · 时序数据库</td>
+          <td>埋点上报 / 监控曲线</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <span class="ico">◇</span>
+      <div>
+        <b>贯穿全场的一条主线：</b>这四样东西，前端都有「单进程、内存版」的原型。后端基础设施做的事，就是把它们升级成
+        <b>多机、持久化、出了故障还能活</b> 的版本。所以每个模块你只需要补一件事——<b>升级过程中多出来的那几个概念</b>。
+      </div>
+    </div>
+
+    <div class="note">
+      <span class="ico">▸</span>
+      <div>
+        <b>听讲节奏：</b>四个模块走完全相同的四拍——<b>① 是什么 → ② 核心概念 → ③ 前端类比 → ④ 场景/踩坑</b>。
+        到第三拍时请主动对照自己的心智模型：类比在哪里成立，更要知道它在哪里失效。
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 模块一 · xxl-job ═══════════ -->
+  <section id="xxl-job" class="mod-xxl">
+    <div class="mod-head">
+      <div class="idx">01</div>
+      <div style="flex:1;">
+        <span class="role">调度 · SCHEDULING</span>
+        <h2>xxl-job · 分布式任务调度</h2>
+        <p class="one">分布式环境里的 <b>setInterval + cron</b>——解决"多台机器时，到点的任务由谁来跑、怎么保证只跑一次、跑失败了怎么办"。</p>
+      </div>
+      <span class="time">≈ 6 min</span>
+    </div>
+
+    <div class="part" id="xxl-what">
+      <div class="part-label"><span class="p-no">①</span><span class="p-name">是什么 · 解决什么问题</span><span class="p-time">≈ 1 min</span></div>
+      <div class="definition">
+        单机 cron 在多副本部署下会失控：<b>3 个副本都配了同一个定时任务 → 同一件事被执行 3 遍</b>；某台挂了也没人知道。
+        <span class="sub">xxl-job 的答案：把「决定何时跑、谁来跑」和「真正干活」拆成两个独立角色，中间用 MySQL 做共享状态。</span>
+      </div>
+    </div>
+
+    <div class="part" id="xxl-concepts">
+      <div class="part-label"><span class="p-no">②</span><span class="p-name">核心概念（只讲 3 个）</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 1</span><span class="cc-name">调度中心 / 执行器<span>分离</span></span></div>
+          <p><b>调度中心 admin</b>：独立 Web 管理台，管任务配置、按 cron 到点触发、选机器、记日志。<b>执行器 Executor</b>：嵌在业务应用里的 SDK，被动接收 HTTP 触发，跑 <code>@XxlJob</code> 方法。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 2</span><span class="cc-name">执行器组 + 心跳</span></div>
+          <p>同一应用的多个副本以相同 <b>AppName</b> 注册，自动聚成一个"组"；每 <b>30 秒</b>写一次心跳，<b>90 秒</b>没心跳就被摘除。组是一个「看不见的集群」。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 3</span><span class="cc-name">路由策略</span></div>
+          <p>一次触发，从组里<b>选一台</b>执行：轮询 / 随机 / 故障转移……例外是<b>分片广播</b>：每台都收到、各带不同分片号，用于多机并行分摊。</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram-cap">派发瞬间 · 一次触发，只有一台执行</div>
+        <div class="flow">
+          <div class="flow-box">
+            <div class="t">调度中心</div>
+            <div class="d">cron: 0 */1 * * * ?</div>
+          </div>
+          <div class="flow-arrow">→<span class="lbl">触发 ×1</span></div>
+          <div class="flow-box">
+            <div class="t">路由</div>
+            <div class="d">ROUND 轮询</div>
+          </div>
+          <div class="flow-arrow">→<span class="lbl">选一台</span></div>
+          <div class="exec-col">
+            <div class="exec">10.0.1.5<span class="st">本次轮空</span></div>
+            <div class="exec hit">10.0.1.7<span class="st">✓ 本次执行</span></div>
+            <div class="exec">10.0.1.9<span class="st">本次轮空</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="xxl-analogy">
+      <div class="part-label"><span class="p-no">③</span><span class="p-name">前端类比</span><span class="p-time">≈ 2 min</span></div>
+      <div class="analogy-block">
+        <span class="ab-tag">前端类比 · 先建立熟悉感</span>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端 · CI/CD</div><div class="what">GitHub Actions 控制台 + self-hosted runner</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">xxl-job</div><div class="what">调度中心 admin + 执行器</div></div>
+          <div class="row-note">平台决定哪个 runner 接单，runner 只管干活并回报结果——admin 和执行器正是这种分工。</div>
+        </div>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端 · Nginx 负载均衡</div><div class="what">round-robin / random / 健康检查</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">xxl-job</div><div class="what">ROUND / RANDOM / FAILOVER</div></div>
+          <div class="row-note">路由策略的名字和算法，与负载均衡几乎一一对应。</div>
+        </div>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端 · 请求管理</div><div class="what">请求去重 / AbortController.abort()</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">xxl-job</div><div class="what">阻塞策略：丢弃后续 / 覆盖之前</div></div>
+          <div class="row-note">"上一次还没跑完，新触发又来了"——和前端处理在途请求是同一类问题。</div>
+        </div>
+
+        <div class="break-box">
+          <div class="bb-title">⚠ 类比在这里失效 · 别带着错误心智模型走</div>
+          <ul>
+            <li><b>定时器是单进程、内存态</b>：页面关了就没了，也不存在"谁来跑"的选择。xxl-job 的调度方和执行方是两个进程甚至两台机器，靠 HTTP + MySQL 通信——所以才有注册、心跳、路由这一整套东西。</li>
+            <li><b>投递语义不同</b>：<code>setTimeout</code> 错过就错过了；xxl-job 是 <b>at-least-once</b>——重试与补触发意味着任务可能执行不止一次，<b>任务代码必须幂等</b>（对应前端的"按钮防连点"经验，但这层在后端永远省不掉）。</li>
+            <li><b>"组"是看不见的</b>：谁在跑任务，以 admin 的注册地址为准，而不是你以为部署了哪些实例。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="xxl-scene">
+      <div class="part-label"><span class="p-no">④</span><span class="p-name">典型场景 · 高频踩坑</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="scenario">
+        <span class="sc-tag">典型场景</span>
+        每天 0 点对账出报表；优惠券到期批量失效；<b>每 5 分钟把 MySQL 新数据同步到 ES</b>（呼应模块二：搜索的数据从哪来）。
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · 幽灵执行器（真实事故）</span>
+        注册只看「能不能连上同一套 admin + MySQL」，不看部署在哪。同事本地跑着旧版本服务也注册进了同一个执行器组，轮询路由下触发在新代码和旧代码之间交替——表现为「配置明明改了，旧行为隔一次出现一次」。
+        <b>教训：判断"谁在跑任务"的唯一权威来源是 admin 的注册地址列表和调度日志，不是 k8s 的 Pod 列表。</b>
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · 分片广播 ≠ 天然安全</span>
+        代码里不读 <code>shardIndex</code>，每台机器就会把全量逻辑各跑一遍——通知发 N 份、数据算 N 遍。<b>广播必须配合分片编码使用。</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 模块二 · Elasticsearch ═══════════ -->
+  <section id="es" class="mod-es">
+    <div class="mod-head">
+      <div class="idx">02</div>
+      <div style="flex:1;">
+        <span class="role">搜索 · SEARCH</span>
+        <h2>Elasticsearch · 全文搜索</h2>
+        <p class="one">MySQL 擅长"按条件精确查一条记录"，ES 擅长<b>"在一堆文本里搜出相关内容，并按相关度排序"</b>——基于倒排索引的分布式搜索引擎。</p>
+      </div>
+      <span class="time">≈ 6 min</span>
+    </div>
+
+    <div class="part" id="es-what">
+      <div class="part-label"><span class="p-no">①</span><span class="p-name">是什么 · 解决什么问题</span><span class="p-time">≈ 1 min</span></div>
+      <div class="definition">
+        数据库自带的 <code>LIKE '%关键词%'</code> 是"拿关键词去每一行里找"——数据量大了必然全表扫描，更没有中文分词、纠错、相关度排序。
+        <span class="sub">ES 反过来：提前把「每个词出现在哪些文档里」整理成一张表，查询时直接按词查文档。这就是倒排索引——"搜索为什么快"的全部答案。</span>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram-cap">倒排索引 · 先分词，再按词查文档</div>
+        <div class="idx-demo">
+          <div class="idx-col">
+            <div class="h">原始文档</div>
+            <div class="doc-row">doc1: "苹果手机 promax 黑色"</div>
+            <div class="doc-row">doc2: "苹果笔记本电脑"</div>
+            <div class="doc-row">doc3: "华为手机 promax"</div>
+          </div>
+          <div class="idx-arrow">→</div>
+          <div class="idx-col">
+            <div class="h">倒排索引（写入时就建好）</div>
+            <div class="term-row"><b>苹果</b><span>doc1, doc2</span></div>
+            <div class="term-row"><b>手机</b><span>doc1, doc3</span></div>
+            <div class="term-row"><b>promax</b><span>doc1, doc3</span></div>
+            <div class="term-row"><b>笔记本</b><span>doc2</span></div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:12px;margin-bottom:0;">搜"苹果手机"→ 查表直接命中 <code>doc1</code>（两词都命中，分数最高），全程不扫原文。</p>
+      </div>
+    </div>
+
+    <div class="part" id="es-concepts">
+      <div class="part-label"><span class="p-no">②</span><span class="p-name">核心概念（只讲 3 个）</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 1</span><span class="cc-name">倒排索引</span></div>
+          <p>写入时就完成分词、建好「词 → 文档列表」。查询成本只和命中的词有关，与总数据量基本无关——这是和 <code>LIKE</code> 的本质区别。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 2</span><span class="cc-name">文档模型</span></div>
+          <p><b>Index</b> ≈ 表，<b>Document</b> ≈ 一行（就是一个 JSON 对象），<b>Mapping</b> ≈ 表结构——核心是定义"每个文本字段怎么分词"，中文场景配 ik 分词器。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 3</span><span class="cc-name">分片 + 副本</span></div>
+          <p>一个 Index 拆成多个 <b>Shard</b> 散到不同节点并行处理——水平扩展的关键；<b>Replica</b> 保证节点挂了数据还在，还能分摊查询。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="es-analogy">
+      <div class="part-label"><span class="p-no">③</span><span class="p-name">前端类比</span><span class="p-time">≈ 2 min</span></div>
+      <div class="analogy-block">
+        <span class="ab-tag">前端类比 · 先建立熟悉感</span>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端</div><div class="what">Array.filter + sort（带打分）</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">Elasticsearch</div><div class="what">预建索引、分布式的超级过滤器</div></div>
+          <div class="row-note">一句话记忆：ES = 预先建好索引、天生分布式的「超级 Array.filter + 打分排序」。</div>
+        </div>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端 · 查询写法</div><div class="what">match ≈ 搜索框 · term ≈ === · range ≈ &gt;= &lt;= · bool ≈ &amp;&amp; || !</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">ES · Query DSL</div><div class="what">用 JSON 写查询条件（REST API 调用）</div></div>
+          <div class="row-note">所有操作都是 HTTP REST——和前端调接口一模一样，只是请求体是 JSON。</div>
+        </div>
+
+        <div class="break-box">
+          <div class="bb-title">⚠ 类比在这里失效 · 别带着错误心智模型走</div>
+          <ul>
+            <li><b>filter 每次全量扫一遍</b>；ES 靠的是写入时预建的倒排索引——成本在写入侧已经付过了。</li>
+            <li><b>filter 只回答"匹配不匹配"</b>；ES 还给每条结果打<b>相关度分（BM25）并排序</b>——"有多匹配"是前端过滤里没有的维度。</li>
+            <li><b>一致性不同</b>：ES 是近实时（写入后约 1 秒才能搜到），且<b>没有事务</b>——所以 ES 永远不当主数据库用：MySQL 是数据源头，ES 只是一份"用来搜索的副本"（这份副本怎么同步过来，正是模块一 / 模块三的活）。</li>
+            <li><b>text vs keyword</b> 是前端没有的概念：<code>text</code> 会分词（用于全文搜），<code>keyword</code> 不分词（用于精确匹配）——对 text 字段做精确匹配会查不到。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="es-scene">
+      <div class="part-label"><span class="p-no">④</span><span class="p-name">典型场景 · 高频踩坑</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="scenario">
+        <span class="sc-tag">典型场景</span>
+        电商站内商品搜索——中文分词、拼音纠错、关键词高亮、筛选面板聚合；日志集中检索——<b>ELK</b>（Elasticsearch + Logstash/Filebeat + Kibana）。
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · Mapping 只能加不能改</span>
+        字段类型一旦建好无法修改，改类型要重建索引、重新导数据。<b>第一天就要规划好分词方式。</b>
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · 深度分页</span>
+        <code>from + size</code> 超过 1 万条性能急剧下降（每个分片都要取 from+size 条再合并排序）。正确姿势是 <code>search_after</code> 游标分页——类似前端无限滚动用 cursor 而不是 offset。
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 模块三 · Kafka ═══════════ -->
+  <section id="kafka" class="mod-kafka">
+    <div class="mod-head">
+      <div class="idx">03</div>
+      <div style="flex:1;">
+        <span class="role">消息 · MESSAGING</span>
+        <h2>Kafka · 分布式消息系统</h2>
+        <p class="one">把你熟悉的发布订阅模型搬到服务器集群上，还给每条消息上了"持久保险"——<b>写盘、可重放、多个消费者各自独立消费</b>。</p>
+      </div>
+      <span class="time">≈ 6 min</span>
+    </div>
+
+    <div class="part" id="kafka-what">
+      <div class="part-label"><span class="p-no">①</span><span class="p-name">是什么 · 解决什么问题</span><span class="p-time">≈ 1 min</span></div>
+      <div class="definition">
+        三件事：<b>解耦</b>（下单服务不需要知道谁要处理"支付成功"）、<b>削峰</b>（秒杀流量先落盘排队，后端按自己的速度消费）、<b>可回放</b>（消费者挂了重启，从断点继续读）。
+        <span class="sub">如果说 mitt / EventBus 是"进程内、内存里、用完即丢"的事件总线，Kafka 就是它的跨服务器、持久化版本。</span>
+      </div>
+    </div>
+
+    <div class="part" id="kafka-concepts">
+      <div class="part-label"><span class="p-no">②</span><span class="p-name">核心概念（只讲 3 个）</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 1</span><span class="cc-name">Topic</span></div>
+          <p>一类消息的频道，如 <code>order-paid</code>。<b>Producer</b> 往里发，<b>Consumer</b> 从里面读——对应事件名、emit 的一方、on 的一方。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 2</span><span class="cc-name">Partition + Offset</span></div>
+          <p>一个 Topic 拆成多个分区并行读写提吞吐，<b>分区内严格有序</b>。Offset 是消费者的"已读游标"——重启后从游标继续。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 3</span><span class="cc-name">Consumer Group</span></div>
+          <p>同组内多个实例<b>分摊</b>消息（负载均衡）；不同组之间<b>各自拿到完整一份</b>（广播）。一份消息天然同时服务多个下游业务。</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram-cap">一条消息的旅程 · 同一条消息，多个消费者组各取所需</div>
+        <div class="flow">
+          <div class="flow-box">
+            <div class="t">Producer</div>
+            <div class="d">下单服务 · send("order-paid")</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="kf-topic">
+            <div class="tt">TOPIC: order-paid</div>
+            <div class="partition">P0 <span class="msgs"><span class="msg"></span><span class="msg"></span><span class="msg"></span></span></div>
+            <div class="partition">P1 <span class="msgs"><span class="msg"></span><span class="msg"></span></span></div>
+            <div class="partition">P2 <span class="msgs"><span class="msg"></span><span class="msg"></span><span class="msg"></span><span class="msg new"></span></span></div>
+          </div>
+          <div class="flow-arrow">→<span class="lbl">各自独立消费</span></div>
+          <div class="kf-groups">
+            <div class="flow-box"><div class="t">消费者组 A · 短信服务</div><div class="d">组内多实例分摊分区</div></div>
+            <div class="flow-box"><div class="t">消费者组 B · 积分服务</div><div class="d">组间拿到完整一份</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="kafka-analogy">
+      <div class="part-label"><span class="p-no">③</span><span class="p-name">前端类比</span><span class="p-time">≈ 2 min</span></div>
+      <div class="analogy-block">
+        <span class="ab-tag">前端类比 · 先建立熟悉感</span>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端 · mitt / EventBus</div><div class="what">emitter.emit('order:paid', data)</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">Kafka · Producer</div><div class="what">producer.send("order-paid", data)</div></div>
+          <div class="row-note">事件名 ≈ Topic，payload ≈ Message，emit 的一方 ≈ Producer。</div>
+        </div>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端 · mitt / EventBus</div><div class="what">emitter.on('order:paid', fn)</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">Kafka · Consumer</div><div class="what">@KafkaListener(topics = "order-paid")</div></div>
+          <div class="row-note">on 的一方 ≈ Consumer；方法在消息到达时被自动调用。</div>
+        </div>
+
+        <div class="break-box">
+          <div class="bb-title">⚠ 类比在这里失效 · 本模块重点，逐个说清</div>
+          <ul>
+            <li><b>持久化</b>：EventBus 是内存态，页面刷新事件历史就没了；Kafka 消息写磁盘、按时间保留（比如 7 天），任何人可在任意时间回放这段历史。</li>
+            <li><b>消费者组</b>：前端是"谁 on 谁收到"；Kafka 的"组"引入组内分摊——同组 3 个实例平分分区，像多个 worker 分工。<b>"组"这个负载均衡单位前端完全没有对应物。</b></li>
+            <li><b>分区</b>：前端事件没有"分片并行"。Kafka 靠分区提吞吐，代价是只有分区内有序——要保证同一订单的消息有序，必须用订单号做 key 路由到同一分区。</li>
+            <li><b>不是请求-响应</b>：不像 <code>axios</code> 等返回值，Kafka 是"发完就不管"；想要结果，得让消费者处理完再发一条新消息。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="kafka-scene">
+      <div class="part-label"><span class="p-no">④</span><span class="p-name">典型场景 · 高频踩坑</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="scenario">
+        <span class="sc-tag">典型场景</span>
+        订单支付成功后，短信服务、积分服务、数据仓库同步三个消费者组各自独立消费——<b>新增一个下游，生产者一行代码都不用改</b>。大促秒杀时兼做削峰缓冲。
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · 消息会重复</span>
+        投递语义同样是 <b>at-least-once</b>：网络抖动、消费者重启都可能导致同一条消息被处理两次——<b>消费者必须幂等</b>（和模块一殊途同归：分布式下幂等是硬要求）。
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · 顺序性只在分区内</span>
+        不做 key 路由，同一订单的"支付"和"发货"可能散在不同分区被乱序处理。<b>需要顺序的业务，用业务 ID 做消息 key。</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 模块四 · InfluxDB ═══════════ -->
+  <section id="influxdb" class="mod-influx">
+    <div class="mod-head">
+      <div class="idx">04</div>
+      <div style="flex:1;">
+        <span class="role">时序 · TIME-SERIES</span>
+        <h2>InfluxDB · 时序数据库</h2>
+        <p class="one">专门存"随时间不断产生的一串数值"——CPU、QPS、接口耗时。和 ES 互补：<b>时序库看"数值趋势"，ES 看"具体发生了什么"</b>。</p>
+      </div>
+      <span class="time">≈ 6 min</span>
+    </div>
+
+    <div class="part" id="influx-what">
+      <div class="part-label"><span class="p-no">①</span><span class="p-name">是什么 · 解决什么问题</span><span class="p-time">≈ 1 min</span></div>
+      <div class="definition">
+        和业务数据库的本质区别：数据<b>几乎只写不改</b>、<b>批量写入</b>、查询几乎都是"某个时间范围内的聚合"（平均 / 最大 / 求和）。
+        <span class="sub">这三个特点决定了它的一切设计——存储结构就为"高频写入 + 按时间查"专门优化，而不是拿来硬套业务表。</span>
+      </div>
+    </div>
+
+    <div class="part" id="influx-concepts">
+      <div class="part-label"><span class="p-no">②</span><span class="p-name">核心概念（只讲 3 个）</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 1</span><span class="cc-name">数据模型<span>四件套</span></span></div>
+          <p>一条数据 = <code>{ measurement, tags, fields, timestamp }</code>。<b>tags</b> 是用来筛选/分组的标签（<b>有索引</b>）；<b>fields</b> 是真正的数值（<b>没索引</b>，被聚合的对象）。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 2</span><span class="cc-name">Series 基数</span></div>
+          <p>一个 series = measurement + tags 的唯一组合。InfluxDB 最重要的性能概念——<b>90% 的性能问题源于此</b>（见踩坑）。</p>
+        </div>
+        <div class="concept-card">
+          <div class="cc-top"><span class="cc-no">概念 3</span><span class="cc-name">保留策略 + 降采样</span></div>
+          <p>时序数据"越新越有价值"：旧数据自动聚合降精度、到期自动删——<b>数据生命周期是内建能力</b>，不用写清理脚本。</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram-cap">一条数据点的解剖图 · measurement,tags fields timestamp</div>
+        <div class="anatomy">
+          <div class="seg">
+            <div class="k">measurement · 表名</div>
+            <div class="v">cpu_usage</div>
+            <div class="m">一类指标的集合</div>
+          </div>
+          <div class="seg hot">
+            <div class="k">tags · 有索引</div>
+            <div class="v">host=server-01, region=cn-bj</div>
+            <div class="m">用来筛选/分组的标签</div>
+          </div>
+          <div class="seg hot">
+            <div class="k">fields · 无索引</div>
+            <div class="v">usage_percent=87.3</div>
+            <div class="m">被聚合计算的数值本身</div>
+          </div>
+          <div class="seg">
+            <div class="k">timestamp · 主轴</div>
+            <div class="v">1691400000s</div>
+            <div class="m">一切查询围绕它展开</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram-cap">数据生命周期 · 保留策略 + 降采样</div>
+        <div class="flow">
+          <div class="flow-box"><div class="t">原始数据</div><div class="d">10s 粒度 · 留 7 天</div></div>
+          <div class="flow-arrow">→<span class="lbl">自动聚合</span></div>
+          <div class="flow-box"><div class="t">降采样</div><div class="d">5min 粒度 · 留 30 天</div></div>
+          <div class="flow-arrow">→<span class="lbl">再聚合</span></div>
+          <div class="flow-box"><div class="t">再降采样</div><div class="d">1h 粒度 · 留 1 年</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-box" style="opacity:.55;"><div class="t">自动删除</div><div class="d">到期即清理</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="influx-analogy">
+      <div class="part-label"><span class="p-no">③</span><span class="p-name">前端类比</span><span class="p-time">≈ 2 min</span></div>
+      <div class="analogy-block">
+        <span class="ab-tag">前端类比 · 先建立熟悉感</span>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端</div><div class="what">[{ time, host, usage }, ...] 监控数组</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">InfluxDB</div><div class="what">一条数据点 = 带时间戳的 JS 对象</div></div>
+          <div class="row-note">你每天看的监控曲线、埋点上报数据，背后存的就是这类数据库。</div>
+        </div>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端</div><div class="what">路由参数（定位/筛选） vs 表单数据（内容）</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">InfluxDB</div><div class="what">tags（有索引） vs fields（无索引）</div></div>
+          <div class="row-note">"什么该进 URL、什么该进 body"和"什么该当 tag、什么该当 field"是同一类判断。</div>
+        </div>
+        <div class="analogy-row">
+          <div class="side"><div class="who">前端</div><div class="what">arr.filter().map().reduce() / RxJS pipe</div></div>
+          <div class="mid">≈</div>
+          <div class="side be"><div class="who">InfluxDB</div><div class="what">Flux：from() |&gt; range() |&gt; filter() |&gt; aggregateWindow()</div></div>
+          <div class="row-note">Flux 查询语言就是管道式链式调用，读起来和数组方法几乎同构。</div>
+        </div>
+
+        <div class="break-box">
+          <div class="bb-title">⚠ 类比在这里失效 · 别带着错误心智模型走</div>
+          <ul>
+            <li><b>量级不同</b>：前端埋点是"采几个点、画条曲线"；TSDB 面对的是每秒成千上万点的高频写入——所以一切设计围绕写入吞吐（批量、只追加、自动过期）。</li>
+            <li><b>series 基数爆炸是前端没有对应物的概念</b>：把 <code>userId</code>、<code>traceId</code> 这种"每个值都不同"的字段放进 tag，series 会冲到百万级，索引内存直接爆掉。高基数值放 field，tag 只放 host、region 这种有限枚举。</li>
+            <li><b>查询习惯不同</b>：任何查询都必须带时间范围，否则等于全表扫描——这是前端查数组时不存在、在 TSDB 里最常见的超时事故来源。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="part" id="influx-scene">
+      <div class="part-label"><span class="p-no">④</span><span class="p-name">典型场景 · 高频踩坑</span><span class="p-time">≈ 1.5 min</span></div>
+      <div class="scenario">
+        <span class="sc-tag">典型场景</span>
+        监控大盘：应用把 CPU / QPS / 耗时指标写进 InfluxDB，<b>Grafana 接上画图、配告警</b>；IoT 场景存设备上报的传感器读数。
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · 高基数值进 tag</span>
+        userId / requestId 当 tag → series 爆炸 → 写入查询全面劣化。<b>设计指标的第一天就要想清楚"什么能当 tag"。</b>
+      </div>
+      <div class="pitfall">
+        <span class="pf-tag">踩坑 · 查询超时</span>
+        不带时间范围、或只用 field 条件过滤（不走索引）→ 全表扫描超时。排查第一步：<b>缩小时间范围 + 改用 tag 过滤</b>。
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 收尾 ═══════════ -->
+  <section id="outro">
+    <div class="sec-head">
+      <div class="sec-kicker">收尾 · 1–2 分钟</div>
+      <h2>一条链路，把四个模块各就各位</h2>
+      <p class="sec-sub">用一个电商下单链路回顾全场——四个基础设施不是孤立的工具，而是各司其职地长在同一套系统里。</p>
+    </div>
+
+    <div class="diagram-wrap" style="margin-top:16px;">
+      <ol class="story">
+        <li data-n="1">
+          <div class="s-title"><span class="mod-chip c-kafka">Kafka</span>支付成功，发一条消息出去</div>
+          <p>订单服务往 <code>order-paid</code> 发一条消息——消息层负责服务间解耦通信，发完不等回复。</p>
+        </li>
+        <li data-n="2">
+          <div class="s-title"><span class="mod-chip c-influx">InfluxDB</span>各自消费，指标落库</div>
+          <p>短信服务、积分服务作为不同消费者组各自处理；处理耗时、成功率等指标持续写入时序库——系统的"心电图"。</p>
+        </li>
+        <li data-n="3">
+          <div class="s-title"><span class="mod-chip c-xxl">xxl-job</span>定时把数据搬去搜索引擎</div>
+          <p>调度中心每 5 分钟触发一次，把 MySQL 里的新订单同步进 ES——调度层是驱动数据流转的"时钟"。</p>
+        </li>
+        <li data-n="4">
+          <div class="s-title"><span class="mod-chip c-es">Elasticsearch</span>按内容搜出来</div>
+          <p>客服在后台按关键词搜出这笔订单——搜索层负责从海量数据里按内容找东西。四个角色闭环。</p>
+        </li>
+      </ol>
+    </div>
+
+    <h3>带走的三句话</h3>
+    <div class="take-grid">
+      <div class="take-card">
+        <div class="tk">它们都是"前端的升级版"</div>
+        <p>定时器、filter、EventBus、埋点曲线——前端都有原型；后端基础设施只是把它们变成多机、持久、容错的版本。</p>
+      </div>
+      <div class="take-card">
+        <div class="tk">为此多了三件新事</div>
+        <p><b>选一台机器来跑</b>（调度/分区/路由）、<b>可能重复所以必须幂等</b>（at-least-once）、<b>数据有同步延迟</b>（近实时/异步消费）。</p>
+      </div>
+      <div class="take-card">
+        <div class="tk">以后遇到新中间件的方法</div>
+        <p>先问"它解决前端的哪个问题"，再问"为分布式多了哪些概念"——今天的四个模块就是这个方法的四次演练。</p>
+      </div>
+    </div>
+
+    <h3>想深入？接着读这几篇</h3>
+    <div class="path-grid">
+      <a class="path-card" href="xxl-job.html">
+        <div class="pt">XXL-JOB 运行机制详解 <span class="ar">→</span></div>
+        <div class="pd">注册心跳、触发链路、路由策略、容错与多 Pod 部署</div>
+      </a>
+      <a class="path-card" href="es-guide.html">
+        <div class="pt">Elasticsearch 全面说明 <span class="ar">→</span></div>
+        <div class="pd">倒排索引、Mapping 与分词器、Query DSL、数据同步方案</div>
+      </a>
+      <a class="path-card" href="kafka-guide.html">
+        <div class="pt">Kafka 是什么 <span class="ar">→</span></div>
+        <div class="pd">Topic / Partition / Consumer Group 的完整术语对照</div>
+      </a>
+      <a class="path-card" href="tsdb-and-influxdb.html">
+        <div class="pt">时序数据库 & InfluxDB <span class="ar">→</span></div>
+        <div class="pd">Line Protocol、Flux 查询、series 基数与超时排查</div>
+      </a>
+      <a class="path-card" href="fe-master-2-be-rookie.html">
+        <div class="pt">前端高手 → 后端新手 <span class="ar">→</span></div>
+        <div class="pd">下一步：DI、事务、JVM、多线程等 19 个 Java 核心概念</div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    后端基础设施认知地图 · 前端团队技术分享（20–30 分钟）· 配套讲稿见 <code>be-infra-share.md</code> · 深度长文见 <code>fe-java/</code> 目录
+  </footer>
+
+</div>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(
+    document.querySelectorAll('.sidebar a[href^="#"], .topbar a[href^="#"]')
+  );
+  var targets = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  function onScroll() {
+    var pos = window.scrollY + 140;
+    var current = 0;
+    targets.forEach(function (t, i) {
+      if (t && t.offsetTop <= pos) current = i;
+    });
+    links.forEach(function (a, i) {
+      a.classList.toggle('active', i === current);
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
+
+</body>
+</html>
