@@ -1,0 +1,42 @@
+fe-java/be-infra-share-2.0.html
+  94db6b258356d1ce 1-1153
+fe-java/be-infra-share_new.md
+  94db6b258356d1ce 1-215
+fe-java/be-infra-share_new.html
+  bb9bb5a8f1506143 1-1209
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.32",
+  "base_commit_sha": "2818d1bbf92ff39dfaf6ca89f14ba1512d02e1b6",
+  "prompts": {
+    "94db6b258356d1ce": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "9d1ea219-068b-41d1-8ef6-02b8c94abcfc",
+        "model": "default",
+        "ide": "cursor"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 1491,
+      "total_deletions": 123,
+      "accepted_lines": 1368,
+      "overriden_lines": 0
+    },
+    "bb9bb5a8f1506143": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "588feeb6-e1e4-4bc8-aeaa-fcdcd0cf31a3",
+        "model": "bailian/qwen3.8-max",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 1274,
+      "total_deletions": 65,
+      "accepted_lines": 1220,
+      "overriden_lines": 0
+    }
+  }
+}
