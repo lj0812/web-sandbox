@@ -76,7 +76,7 @@
 
   /* ── Main ── */
   .main{margin-left:var(--sidebar-w);min-height:100vh;}
-  .content{max-width:860px;margin:0 auto;padding:0 32px;}
+  .content{max-width:980px;margin:0 auto;padding:0 32px;}
 
   /* ── Hero ── */
   .hero{padding:56px 0 40px;border-bottom:1px solid var(--border);}
@@ -246,12 +246,12 @@
   .diagram-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;margin:14px 0;}
   .diagram-cap{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px;font-family:var(--mono);}
   .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-  .flow-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;text-align:center;}
+  .flow-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;text-align:center;min-width:0;flex:1 1 0;}
   .flow-box .t{font-weight:650;}
-  .flow-box .d{color:var(--muted);font-size:11.5px;font-family:var(--mono);margin-top:2px;}
-  .flow-arrow{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:16px;padding:0 2px;}
+  .flow-box .d{color:var(--muted);font-size:11.5px;font-family:var(--mono);margin-top:2px;overflow-wrap:anywhere;}
+  .flow-arrow{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:16px;padding:0 2px;flex:none;}
   .flow-arrow .lbl{font-size:10.5px;font-family:var(--mono);color:var(--acc,var(--muted));white-space:nowrap;}
-  .exec-col{display:flex;flex-direction:column;gap:6px;}
+  .exec-col{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 0;}
   .exec{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-family:var(--mono);color:var(--muted);text-align:center;}
   .exec.hit{background:var(--acc-soft);border:1.5px solid var(--acc);color:var(--foreground);font-weight:700;}
   .exec .st{font-size:10.5px;display:block;}
@@ -259,6 +259,27 @@
 
   /* inverted index */
   .idx-demo{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:0;align-items:center;}
+
+  /* 正排 vs 倒排 */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .idx-way{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .idx-way.hot{background:var(--acc-soft);border-color:var(--acc-border);}
+  .idx-way .way-h{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;}
+  .idx-way.hot .way-h{color:var(--acc);}
+  .idx-way .way-flow{font-family:var(--mono);font-size:14px;font-weight:700;margin-bottom:8px;}
+  .idx-way p{font-size:13.5px;color:var(--muted);margin:0;}
+  .idx-way.hot p{color:var(--foreground);}
+
+  /* tag vs field 实例 */
+  .tf-demo{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+  .tf-col{border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--card);}
+  .tf-col.tag{border-color:var(--acc-border);background:var(--acc-soft);}
+  .tf-col .tf-h{font-size:12px;font-weight:700;margin-bottom:6px;color:var(--muted);}
+  .tf-col.tag .tf-h{color:var(--acc);}
+  .tf-item{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:5px 0;border-top:1px dashed var(--border);}
+  .tf-item:first-of-type{border-top:none;}
+  .tf-item b{font-family:var(--mono);font-weight:650;}
+  .tf-item span{color:var(--muted);text-align:right;}
   .idx-col .h{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
   .doc-row{background:var(--muted-bg);border-radius:8px;padding:8px 12px;font-size:12.5px;margin-bottom:8px;font-family:var(--mono);}
   .term-row{display:flex;justify-content:space-between;gap:10px;background:var(--acc-soft);border:1px solid var(--acc-border);border-radius:8px;padding:8px 12px;font-size:12.5px;margin-bottom:8px;}
@@ -352,6 +373,7 @@
     .analogy-row .mid{display:none;}
     .idx-demo{grid-template-columns:1fr;}
     .idx-arrow{transform:rotate(90deg);padding:8px 0;text-align:center;}
+    .grid2,.tf-demo{grid-template-columns:1fr;}
     .flow{flex-direction:column;align-items:stretch;}
     .flow-arrow{flex-direction:row;justify-content:center;}
     .flow-arrow .lbl{white-space:normal;}
@@ -552,8 +574,8 @@
     <div class="note">
       <span class="ico">▸</span>
       <div>
-        <b>听讲节奏：</b>四个模块走完全相同的四拍——<b>① 是什么 → ② 核心概念 → ③ 前端类比 → ④ 场景/踩坑</b>。
-        到第三拍时请主动对照自己的心智模型：类比在哪里成立，更要知道它在哪里失效。
+        <b>每个模块的结构：</b>四个模块都按同样的四段展开——<b>① 是什么 → ② 核心概念 → ③ 前端类比 → ④ 场景/踩坑</b>。
+        第三段「前端类比」最适合对照自己已有的心智模型：类比在哪里成立，更重要的是它在哪里失效。
       </div>
     </div>
   </section>
@@ -627,12 +649,14 @@
           <div class="side be"><div class="who">xxl-job</div><div class="what">调度中心 admin + 执行器</div></div>
           <div class="row-note">平台决定哪个 runner 接单，runner 只管干活并回报结果——admin 和执行器正是这种分工。</div>
         </div>
+        <!-- 暂时隐藏：Nginx 负载均衡类比
         <div class="analogy-row">
           <div class="side"><div class="who">前端 · Nginx 负载均衡</div><div class="what">round-robin / random / 健康检查</div></div>
           <div class="mid">≈</div>
           <div class="side be"><div class="who">xxl-job</div><div class="what">ROUND / RANDOM / FAILOVER</div></div>
           <div class="row-note">路由策略的名字和算法，与负载均衡几乎一一对应。</div>
         </div>
+        -->
         <div class="analogy-row">
           <div class="side"><div class="who">前端 · 浏览器事件循环</div><div class="what">每一帧只处理"这一帧到期"的任务</div></div>
           <div class="mid">≈</div>
@@ -679,10 +703,12 @@
         注册只看「能不能连上同一套 admin + MySQL」，不看部署在哪。同事本地跑着旧版本服务也注册进了同一个执行器组，轮询路由下触发在新代码和旧代码之间交替——表现为「配置明明改了，旧行为隔一次出现一次」。
         <b>教训：判断"谁在跑任务"的唯一权威来源是 admin 的注册地址列表和调度日志，不是 k8s 的 Pod 列表。</b>
       </div>
+      <!-- 暂时隐藏：分片广播踩坑（本仓 FE 任务不依赖）
       <div class="pitfall">
         <span class="pf-tag">踩坑 · 分片广播 ≠ 天然安全（通用知识，一句带过）</span>
         代码里不读 <code>shardIndex</code>，每台机器就会把全量逻辑各跑一遍——广播必须配合分片编码使用。<b>本仓 FE 任务几乎不依赖这套，知道有这坑即可。</b>
       </div>
+      -->
     </div>
   </section>
 
@@ -707,6 +733,22 @@
       <div class="note">
         <span class="ico">◇</span>
         <div><b>在本仓的角色：</b>ES 存的是前端上报的 <b>action 明细</b>——某次 JS 错误的原文、白屏现场、网络错误上下文。不是业务主库，也不是画曲线的地方（曲线在模块四的 InfluxDB）。</div>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram-cap">为什么叫"倒排" · 两种索引思路</div>
+        <div class="grid2">
+          <div class="idx-way">
+            <div class="way-h">正排索引 · 常规思路</div>
+            <div class="way-flow">文档 → 词</div>
+            <p>想找"包含「性能优化」的文章"，就得把每篇文章都读一遍，看它有没有这个词——这就是全表扫描，数据量一大必然慢。</p>
+          </div>
+          <div class="idx-way hot">
+            <div class="way-h">倒排索引 · ES 的思路</div>
+            <div class="way-flow">词 → 文档</div>
+            <p>写入时就把每篇文档拆成一个个词（这一步叫<b>分词 / analysis</b>），建一张表记录"这个词出现在哪些文档里"。查询时直接查表，瞬间定位所有相关文档，不用挨个扫描。</p>
+          </div>
+        </div>
       </div>
 
       <div class="diagram-wrap">
@@ -806,10 +848,12 @@
         <span class="pf-tag">踩坑 · Mapping 只能加不能改</span>
         字段类型一旦建好无法修改，改类型要重建索引、重新导数据——<b>第一天就要规划好（上报字段新增尤其要小心）</b>。
       </div>
+      <!-- 暂时隐藏：深度分页踩坑
       <div class="pitfall">
         <span class="pf-tag">踩坑 · 深度分页</span>
         <code>from + size</code> 超过 1 万条性能急剧下降（每个分片都要取 from+size 条再合并排序）。正确姿势是 <code>search_after</code> 游标分页——类似前端无限滚动用 cursor 而不是 offset。
       </div>
+      -->
     </div>
   </section>
 
@@ -916,18 +960,20 @@
           <tr><td><code>apm.metrics</code>（compactor）</td><td>内存聚合 → 再发到 <code>boss.arch.apm.metrics_log</code> → calculator 写 Influx</td></tr>
         </tbody>
       </table>
-      <div class="note">
+      <!-- <div class="note">
         <span class="ico">▸</span>
         <div><b>下游 Topic（串到时序）：</b><code>boss.arch.apm.metrics_log</code>（聚合后的指标流）；数值类还有 <code>boss.arch.apm.app_metrics_log</code> 等——知道"事件 Topic"和"指标 Topic"是两跳即可。</div>
-      </div>
-      <div class="pitfall">
+      </div> -->
+      <!-- <div class="pitfall">
         <span class="pf-tag">踩坑 · 消息会重复</span>
         投递是 <b>at-least-once</b>：网络抖动、消费者重启都可能导致同一条上报被处理两次——<b>消费者必须幂等</b>。监控语境下：重复上报可能让错误次数偏高，聚合侧要能扛。
-      </div>
+      </div> -->
+      <!-- 暂时隐藏：分区顺序踩坑
       <div class="pitfall">
         <span class="pf-tag">踩坑 · 顺序性只在分区内</span>
         不做 key 路由，同一页面连续几次相关上报可能散在不同分区被乱序处理。
       </div>
+      -->
     </div>
   </section>
 
@@ -951,7 +997,7 @@
       </div>
       <div class="note">
         <span class="ico">◇</span>
-        <div><b>与 ES 在本仓的分工（务必讲清）：</b>Influx 画「每分钟错误量 / 耗时曲线」；ES 查「这条错误的 stack / 原文」——admin 看板就是这么拆的。</div>
+        <div><b>与 ES 在本仓的分工：</b>Influx 画「每分钟错误量 / 耗时曲线」；ES 查「这条错误的 stack / 原文」——admin 看板就是这么拆的。</div>
       </div>
     </div>
 
@@ -996,6 +1042,28 @@
             <div class="m">一切查询围绕它展开</div>
           </div>
         </div>
+      </div>
+
+      <div class="diagram-wrap">
+        <div class="diagram-cap">实例 · 一条 JS 错误的分钟级聚合点（Line Protocol）</div>
+        <pre>fe_error_v2_metrics,app_key=zp_fe,error_type=jsError,time_slice=1m count=128,user_count=57 1725332700</pre>
+        <div class="tf-demo">
+          <div class="tf-col tag">
+            <div class="tf-h">tags · 有索引，查询时用来过滤 / 分组</div>
+            <div class="tf-item"><b>app_key=zp_fe</b><span>哪个应用</span></div>
+            <div class="tf-item"><b>error_type=jsError</b><span>哪类错误（有限枚举）</span></div>
+            <div class="tf-item"><b>time_slice=1m</b><span>哪个粒度（决定走 SHORT / LONG）</span></div>
+          </div>
+          <div class="tf-col field">
+            <div class="tf-h">fields · 无索引，被聚合计算的数值</div>
+            <div class="tf-item"><b>count=128</b><span>这一分钟错误次数 → 用来 SUM</span></div>
+            <div class="tf-item"><b>user_count=57</b><span>影响用户数 → 用来 SUM</span></div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:10px;">
+          判断标准就一句：<b>会出现在 filter / group by 里的 → tag；会被 sum / avg 的 → field。</b>
+          反例：把 <code>count</code> 当 tag 没有任何意义，把 <code>userId</code> 当 tag 则会引爆 series 基数（见下方踩坑）。
+        </p>
       </div>
 
       <div class="diagram-wrap">
@@ -1075,10 +1143,12 @@
         <span class="pf-tag">踩坑 · 高基数值进 tag</span>
         userId / requestId 当 tag → series 爆炸 → 写入查询全面劣化。<b>设计 FE 统计维度时就要想清楚"什么能当 tag"。</b>
       </div>
+      <!-- 暂时隐藏：查询超时踩坑
       <div class="pitfall">
         <span class="pf-tag">踩坑 · 查询超时</span>
         不带时间范围、或只用 field 条件过滤（不走索引）→ 全表扫描超时。排查第一步：<b>缩小时间范围 + 改用 tag 过滤</b>。
       </div>
+      -->
     </div>
   </section>
 
@@ -1115,7 +1185,7 @@
       </ol>
     </div>
 
-    <h3>带走的三句话</h3>
+    <h3>小结 · 三点</h3>
     <div class="take-grid">
       <div class="take-card">
         <div class="tk">它们都是"前端的升级版"</div>
