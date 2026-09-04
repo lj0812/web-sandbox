@@ -1,0 +1,24 @@
+fe-java/be-infra-share_new.html
+  bb9bb5a8f1506143 79,249,251-252,254,262-282,376,577-578,652,659,706,711,738-753,851,856,971,976,1000,1047-1068,1146,1151,1188
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "bzl_git_version": "0.1.32",
+  "base_commit_sha": "658725e7d78f2cfc948d701e1fe75cffd4c048e3",
+  "prompts": {
+    "bb9bb5a8f1506143": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "588feeb6-e1e4-4bc8-aeaa-fcdcd0cf31a3",
+        "model": "bailian/qwen3.8-max",
+        "ide": "claude-desktop-3p"
+      },
+      "human_author": "lj0812",
+      "messages": [],
+      "total_additions": 1290,
+      "total_deletions": 8,
+      "accepted_lines": 1286,
+      "overriden_lines": 4
+    }
+  }
+}
